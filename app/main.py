@@ -1,20 +1,17 @@
 from fastapi import FastAPI
-from app.routers import users, items
 from contextlib import asynccontextmanager
-from pymongo import MongoClient
 from dotenv import dotenv_values
-from app.router import (
+from fastapi.responses import RedirectResponse
+from app.routes import (
     user
 )
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
 
 app.include_router(user.router)
-app.include_router(items.router)
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def read_root():
-    return {
-        "message": "Welcome to the Expo Tech Backend API",
-        "swagger": "/docs",
-        }
+    return RedirectResponse(url="/docs")
