@@ -4,7 +4,7 @@ from app.repository import user_repository
 from typing import List, Annotated
 from app.model.user import UserModel
 from app.dto.user_login_dto import UserLogin
-from app.routes.middleware import get_current_user, create_access_token, User, Token
+from app.routes.security import get_current_user, create_access_token, User, Token
 
 router = APIRouter(
     prefix="/users",
@@ -48,5 +48,5 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             headers={"WWW-Authenticate": "Bearer"},
         )
     else:
-        token = create_access_token(data={"sub": user.login})
+        token = create_access_token(data={"sub": user.login, "scope": " ".join(form_data.scopes)})
         return token
