@@ -3,3 +3,6 @@ gunicorn
 dotenv
 fastapi
 pymongo
+pyjwt
+passlib[bcrypt]
+python-multipart

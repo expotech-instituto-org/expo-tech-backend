@@ -1,16 +1,12 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from dotenv import dotenv_values
 from fastapi.responses import RedirectResponse
 from app.routes import (
-    user
+    user_routes
 )
-from dotenv import load_dotenv
-load_dotenv()
 
 app = FastAPI()
 
-app.include_router(user.router)
+app.include_router(user_routes.router)
 
 @app.get("/", include_in_schema=False)
 def read_root():
