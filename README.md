@@ -9,27 +9,31 @@
 ## Installation
 
 1. Clone the repository:
-    ```bash
-    git clone <repository-url>
-    cd expo-tech-backend
-    ```
+
+```bash
+git clone <repository-url>
+cd expo-tech-backend
+```
 
 2. (Optional) Create and activate a virtual environment:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
 3. Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Running the Application
 
 Start the FastAPI server:
+
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 - The API will be available at `http://127.0.0.1:8000`
@@ -42,6 +46,7 @@ Configure any required environment variables in a `.env` file.
 ## Testing
 
 Run tests with:
+
 ```bash
 pytest
 ```
