@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 class CompanyModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
-    name: str = Field(...)
+    name: str = Field(..., description="Company name")
     
     class Config:
         validate_by_name = True
