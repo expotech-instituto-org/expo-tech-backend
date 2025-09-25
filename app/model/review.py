@@ -28,12 +28,12 @@ class ProjectResume(ProjectModel):
 
 
 class UserResume(UserModel):
+    weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
     class Config:
         fields = {
             "id": {"alias": "_id", "description": "User ID"},
             "name": {"description": "User full name"},
-            "role": {"description": "User role"},
-            "weight": {"description": "User weight for review scoring"},
+            "role": {"description": "User role"}
         }
         allow_population_by_field_name = True
         extra = "ignore"
