@@ -12,6 +12,12 @@ def get_all_knowledge() -> list[KnowledgeModel]:
     knowledge_cursor = knowledge_collection.find()
     return [KnowledgeModel (**knowledge) for knowledge in knowledge_cursor]
 
+def get_knowledge_by_id(knowledge_id: str) -> Optional[KnowledgeModel]:
+    knowledge_data = knowledge_collection.find_one({"_id": knowledge_id})
+    if knowledge_data:
+        return KnowledgeModel(**knowledge_data)
+    return None
+
 def delete_knowledge(knowledge_id: str) -> bool:
     result = knowledge_collection.delete_one({"_id": knowledge_id})
     return result.deleted_count > 0
