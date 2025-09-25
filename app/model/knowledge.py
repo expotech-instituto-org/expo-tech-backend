@@ -11,6 +11,6 @@ class KnowledgeModel(BaseModel):
         json_schema_extra = {
             "example": {
                 "_id": str(uuid.uuid4()),
-                "name": "admin",
+                "name": "Knowledge name",
             }
         }
