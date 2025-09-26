@@ -3,6 +3,28 @@ from typing import Optional
 from pydantic import BaseModel, Field
 from app.model.role import RoleModel
 
+class ProjectResume(BaseModel):
+    id: str = Field(..., alias="_id", description="Project ID")
+    name: str = Field(..., description="Project name")
+    logo: str = Field(..., description="Project logo URL")
+    company_name: str = Field(..., description="Company name associated with the project")
+    
+    class Config:
+        fields = {
+            "id": {"description": "Project ID"},
+            "name": {"description": "Project name"},
+            "logo": {"description": "Project logo URL"},
+            "company_name": {"description": "Company name associated with the project"}
+        }
+        allow_population_by_field_name = True
+        extra = "ignore"
+        json_schema_extra = {
+            "example": {
+                "_id": str(uuid.uuid4()),
+                "name": "Projeto Incrível"
+            }
+        }
+
 class ReviewResume(BaseModel):
     project_id: str = Field(..., description="Project ID")
     exhibition_id: str = Field(..., description="Exhibition ID")
@@ -35,7 +57,7 @@ class UserModel(BaseModel):
     age: Optional[int] = Field(...)
     company: Optional[str] = Field(...)
     class_field: Optional[str] = Field(alias="class", default=None)
-    # project: ProjectModel = Field(...)
+    project: ProjectResume = Field(...)
     reviews: ReviewResume = Field(...)
     active: bool = Field(default=True)
 
