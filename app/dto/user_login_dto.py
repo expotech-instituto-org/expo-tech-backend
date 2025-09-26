@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 class UserLogin(BaseModel):
-    email: str
+    login: str
     password: str
 
     class Config:
         validate_by_name = True
         json_schema_extra = {
             "example": {
-                "email": "email@email.com",
+                "login": "email@email.com",
                 "password": "senha123"
             }
         }
