@@ -17,7 +17,6 @@ class UserModel(BaseModel):
     # project: ProjectModel = Field(...)
     # reviews: ReviewModel = Field(...)
     active: bool = Field(default=True)
-    
 
     class Config:
         validate_by_name = True
@@ -36,5 +35,27 @@ class UserModel(BaseModel):
                 "age": 30,
                 "class": "A",
                 "active": True,
+            }
+        }
+
+
+class ReviewResume(BaseModel):
+    project_id: str = Field(..., description="Project ID")
+    exhibition_id: str = Field(..., description="Exhibition ID")
+    comment: Optional[str] = Field(None, max_length=300, description="Review comment")
+    
+    class Config:
+        fields = {
+            "project_id": {"description": "Project ID"},
+            "exhibition_id": {"description": "Exhibition ID"},
+            "comment": {"description": "Optional comment about the review"}
+        }
+        allow_population_by_field_name = True
+        extra = "ignore"
+        json_schema_extra = {
+            "example": {
+                "project_id": str(uuid.uuid4()),
+                "exhibition_id": str(uuid.uuid4()),
+                "comment": "Excelente projeto, muito bem executado!"
             }
         }
