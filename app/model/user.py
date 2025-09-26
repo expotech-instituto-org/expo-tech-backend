@@ -25,6 +25,16 @@ class UserModel(BaseModel):
             "example": {
                 "_id": str(uuid.uuid4()),
                 "login": "email@email.com",
-                "senha": "xxxxxxx"
+                "senha": "xxxxxxx",
+                "phone": "(11) 99999-9999",
+                "role": {
+                    "_id": str(uuid.uuid4()),
+                    "name": "admin"
+                },
+                "company": "PicPay",
+                "knowledge": "Amigos",
+                "age": 30,
+                "class": "A",
+                "active": True,
             }
         }
