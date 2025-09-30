@@ -2,29 +2,29 @@ import uuid
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-class Grade(BaseModel):
-    name: str = Field(..., description="Criteria name")
-    score: float = Field(..., ge=0, le=5, description="Score between 0 and 5")
-    weight: float = Field(..., ge=0, le=1, description="Criteria weight")
-
-class ProjectResume(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
-
-class UserRole(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
-    name: str = Field(..., description="User full name")
-    weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
-
-class UserResume(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
-    name: str = Field(..., description="User full name")
-    role: UserRole = Field(..., description="User role")
-
 class ReviewModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
+
+    class Grade(BaseModel):
+        name: str = Field(..., description="Criteria name")
+        score: float = Field(..., ge=0, le=5, description="Score between 0 and 5")
+        weight: float = Field(..., ge=0, le=1, description="Criteria weight")
+    
     grades: List[Grade] = Field(...)
-    project: ProjectResume = Field(...)
+    project_id: Optional[str] = Field(None, alias="_id")
     exhibition_id: str = Field(...)
+
+    class UserResume(BaseModel):
+        id: Optional[str] = Field(None, alias="_id")
+        name: str = Field(..., description="User full name")
+
+        class UserRole(BaseModel):
+            id: Optional[str] = Field(None, alias="_id")
+            name: str = Field(..., description="User full name")
+            weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
+
+        role: UserRole = Field(..., description="User role")
+    
     user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
     active: bool = Field(default=True)
