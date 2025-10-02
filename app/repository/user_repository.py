@@ -19,7 +19,7 @@ def list_all_users() -> list[UserModel]:
 
 def create_user(user: UserLogin) -> Optional[UserModel]:
     user_dict = user.model_dump()
-    user_dict['senha'] = bcrypt.hash(user_dict['senha'])
+    user_dict['password'] = bcrypt.hash(user_dict['password'])
     user_dict["_id"] = str(uuid.uuid4())
     result = users_collection.insert_one(user_dict)
     if result.inserted_id:
@@ -39,14 +39,19 @@ def delete_user(user_id: str) -> bool:
     result = users_collection.delete_one({"id": user_id})
     return result.deleted_count > 0
 
-def get_user_by_login(login: str):
-    user_data = users_collection.find_one({"login": login})
+def get_user_by_login(login_identifier: str):
+    user_data = users_collection.find_one({
+        "$or": [
+            {"email": login_identifier},
+            {"phone": login_identifier}
+        ]
+    })
     if user_data:
         return UserModel(**user_data)
     return None
 
-def authenticate_user(login: str, senha: str) -> UserModel | None:
-    user = get_user_by_login(login)
-    if user and bcrypt.verify(senha, user.senha):
+def authenticate_user(login_identifier: str, password: str) -> UserModel | None:
+    user = get_user_by_login(login_identifier)
+    if user and bcrypt.verify(password, user.password):
         return user
     return None
