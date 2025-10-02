@@ -2,48 +2,29 @@ import uuid
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
-from app.model.user import UserModel
-from app.model.project import ProjectModel
-from app.model.exhibition import CriteriaModel
-
-class Grade(CriteriaModel):
-    score: float = Field(..., ge=0, le=5, description="Score between 0 and 5")
-
-    class Config:
-        fields = {
-            "name": {"alias": "criteria", "description": "Criteria name"},
-            "weight": {"description": "Criteria weight"},
-        }
-        extra = "ignore"
-        allow_population_by_field_name = True
-
-
-class ProjectResume(ProjectModel):
-    class Config:
-        fields = {
-            "id": {"alias": "_id", "description": "Project ID"}
-        }
-        allow_population_by_field_name = True
-        extra = "ignore"
-
-
-class UserResume(UserModel):
-    weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
-    class Config:
-        fields = {
-            "id": {"alias": "_id", "description": "User ID"},
-            "name": {"description": "User full name"},
-            "role": {"description": "User role"}
-        }
-        allow_population_by_field_name = True
-        extra = "ignore"
-
-
 class ReviewModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
+
+    class Grade(BaseModel):
+        name: str = Field(..., description="Criteria name")
+        score: float = Field(..., ge=0, le=5, description="Score between 0 and 5")
+        weight: float = Field(..., ge=0, le=1, description="Criteria weight")
+    
     grades: List[Grade] = Field(...)
-    project: ProjectResume = Field(...)
+    project_id: Optional[str] = Field(None, alias="_id")
     exhibition_id: str = Field(...)
+
+    class UserResume(BaseModel):
+        id: Optional[str] = Field(None, alias="_id")
+        name: str = Field(..., description="User full name")
+
+        class UserRole(BaseModel):
+            id: Optional[str] = Field(None, alias="_id")
+            name: str = Field(..., description="User full name")
+            weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
+
+        role: UserRole = Field(..., description="User role")
+    
     user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
     active: bool = Field(default=True)
@@ -66,8 +47,11 @@ class ReviewModel(BaseModel):
                 "user": {
                     "_id": str(uuid.uuid4()),
                     "name": "Avaliador Exemplo",
-                    "role": "jurado",
-                    "weight": 1.0,
+                    "role": {
+                        "_id": str(uuid.uuid4()),
+                        "name": "Jurídico",
+                        "weight": 0.7,
+                    },
                 },
                 "comment": "Ótimo projeto, bem executado!",
                 "active": True,
