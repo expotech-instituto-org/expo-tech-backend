@@ -1,0 +1,41 @@
+from typing import Optional
+from app.database import db
+from app.model.class_ import ClassModel
+import uuid
+
+class_collection= db["classes"]
+
+def get_all_class() -> list[ClassModel]:
+    class_cursor = class_collection.find()
+    return [ClassModel (**class_model) for class_model in class_cursor]
+
+def get_class_by_id(class_id: str) -> Optional[ClassModel]:
+    class_data = class_collection.find_one({"_id": class_id})
+    if class_data:
+        return ClassModel(**class_data)
+    return None
+
+def delete_class(class_id: str) -> bool:
+    result = class_collection.delete_one({"_id": class_id})
+    return result.deleted_count > 0
+
+def create_class(class_name: str ):
+    class_dict = {
+        "_id": str(uuid.uuid4()),
+        "name": class_name
+    }
+    result = class_collection.insert_one(class_dict)
+    if result.inserted_id:
+        return ClassModel(**class_dict)
+    return None
+
+def update_class(update_data: ClassModel) -> Optional[ClassModel]:
+    result = class_collection.update_one(
+        {"_id": update_data.id},             
+        {"$set": {"name": update_data.name}} 
+    )
+    if result.modified_count > 0:
+        updated_class = class_collection.find_one({"_id": update_data.id})
+        if updated_class:
+            return ClassModel(**updated_class)
+    return None
