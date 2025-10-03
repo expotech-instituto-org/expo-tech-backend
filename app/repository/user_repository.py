@@ -39,19 +39,14 @@ def delete_user(user_id: str) -> bool:
     result = users_collection.delete_one({"id": user_id})
     return result.deleted_count > 0
 
-def get_user_by_login(login_identifier: str):
-    user_data = users_collection.find_one({
-        "$or": [
-            {"email": login_identifier},
-            {"phone": login_identifier}
-        ]
-    })
+def get_user_by_email(email: str):
+    user_data = users_collection.find_one({"email": email})
     if user_data:
         return UserModel(**user_data)
     return None
 
-def authenticate_user(login_identifier: str, password: str) -> UserModel | None:
-    user = get_user_by_login(login_identifier)
+def authenticate_user(email: str, password: str) -> UserModel | None:
+    user = get_user_by_email(email)
     if user and bcrypt.verify(password, user.password):
         return user
     return None
