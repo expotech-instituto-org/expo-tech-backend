@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 from app.model.role import RoleModel
@@ -31,7 +32,7 @@ class UserModel(BaseModel):
         comment: Optional[str] = Field(None, max_length=300, description="Review comment")
 
     reviews: ReviewResume = Field(...)
-    active: bool = Field(default=True)
+    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
 
     class Config:
         validate_by_name = True

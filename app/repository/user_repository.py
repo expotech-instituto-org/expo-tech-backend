@@ -1,7 +1,7 @@
 from typing import Optional
 from app.database import db
 from app.model.user import UserModel
-from app.dto.user_login_dto import UserLogin
+from app.dto.user.user_login_dto import UserLogin
 import uuid
 from passlib.hash import bcrypt
 
