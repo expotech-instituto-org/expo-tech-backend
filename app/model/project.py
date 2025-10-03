@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
@@ -17,6 +18,7 @@ class ProjectModel(BaseModel):
     expositors: list[UserResume] = Field(..., description="List users")
     images: list[str] = Field(..., description="List images")
     logo: str = Field(..., description="Logo")
+    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
 
     class Config:
         allow_population_by_field_name = True
@@ -35,6 +37,6 @@ class ProjectModel(BaseModel):
                     }
                 ],
                 "images": ["img1.png", "img2.png"],
-                "logo": "logo.png"
+                "logo": "logo.png",
             }
         }
