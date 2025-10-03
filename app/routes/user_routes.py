@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.repository import user_repository
 from typing import List, Annotated
 from app.model.user import UserModel
-from app.dto.user_login_dto import UserLogin
+from app.dto.user.user_login_dto import UserLogin
 from app.routes.security import get_current_user, create_access_token, User, Token
 
 router = APIRouter(
