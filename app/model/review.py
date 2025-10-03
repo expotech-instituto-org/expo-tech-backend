@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
@@ -27,7 +28,7 @@ class ReviewModel(BaseModel):
     
     user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
-    active: bool = Field(default=True)
+    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
 
     class Config:
         allow_population_by_field_name = True
@@ -54,6 +55,5 @@ class ReviewModel(BaseModel):
                     },
                 },
                 "comment": "Ótimo projeto, bem executado!",
-                "active": True,
             }
         }

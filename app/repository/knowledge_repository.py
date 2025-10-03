@@ -1,10 +1,7 @@
 from typing import Optional
 from app.database import db
 from app.model.knowledge import KnowledgeModel
-from app.dto.user_login_dto import UserLogin
 import uuid
-from passlib.hash import bcrypt
-
 
 knowledge_collection= db["knowledges"]
 

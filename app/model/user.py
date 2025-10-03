@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 from app.model.role import RoleModel
@@ -59,7 +60,7 @@ class UserModel(BaseModel):
     class_field: Optional[str] = Field(alias="class", default=None)
     project: ProjectResume = Field(...)
     reviews: ReviewResume = Field(...)
-    active: bool = Field(default=True)
+    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
 
     class Config:
         validate_by_name = True
@@ -77,6 +78,5 @@ class UserModel(BaseModel):
                 "knowledge": "Amigos",
                 "age": 30,
                 "class": "A",
-                "active": True,
             }
         }
