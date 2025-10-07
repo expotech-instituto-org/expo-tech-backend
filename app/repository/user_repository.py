@@ -50,3 +50,35 @@ def authenticate_user(email: str, password: str) -> UserModel | None:
     if user and bcrypt.verify(password, user.password):
         return user
     return None
+
+
+def set_project_id_on_users(user_ids: list[str], project_id: str) -> None:
+    if not user_ids:
+        return
+    users_collection.update_many(
+        {"_id": {"$in": user_ids}},
+        {"$set": {"project_id": project_id}}
+    )
+
+
+def set_project(project_id: str, project_resume: dict) -> None:
+    users_collection.update_many(
+        {"project._id": project_id},
+        {"$set": {"project": project_resume}}
+    )
+
+
+def set_project_resume_on_users_by_ids(user_ids: list[str], project_resume: dict) -> None:
+    if not user_ids:
+        return
+    users_collection.update_many(
+        {"_id": {"$in": user_ids}},
+        {"$set": {"project": project_resume}}
+    )
+
+
+def unset_project_by_project_id(project_id: str) -> None:
+    users_collection.update_many(
+        {"project._id": project_id},
+        {"$unset": {"project": ""}}
+    )
