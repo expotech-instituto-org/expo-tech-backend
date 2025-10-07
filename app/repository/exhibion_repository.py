@@ -3,6 +3,7 @@ from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
+from app.model.role import RoleModel
 import uuid
 
 exhibition_collection= db["exhibions"]
@@ -50,6 +51,15 @@ def create_exhibition(exhibition: ExhibitionCreate):
     if result.inserted_id:
         return exhibition_model
     return None
+
+
+# def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
+#     result = exhibition_collection.update_many(
+#         {"role.id": role_id},
+#         {"$set": {"role": updated_role.dict()}}
+#     )
+#     return result.modified_count
+
 
 def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
