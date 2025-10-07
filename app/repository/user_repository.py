@@ -1,7 +1,7 @@
 from typing import Optional
 from app.database import db
 from app.model.user import UserModel
-from app.dto.user_login_dto import UserLogin
+from app.dto.user.user_login_dto import UserLogin
 import uuid
 from passlib.hash import bcrypt
 
@@ -39,19 +39,14 @@ def delete_user(user_id: str) -> bool:
     result = users_collection.delete_one({"id": user_id})
     return result.deleted_count > 0
 
-def get_user_by_login(login_identifier: str):
-    user_data = users_collection.find_one({
-        "$or": [
-            {"email": login_identifier},
-            {"phone": login_identifier}
-        ]
-    })
+def get_user_by_email(email: str):
+    user_data = users_collection.find_one({"email": email})
     if user_data:
         return UserModel(**user_data)
     return None
 
-def authenticate_user(login_identifier: str, password: str) -> UserModel | None:
-    user = get_user_by_login(login_identifier)
+def authenticate_user(email: str, password: str) -> UserModel | None:
+    user = get_user_by_email(email)
     if user and bcrypt.verify(password, user.password):
         return user
     return None
