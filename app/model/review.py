@@ -28,7 +28,6 @@ class ReviewModel(BaseModel):
     
     user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
-    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
 
     class Config:
         allow_population_by_field_name = True
