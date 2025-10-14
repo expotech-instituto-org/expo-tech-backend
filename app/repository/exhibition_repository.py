@@ -6,6 +6,8 @@ from app.model.exhibition import ExhibitionModel
 from app.model.role import RoleModel
 import uuid
 
+from app.repository import project_repository
+
 exhibition_collection= db["exhibions"]
 
 def get_all_exhibition() -> list[ExhibitionModel]:
@@ -99,4 +101,5 @@ def remove_project(exhibition_id: str, project_id: str):
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$pull": {"projects": {"id": project_id}}}
     )
+    project_repository.delete_project_by_id(project_id)
     return result.modified_count > 0
