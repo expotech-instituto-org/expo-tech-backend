@@ -4,5 +4,5 @@ dotenv
 fastapi
 pymongo
 pyjwt
-passlib[bcrypt]
+bcrypt
 python-multipart

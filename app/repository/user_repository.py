@@ -4,7 +4,7 @@ from app.model.user import UserModel
 from app.dto.user.user_login_dto import UserLogin
 from app.model.role import RoleModel
 import uuid
-from passlib.hash import bcrypt
+import bcrypt
 
 users_collection = db["users"]
 
@@ -23,7 +23,8 @@ def list_all_users() -> list[UserModel]:
 
 def create_user(user: UserLogin) -> Optional[UserModel]:
     user_dict = user.model_dump()
-    user_dict['password'] = bcrypt.hash(user_dict['password'])
+    s = bcrypt.gensalt()
+    user_dict['password'] = bcrypt.hashpw(user_dict['password'], s)
     user_dict["_id"] = str(uuid.uuid4())
     result = users_collection.insert_one(user_dict)
     if result.inserted_id:
@@ -64,8 +65,9 @@ def get_user_by_email(email: str):
     return None
 
 def authenticate_user(email: str, password: str) -> UserModel | None:
+    bcrypt.checkpw("", "")
     user = get_user_by_email(email)
-    if user and bcrypt.verify(password, user.password):
+    if user and bcrypt.checkpw(password, user.password):
         return user
     return None
 
