@@ -106,6 +106,9 @@ def remove_project(exhibition_id: str, project_id: str):
 
 def is_role_in_use(role_id: str) -> bool:
     exhibition = exhibition_collection.find_one(
-        {"roles.id": role_id, "deactivation_date": {"$exists": False}}
+        {
+            "roles.id": role_id,
+            "deactivation_date": {"$exists": False}
+        }
     )
     return exhibition is not None
