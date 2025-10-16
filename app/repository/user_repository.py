@@ -2,16 +2,20 @@ from typing import Optional
 from app.database import db
 from app.model.user import UserModel
 from app.dto.user.user_login_dto import UserLogin
+from app.model.role import RoleModel
 import uuid
-from passlib.hash import bcrypt
+import bcrypt
 
 users_collection = db["users"]
 
-def get_user_by_id(user_id: str) -> Optional[UserModel]:
-    user_data = users_collection.find_one({"id": user_id})
-    if user_data:
-        return UserModel(**user_data)
-    return None
+def get_users_by_role(role_name: str) -> list[UserModel]:
+    users_data = users_collection.find({"role": role_name})
+    return [UserModel(**user) for user in users_data]
+
+def get_users_by_role(role_name: str) -> list[UserModel]:
+    users_data = users_collection.find({"role": role_name})
+    return [UserModel(**user) for user in users_data]
+
 
 def list_all_users() -> list[UserModel]:
     users_cursor = users_collection.find()
@@ -19,11 +23,12 @@ def list_all_users() -> list[UserModel]:
 
 def create_user(user: UserLogin) -> Optional[UserModel]:
     user_dict = user.model_dump()
-    user_dict['password'] = bcrypt.hash(user_dict['password'])
+    s = bcrypt.gensalt()
+    user_dict['password'] = bcrypt.hashpw(user_dict['password'], s)
     user_dict["_id"] = str(uuid.uuid4())
     result = users_collection.insert_one(user_dict)
     if result.inserted_id:
-        return UserModel(**user_dict)
+        return RoleModel(**user_dict)
     return None
 
 def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
@@ -34,6 +39,20 @@ def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
         if updated_user:
             return UserModel(**updated_user)
     return None
+
+    result = users_collection.update_many(
+        {"role.id": role_id},
+        {"$set": {"role": updated_role.dict()}}
+    )
+    return result.modified_count
+
+
+# def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:
+#     result = users_collection.update_many(
+#         {"role.id": role_id},
+#         {"$set": {"role": updated_role.dict()}}
+#     )
+#     return result.modified_count
 
 def delete_user(user_id: str) -> bool:
     result = users_collection.delete_one({"id": user_id})
@@ -46,7 +65,40 @@ def get_user_by_email(email: str):
     return None
 
 def authenticate_user(email: str, password: str) -> UserModel | None:
+    bcrypt.checkpw("", "")
     user = get_user_by_email(email)
-    if user and bcrypt.verify(password, user.password):
+    if user and bcrypt.checkpw(password, user.password):
         return user
     return None
+
+
+def set_project_id_on_users(user_ids: list[str], project_id: str) -> None:
+    if not user_ids:
+        return
+    users_collection.update_many(
+        {"_id": {"$in": user_ids}},
+        {"$set": {"project_id": project_id}}
+    )
+
+
+def set_project(project_id: str, project_resume: dict) -> None:
+    users_collection.update_many(
+        {"project._id": project_id},
+        {"$set": {"project": project_resume}}
+    )
+
+
+def set_project_resume_on_users_by_ids(user_ids: list[str], project_resume: dict) -> None:
+    if not user_ids:
+        return
+    users_collection.update_many(
+        {"_id": {"$in": user_ids}},
+        {"$set": {"project": project_resume}}
+    )
+
+
+def unset_project_by_project_id(project_id: str) -> None:
+    users_collection.update_many(
+        {"project._id": project_id},
+        {"$unset": {"project": ""}}
+    )
