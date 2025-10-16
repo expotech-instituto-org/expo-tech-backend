@@ -3,6 +3,8 @@ from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
+from app.model.role import RoleModel
+from app.repository import project_repository
 import uuid
 
 exhibition_collection= db["exhibions"]
@@ -51,6 +53,13 @@ def create_exhibition(exhibition: ExhibitionCreate):
         return exhibition_model
     return None
 
+# def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
+#     result = exhibition_collection.update_many(
+#         {"role.id": role_id},
+#         {"$set": {"role": updated_role.dict()}}
+#     )
+#     return result.modified_count
+
 def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
         raise ValueError("Sum of role weights must be 1.0")
@@ -89,4 +98,7 @@ def remove_project(exhibition_id: str, project_id: str):
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$pull": {"projects": {"id": project_id}}}
     )
+    
+    project_repository.delete_project_by_id(project_id)
+
     return result.modified_count > 0
