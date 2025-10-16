@@ -103,3 +103,9 @@ def remove_project(exhibition_id: str, project_id: str):
     )
     project_repository.delete_project_by_id(project_id)
     return result.modified_count > 0
+
+def is_role_in_use(role_id: str) -> bool:
+    exhibition = exhibition_collection.find_one(
+        {"roles.id": role_id, "deactivation_date": {"$exists": False}}
+    )
+    return exhibition is not None
