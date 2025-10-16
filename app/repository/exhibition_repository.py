@@ -7,7 +7,7 @@ from app.model.role import RoleModel
 from app.repository import project_repository
 import uuid
 
-exhibition_collection= db["exhibions"]
+exhibition_collection= db["exhibitions"]
 
 def get_all_exhibition() -> list[ExhibitionModel]:
     exhibition_cursor = exhibition_collection.find()
@@ -60,7 +60,7 @@ def create_exhibition(exhibition: ExhibitionCreate):
 #     )
 #     return result.modified_count
 
-def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
+def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
         raise ValueError("Sum of role weights must be 1.0")
     if update_data.criteria and sum(criteria.weight for criteria in update_data.criteria) != 1.0:
@@ -68,7 +68,7 @@ def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel
     if update_data.end_date < update_data.start_date:
         raise ValueError("End date must be greater than start date")
     result = exhibition_collection.update_one(
-        {"_id": update_data.id, "deactivation_date": {"$exists": False}},
+        {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$set": {
             "name": update_data.name,
             "description": update_data.description,
