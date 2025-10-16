@@ -103,6 +103,6 @@ def unset_project_by_project_id(project_id: str) -> None:
         {"$unset": {"project": ""}}
     )
 
-def is_role_in_use(role_name: str) -> bool:
-    user = users_collection.find_one({"role": role_name, "deactivation_date": {"$exists": False}})
+def is_role_in_use(role_id: str) -> bool:
+    user = users_collection.find_one({"role.id": role_id, "deactivation_date": {"$exists": False}})
     return user is not None

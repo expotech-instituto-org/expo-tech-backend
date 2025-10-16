@@ -58,6 +58,6 @@ def delete_review(review_id: str) -> bool:
 
 def is_role_in_use(role_id: str) -> bool:
     review = reviews_collection.find_one(
-        {"user.role_id": role_id}
+        {"user.role.id": role_id}
     )
     return review is not None
