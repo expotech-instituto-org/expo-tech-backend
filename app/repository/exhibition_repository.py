@@ -8,7 +8,7 @@ import uuid
 
 from app.repository import project_repository
 
-exhibition_collection= db["exhibions"]
+exhibition_collection= db["exhibitions"]
 
 def get_all_exhibition() -> list[ExhibitionModel]:
     exhibition_cursor = exhibition_collection.find()
