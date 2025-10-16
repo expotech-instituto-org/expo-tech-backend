@@ -12,9 +12,9 @@ router = APIRouter(
 async def list_exhibitions():
     return exhibition_repository.get_all_exhibition()
 
-@router.put("", response_model=ExhibitionModel)
-async def update_exhibition(exhibition: ExhibitionModel):
-    return exhibition_repository.update_exhibition(exhibition)
+@router.put("/{exhibition_id}", response_model=ExhibitionModel)
+async def update_exhibition(exhibition_id: str, exhibition: ExhibitionModel):
+    return exhibition_repository.update_exhibition(exhibition_id, exhibition)
 
 @router.post("", response_model=ExhibitionModel)
 async def create_exhibition(exhibition: ExhibitionModel):
