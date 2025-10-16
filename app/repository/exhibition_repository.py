@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from typing import Optional
 from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
