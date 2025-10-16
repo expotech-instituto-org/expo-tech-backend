@@ -1,11 +1,10 @@
 from typing import Optional
 from app.database import db
 from app.model.role import RoleModel
-from app.dto.user.user_login_dto import UserLogin
 import uuid
-from app.model.user import UserModel
 from passlib.hash import bcrypt
 from pymongo.collection import Collection
+from app.repository import user_repository, exhibition_repository, review_repository
 
 roles_collection = db["roles"]
 
@@ -25,7 +24,7 @@ def list_all_roles() -> list[RoleModel]:
     roles_cursor = roles_collection.find()
     return [RoleModel(**role) for role in roles_cursor]
 
-def create_(roles_collection: Collection, role: RoleModel) -> Optional[RoleModel]:
+def create_role(roles_collection: Collection, role: RoleModel) -> Optional[RoleModel]:
     role_dict = role.model_dump(by_alias=True)
 
     if not role_dict.get("_id"):
@@ -47,3 +46,15 @@ def update_role(role_id: str, update_data: RoleModel) -> Optional[RoleModel]:
 
         return RoleModel(**updated_role)
     return None
+
+def delete_role(role_id: str) -> bool:
+    
+    if user_repository.is_role_in_use(role_id):
+        return False
+    if exhibition_repository.is_role_in_use(role_id):
+        return False
+    if review_repository.is_role_in_use(role_id):
+        return False
+
+    result = roles_collection.delete_one({"id": role_id})
+    return result.deleted_count > 0

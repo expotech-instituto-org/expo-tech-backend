@@ -55,3 +55,9 @@ def get_review_by_id(review_id: str) -> Optional[ReviewModel]:
 def delete_review(review_id: str) -> bool:
     result = reviews_collection.delete_one({"id": review_id})
     return result.deleted_count > 0
+
+def is_role_in_use(role_id: str) -> bool:
+    review = reviews_collection.find_one(
+        {"user.role_id": role_id}
+    )
+    return review is not None
