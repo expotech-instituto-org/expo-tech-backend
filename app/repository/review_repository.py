@@ -6,6 +6,10 @@ import uuid
 
 reviews_collection = db["reviews"]    
 
+def get_all_reviews() -> list[ReviewModel]:
+    reviews_cursor = reviews_collection.find()
+    return [ReviewModel(**review) for review in reviews_cursor]
+
 def create_review(dto: ReviewCreate) -> ReviewModel:
     review_model = ReviewModel(
         id=str(uuid.uuid4()),
