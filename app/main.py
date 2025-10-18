@@ -5,12 +5,14 @@ load_dotenv()
 
 from app.routes import (
     user_routes,
-    class_routes
+    class_routes,
+    knowledge_routes
 )
 app = FastAPI()
 
 app.include_router(user_routes.router)
 app.include_router(class_routes.router)
+app.include_router(knowledge_routes.router)
 
 @app.get("/", include_in_schema=False)
 def read_root():
