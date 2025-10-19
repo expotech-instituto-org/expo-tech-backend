@@ -20,6 +20,11 @@ def get_role_by_id(role_id: str, requesting_role_permissions: Optional[list[str]
     return RoleModel(**role_data)
 
 def get_default_role() -> Optional[RoleModel]:
+    return RoleModel(
+        _id=str(uuid.uuid4()),
+        name="Default",
+        permissions=default_permissions(),
+    )
     role_data = roles_collection.find_one({"default": "True"})
     if role_data:
         return RoleModel(**role_data)

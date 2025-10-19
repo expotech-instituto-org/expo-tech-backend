@@ -30,7 +30,7 @@ class ReviewModel(BaseModel):
     comment: Optional[str] = Field(None, max_length=300)
 
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
         json_schema_extra = {
             "example": {
                 "_id": str(uuid.uuid4()),

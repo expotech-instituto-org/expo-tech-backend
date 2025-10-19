@@ -25,13 +25,15 @@ def create_user(user: UserCreate, requesting_role_permissions: list[str]) -> Opt
     if role is None:
         raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
 
+    user_dump = user.model_dump()
+    user_dump.pop("password")
     user_model = UserModel(
         _id=str(uuid.uuid4()),
-        **user.model_dump(),
-        role=role
+        **user_dump,
+        role=role,
+        password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
     )
-    user_model.password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
-    result = users_collection.insert_one(user_model)
+    result = users_collection.insert_one(user_model.model_dump(by_alias=True))
     if result.inserted_id:
         return user_model
     return None
