@@ -1,10 +1,11 @@
 from typing import Optional
 from app.database import db
 from app.model.user import UserModel
-from app.dto.user.user_login_dto import UserLogin
+from app.dto.user.user_create_dto import UserCreate
 from app.model.role import RoleModel
 import uuid
 import bcrypt
+from app.repository.roles_repository import get_role_by_id, get_default_role
 
 users_collection = db["users"]
 
@@ -18,14 +19,21 @@ def list_all_users() -> list[UserModel]:
     users_cursor = users_collection.find()
     return [UserModel(**user) for user in users_cursor]
 
-def create_user(user: UserLogin) -> Optional[UserModel]:
-    user_dict = user.model_dump()
-    s = bcrypt.gensalt()
-    user_dict['password'] = bcrypt.hashpw(user.password.encode("utf-8"), s)
-    user_dict["_id"] = str(uuid.uuid4())
-    result = users_collection.insert_one(user_dict)
+def create_user(user: UserCreate, requesting_role_permissions: list[str]) -> Optional[UserModel]:
+
+    role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
+    if role is None:
+        raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
+
+    user_model = UserModel(
+        _id=str(uuid.uuid4()),
+        **user.model_dump(),
+        role=role
+    )
+    user_model.password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+    result = users_collection.insert_one(user_model)
     if result.inserted_id:
-        return UserModel(**user_dict)
+        return user_model
     return None
 
 def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
