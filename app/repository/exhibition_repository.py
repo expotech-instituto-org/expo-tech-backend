@@ -34,21 +34,21 @@ def create_exhibition(exhibition: ExhibitionCreate):
         **exhibition.model_dump(),
         projects = [],
         roles = [
-            ExhibitionModel.RoleModel(
-                id = str(uuid.uuid4()),
+            ExhibitionModel.RoleResume(
+                _id = str(uuid.uuid4()),
                 name="Guest",
                 weight=1.0
             )
             # role_repository.get_default_role()
         ],
         criteria = [
-            ExhibitionModel.CriteriaModel(
+            ExhibitionModel.CriteriaResume(
                 name="Nota",
                 weight=1.0
             )
         ],
     )
-    result = exhibition_collection.insert_one(exhibition_model)
+    result = exhibition_collection.insert_one(exhibition_model.model_dump(by_alias=True))
     if result.inserted_id:
         return exhibition_model
     return None

@@ -9,7 +9,7 @@ class UserModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
     email: str = Field(...)
     phone: str = Field(...)
-    password: tuple[bytes] = Field(...)
+    password: bytes = Field(...)
     name: str = Field(...)
     role: RoleModel = Field(...)
     profile_picture: Optional[str] = Field(None, description="Profile picture URL")
