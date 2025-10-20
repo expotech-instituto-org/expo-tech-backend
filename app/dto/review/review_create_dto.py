@@ -29,7 +29,7 @@ class ReviewCreate(BaseModel):
         json_schema_extra = {
             "example": {
                 "grades": [
-                    {"name": "Ideia", "score": 4.5, "weight": 0.5},
+                    {"name": "Ideia", "score": 4.5, "weight": 0.7},
                     {"name": "Apresentação", "score": 4.0, "weight": 0.3}
                 ],
                 "project": {

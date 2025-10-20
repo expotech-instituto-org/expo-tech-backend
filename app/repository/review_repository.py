@@ -35,7 +35,7 @@ def create_review(dto: ReviewCreate, ) -> Optional[ReviewModel]:
         ),
         comment=dto.comment    
     )
-    result = reviews_collection.insert_one(review_model.model_dump())
+    result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
     if result.inserted_id:
         return review_model
     return None
@@ -71,11 +71,15 @@ def delete_review(review_id: str) -> bool:
     result = reviews_collection.delete_one({"id": review_id})
     return result.deleted_count > 0
 
-def get_reviews_by_exhibition(exhibition_id: str):
+def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
     return [ReviewModel(**review) for review in reviews_cursor]
 
-def get_reviews_by_project(project_id: str):
+def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
     reviews_cursor = reviews_collection.find({"project._id": project_id})
-    print(reviews_cursor)
-    return [print(review) for review in reviews_cursor]
+
+    return [ReviewResume(
+        id=review["_id"],
+        grades=review["grades"],
+        project_id=project_id
+    ) for review in reviews_cursor]
