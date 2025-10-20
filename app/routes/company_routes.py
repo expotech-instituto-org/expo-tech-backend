@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
 from app.model.company import CompanyModel
+from app.dto.company.company_dto import CompanyDTO
 from app.repository.company_repository import (
     get_all_company,
     get_company_by_id,
@@ -29,29 +30,8 @@ async def get_all_companies():
             detail=f"Error retrieving companies: {str(e)}"
         )
 
-@router.get("/{company_id}", response_model=CompanyModel)
-async def get_company(company_id: str):
-    """
-    Retrieve a specific company by ID
-    """
-    try:
-        company = get_company_by_id(company_id)
-        if not company:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Company not found"
-            )
-        return company
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving company: {str(e)}"
-        )
-
 @router.post("/", response_model=CompanyModel, status_code=status.HTTP_201_CREATED)
-async def create_new_company(company_data: CompanyModel):
+async def create_new_company(company_data: CompanyDTO):
     """
     Create a new company
     """
@@ -73,7 +53,7 @@ async def create_new_company(company_data: CompanyModel):
         )
 
 @router.put("/{company_id}", response_model=CompanyModel)
-async def update_existing_company(company_id: str, company_data: CompanyModel):
+async def update_existing_company(company_id: str, company_data: CompanyDTO):
     """
     Update an existing company
     """
