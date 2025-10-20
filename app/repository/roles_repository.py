@@ -20,12 +20,7 @@ def get_role_by_id(role_id: str, requesting_role_permissions: Optional[list[str]
     return RoleModel(**role_data)
 
 def get_default_role() -> Optional[RoleModel]:
-    return RoleModel(
-        _id=str(uuid.uuid4()),
-        name="Default",
-        permissions=default_permissions(),
-    )
-    role_data = roles_collection.find_one({"default": "True"})
+    role_data = roles_collection.find_one({"_id": "default"})
     if role_data:
         return RoleModel(**role_data)
     return None
@@ -35,8 +30,6 @@ def list_all_roles() -> list[RoleModel]:
     return [RoleModel(**role) for role in roles_cursor]
 
 def create_role (role: RoleUpsert) -> Optional[RoleModel]:
-
-
     if role.permissions is not None and len(role.permissions) > 0 and not c.is_valid_permission(role.permissions):
         raise ValueError("One or more permissions are invalid")
 
@@ -66,8 +59,18 @@ def update_role(role_id: str, update_data: RoleModel) -> Optional[RoleModel]:
 
 def default_permissions() -> list[str]:
     return [
-        c.PERMISSION_CREATE_USER,
         c.PERMISSION_READ_EXHIBITION,
         c.PERMISSION_READ_PROJECT,
         c.PERMISSION_CREATE_REVIEW,
     ]
+
+roles_collection.update_one(
+    {"_id": "default"},
+    {
+        "$setOnInsert": {
+            "name": "guest",
+            "permissions": default_permissions(),
+        }
+    },
+    upsert=True
+)
