@@ -19,10 +19,11 @@ def delete_class(class_id: str) -> bool:
     result = class_collection.delete_one({"_id": class_id})
     return result.deleted_count > 0
 
-def create_class(class_name: str ):
+def create_class(class_name: str, class_year: str):
     class_dict = {
         "_id": str(uuid.uuid4()),
-        "name": class_name
+        "name": class_name,
+        "year": class_year
     }
     result = class_collection.insert_one(class_dict)
     if result.inserted_id:
