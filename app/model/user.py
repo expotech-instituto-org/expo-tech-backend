@@ -8,9 +8,9 @@ from app.model.role import RoleModel
 class UserModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
     email: str = Field(...)
-    phone: str = Field(...)
+    phone: Optional[str] = Field(None)
     password: bytes = Field(...)
-    name: str = Field(...)
+    name: Optional[str] = Field(None)
     role: RoleModel = Field(...)
     profile_picture: Optional[str] = Field(None, description="Profile picture URL")
     knowledge: Optional[str] = Field(None, description="How the user got to know about the event")

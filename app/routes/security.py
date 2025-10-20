@@ -14,7 +14,12 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 class User(BaseModel):
-    username: str
+    id: str
+    email: str
+    class Role(BaseModel):
+        id: str
+        name: str
+    role: Role
     permissions: list[str]
 
 class Token(BaseModel):
@@ -33,11 +38,15 @@ async def get_current_user(token: Annotated[Optional[str], Depends(oauth2_scheme
         return None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        permissions = payload.get("permissions", [])
-        if username is None:
+        email = payload.get("sub")
+        if email is None:
             return None
-        user = User(username=username, permissions=permissions)
-    except InvalidTokenError:
-        return None
+        user = User(
+            id=payload.get("user_id"),
+            email=email,
+            role=payload.get("role"),
+            permissions=payload.get("permissions", [])
+        )
+    except InvalidTokenError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     return user

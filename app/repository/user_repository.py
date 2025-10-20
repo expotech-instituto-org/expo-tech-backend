@@ -8,9 +8,10 @@ import bcrypt
 from app.repository.roles_repository import get_role_by_id, get_default_role
 
 users_collection = db["users"]
+users_collection.create_index("email", unique=True) # TODO Fazer isso direto no mongo
 
 def get_user_by_id(user_id: str) -> Optional[UserModel]:
-    user_data = users_collection.find_one({"id": user_id})
+    user_data = users_collection.find_one({"_id": user_id})
     if user_data:
         return UserModel(**user_data)
     return None
@@ -20,7 +21,6 @@ def list_all_users() -> list[UserModel]:
     return [UserModel(**user) for user in users_cursor]
 
 def create_user(user: UserCreate, requesting_role_permissions: list[str]) -> Optional[UserModel]:
-
     role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
     if role is None:
         raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
@@ -68,7 +68,7 @@ def get_user_by_email(email: str):
 
 def authenticate_user(email: str, password: str) -> UserModel | None:
     user = get_user_by_email(email)
-    if user and bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+    if user and bcrypt.checkpw(password.encode("utf-8"), user.password):
         return user
     return None
 
