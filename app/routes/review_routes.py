@@ -26,6 +26,6 @@ async def delete_review(review_id: str):
 async def get_reviews_by_exhibition(exhibition_id: str):
     return review_repository.get_reviews_by_exhibition(exhibition_id)
 
-@router.get("/project/{user_id}", response_model=List[ReviewResume])
-async def get_reviews_by_user(user_id: str):
-    return review_repository.get_reviews_by_project(user_id)
+@router.get("/project/{project_id}", response_model=List[ReviewResume])
+async def get_reviews_by_user(project_id: str):
+    return review_repository.get_reviews_by_project(project_id)
