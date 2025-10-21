@@ -8,15 +8,15 @@ from app.model.role import RoleModel
 class UserModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
     email: str = Field(...)
-    phone: str = Field(...)
-    password: str = Field(...)
-    name: str = Field(...)
+    phone: Optional[str] = Field(None)
+    password: bytes = Field(...)
+    name: Optional[str] = Field(None)
     role: RoleModel = Field(...)
-    profile_picture: Optional[str] = Field(...)
-    knowledge: Optional[str] = Field(...)
-    age: Optional[int] = Field(...)
-    company: Optional[str] = Field(...)
-    class_field: Optional[str] = Field(alias="class", default=None)
+    profile_picture: Optional[str] = Field(None, description="Profile picture URL")
+    knowledge: Optional[str] = Field(None, description="How the user got to know about the event")
+    age: Optional[int] = Field(None, description="User age")
+    company: Optional[str] = Field(None, description="Company name associated with the user")
+    class_field: Optional[str] = Field(None, alias="class")
 
     class ProjectResume(BaseModel):
         id: str = Field(..., alias="_id", description="Project ID")
@@ -24,15 +24,16 @@ class UserModel(BaseModel):
         logo: str = Field(..., description="Project logo URL")
         company_name: str = Field(..., description="Company name associated with the project")
 
-    project: ProjectResume = Field(...)
+    project: Optional[ProjectResume] = Field(None, description="User's project summary")
 
     class ReviewResume(BaseModel):
+        id: str = Field(..., alias="_id", description="Review ID")
         project_id: str = Field(..., description="Project ID")
         exhibition_id: str = Field(..., description="Exhibition ID")
         comment: Optional[str] = Field(None, max_length=300, description="Review comment")
 
-    reviews: ReviewResume = Field(...)
-    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
+    reviews: list[ReviewResume] = Field([], description="List of user reviews")
+    deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
 
     class Config:
         validate_by_name = True
@@ -58,6 +59,7 @@ class UserModel(BaseModel):
                 },
                 "reviews": [
                     {
+                        "_id": str(uuid.uuid4()),
                         "project_id": str(uuid.uuid4()),
                         "exhibition_id": str(uuid.uuid4()),
                         "comment": "Great project!"
