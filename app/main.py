@@ -8,6 +8,7 @@ from app.routes import (
     user_routes,
     review_routes,
     class_routes,
+    company_routes,
     exhibition_routes
 )
 app = FastAPI()
@@ -15,6 +16,7 @@ app = FastAPI()
 app.include_router(user_routes.router)
 app.include_router(review_routes.router)
 app.include_router(class_routes.router)
+app.include_router(company_routes.router)
 app.include_router(exhibition_routes.router)
 
 
