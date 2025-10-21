@@ -71,6 +71,11 @@ def delete_review(review_id: str) -> bool:
     result = reviews_collection.delete_one({"id": review_id})
     return result.deleted_count > 0
 
+def is_role_in_use(role_id: str) -> bool:
+    review = reviews_collection.find_one(
+        {"user.role.id": role_id}
+    )
+    return review is not None
 def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
     return [ReviewModel(**review) for review in reviews_cursor]
