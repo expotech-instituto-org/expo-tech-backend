@@ -1,5 +1,7 @@
 from typing import List
 from fastapi import APIRouter
+
+from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
 from app.repository import exhibition_repository
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
@@ -14,7 +16,7 @@ async def list_exhibitions():
     return exhibition_repository.get_all_exhibition()
 
 @router.put("/{exhibition_id}", response_model=ExhibitionModel)
-async def update_exhibition(exhibition_id: str, exhibition: ExhibitionModel):
+async def update_exhibition(exhibition_id: str, exhibition: ExhibitionUpdate):
     return exhibition_repository.update_exhibition(exhibition_id, exhibition)
 
 @router.post("", response_model=ExhibitionModel)

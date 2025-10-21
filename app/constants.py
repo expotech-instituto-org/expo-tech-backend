@@ -1,3 +1,5 @@
+DEFAULT_ROLE_ID = "default"
+
 # CRUD permission constants for each model
 
 # User

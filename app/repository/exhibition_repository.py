@@ -5,10 +5,12 @@ from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
 from app.model.role import RoleModel
-from app.repository import project_repository
+from app.repository import project_repository, roles_repository
+import app.constants as c
 import uuid
 
 exhibition_collection= db["exhibitions"]
+
 
 def get_all_exhibition() -> list[ExhibitionModel]:
     exhibition_cursor = exhibition_collection.find()
@@ -30,17 +32,19 @@ def delete_exhibition(exhibition_id: str) -> bool:
 def create_exhibition(exhibition: ExhibitionCreate):
     if exhibition.end_date < exhibition.start_date:
         raise ValueError("End date must be greater than start date")
+
+    default_role = roles_repository.get_default_role()
+
     exhibition_model = ExhibitionModel(
         _id = str(uuid.uuid4()),
         **exhibition.model_dump(),
         projects = [],
         roles = [
             ExhibitionModel.RoleResume(
-                _id = str(uuid.uuid4()),
-                name="Guest",
+                _id = default_role.id,
+                name=default_role.name,
                 weight=1.0
             )
-            # role_repository.get_default_role()
         ],
         criteria = [
             ExhibitionModel.CriteriaResume(
@@ -62,12 +66,15 @@ def create_exhibition(exhibition: ExhibitionCreate):
 #     return result.modified_count
 
 def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
+    if update_data.roles and not any(role.id == c.DEFAULT_ROLE_ID for role in update_data.roles):
+        raise ValueError("Default role must be present in roles")
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
         raise ValueError("Sum of role weights must be 1.0")
     if update_data.criteria and sum(criteria.weight for criteria in update_data.criteria) != 1.0:
         raise ValueError("Sum of criteria weights must be 1.0")
     if update_data.end_date < update_data.start_date:
         raise ValueError("End date must be greater than start date")
+
     result = exhibition_collection.update_one(
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$set": {
