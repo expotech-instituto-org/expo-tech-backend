@@ -76,23 +76,20 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    try:
-        user = user_repository.authenticate_user(form_data.username, form_data.password)
-        if not user:
-            raise HTTPException(
-                status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect login or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        else:
-            token = create_access_token(data={
-                "sub": user.email,
-                "user_id": user.id,
-                "project_id": user.project.id,
-                "scope": " ".join(form_data.scopes),
-                "permissions": user.role.permissions,
-                "role": {"id": user.role.id, "name": user.role.name}
-            })
-            return token
-    except Exception as e:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+    user = user_repository.authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect login or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    else:
+        token = create_access_token(data={
+            "sub": user.email,
+            "user_id": user.id,
+            "project_id": user.project.id if user.project else None,
+            "scope": " ".join(form_data.scopes),
+            "permissions": user.role.permissions,
+            "role": {"id": user.role.id, "name": user.role.name}
+        })
+        return token
