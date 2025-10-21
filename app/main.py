@@ -8,7 +8,7 @@ from app.routes import (
     user_routes,
     review_routes,
     class_routes,
-    exhibition_routes,
+    exhibition_routes
 )
 app = FastAPI()
 
@@ -16,6 +16,7 @@ app.include_router(user_routes.router)
 app.include_router(review_routes.router)
 app.include_router(class_routes.router)
 app.include_router(exhibition_routes.router)
+
 
 @app.get("/", include_in_schema=False)
 def read_root():

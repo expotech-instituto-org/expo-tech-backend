@@ -88,6 +88,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             token = create_access_token(data={
                 "sub": user.email,
                 "user_id": user.id,
+                "project_id": user.project.id,
                 "scope": " ".join(form_data.scopes),
                 "permissions": user.role.permissions,
                 "role": {"id": user.role.id, "name": user.role.name}
