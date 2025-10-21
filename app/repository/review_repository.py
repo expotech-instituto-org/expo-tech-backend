@@ -1,7 +1,9 @@
 from typing import Optional
 from app.database import db
 from app.model.review import ReviewModel
-from app.dto.review import ReviewCreate, ReviewUpdate
+from app.dto.review.review_create_dto import ReviewCreate
+from app.dto.review.review_update_dto import ReviewUpdate
+from app.dto.review.review_resume_dto import ReviewResume
 import uuid
 
 reviews_collection = db["reviews"]    
@@ -10,24 +12,33 @@ def get_all_reviews() -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find()
     return [ReviewModel(**review) for review in reviews_cursor]
 
-def create_review(dto: ReviewCreate) -> ReviewModel:
+def create_review(dto: ReviewCreate, ) -> Optional[ReviewModel]:
     review_model = ReviewModel(
-        id=str(uuid.uuid4()),
+        _id=str(uuid.uuid4()),
         grades=[ReviewModel.Grade(**grade.model_dump()) for grade in dto.grades],
-        project_id=dto.project_id,
-        exhibition_id=dto.exhibition_id,
+        project=ReviewModel.ProjectResume(
+            _id=dto.project.id,
+            name=dto.project.name
+        ),
+        exhibition=ReviewModel.ExhibitionResume(
+            _id=dto.exhibition.id,
+            name=dto.exhibition.name
+        ),
         user=ReviewModel.UserResume(
-            id=dto.user.id,
+            _id="",
             name="(nome do usuário)",
             role=ReviewModel.UserResume.UserRole(
-                id=dto.user.role_id,
+                _id="",
                 name="(nome do papel)",
                 weight=1.0
             )
         ),
         comment=dto.comment    
     )
-    return review_model
+    result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
+    if result.inserted_id:
+        return review_model
+    return None
 
 def update_review(review_id: str, update_data: ReviewUpdate) -> Optional[ReviewModel]:
     update_fields = {}
@@ -59,3 +70,16 @@ def get_review_by_id(review_id: str) -> Optional[ReviewModel]:
 def delete_review(review_id: str) -> bool:
     result = reviews_collection.delete_one({"id": review_id})
     return result.deleted_count > 0
+
+def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
+    reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
+    return [ReviewModel(**review) for review in reviews_cursor]
+
+def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
+    reviews_cursor = reviews_collection.find({"project._id": project_id})
+
+    return [ReviewResume(
+        id=review["_id"],
+        grades=review["grades"],
+        project_id=project_id
+    ) for review in reviews_cursor]
