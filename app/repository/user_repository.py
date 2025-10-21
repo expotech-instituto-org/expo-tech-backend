@@ -104,6 +104,10 @@ def unset_project_by_project_id(project_id: str) -> None:
         {"$unset": {"project": ""}}
     )
 
+def is_role_in_use(role_id: str) -> bool:
+    user = users_collection.find_one({"role.id": role_id, "deactivation_date": {"$exists": False}})
+    return user is not None
+  
 def get_users_by_role(role_id: str) -> list[UserModel]:
     users_data = users_collection.find({"role.id": role_id})
     return [UserModel(**user) for user in users_data]

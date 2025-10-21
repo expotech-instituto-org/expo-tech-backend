@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from typing import Optional
 from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
@@ -99,6 +100,17 @@ def remove_project(exhibition_id: str, project_id: str):
         {"$pull": {"projects": {"id": project_id}}}
     )
     
-    project_repository.delete_project_by_id(project_id)
+    if result.modified_count == 0:
+      raise HTTPException(status_code=404, detail="Project not found in any exhibition")
+      
+    result_project = project_repository.delete_project_by_id(project_id)
+    return result_project.modified_count > 0
 
-    return result.modified_count > 0
+def is_role_in_use(role_id: str) -> bool:
+    exhibition = exhibition_collection.find_one(
+        {
+            "roles.id": role_id,
+            "deactivation_date": {"$exists": False}
+        }
+    )
+    return exhibition is not None

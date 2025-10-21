@@ -39,7 +39,7 @@ def create_role (role: RoleUpsert) -> Optional[RoleModel]:
         permissions=role.permissions or default_permissions(),
     )
 
-    result = roles_collection.insert_one(role_model)
+    result = roles_collection.insert_one(role_model.model_dump(by_alias=True))
 
     if result.inserted_id:
         return role_model
@@ -56,6 +56,17 @@ def update_role(role_id: str, update_data: RoleModel) -> Optional[RoleModel]:
         return RoleModel(**updated_role)
     return None
 
+def delete_role(role_id: str) -> bool:
+    
+    if user_repository.is_role_in_use(role_id):
+        return False
+    if exhibition_repository.is_role_in_use(role_id):
+        return False
+    if review_repository.is_role_in_use(role_id):
+        return False
+
+    result = roles_collection.delete_one({"id": role_id})
+    return result.deleted_count > 0
 
 def default_permissions() -> list[str]:
     return [
