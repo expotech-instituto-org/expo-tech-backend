@@ -4,7 +4,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class ReviewModel(BaseModel):
-    id: Optional[str] = Field(None, alias="_id")
+    id: Optional[str] = Field(alias="_id")
 
     class Grade(BaseModel):
         name: str = Field(..., description="Criteria name")
@@ -12,11 +12,21 @@ class ReviewModel(BaseModel):
         weight: float = Field(..., ge=0, le=1, description="Criteria weight")
     
     grades: List[Grade] = Field(...)
-    project_id: Optional[str] = Field(None, alias="_id")
-    exhibition_id: str = Field(...)
+
+    class ProjectResume(BaseModel):
+        id: str = Field(..., alias="_id")
+        name: str = Field(..., description="Project name")
+
+    project: ProjectResume = Field(...)
+
+    class ExhibitionResume(BaseModel):
+        id: str = Field(..., alias="_id")
+        name: str = Field(..., description="Exhibition name")
+
+    exhibition: ExhibitionResume = Field(...)
 
     class UserResume(BaseModel):
-        id: Optional[str] = Field(None, alias="_id")
+        id: str = Field(None, alias="_id")
         name: str = Field(..., description="User full name")
 
         class UserRole(BaseModel):
@@ -30,7 +40,7 @@ class ReviewModel(BaseModel):
     comment: Optional[str] = Field(None, max_length=300)
 
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
         json_schema_extra = {
             "example": {
                 "_id": str(uuid.uuid4()),
