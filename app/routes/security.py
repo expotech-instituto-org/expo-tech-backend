@@ -15,6 +15,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 class User(BaseModel):
     id: str
+    project_id: str
     email: str
     class Role(BaseModel):
         id: str
@@ -43,6 +44,7 @@ async def get_current_user(token: Annotated[Optional[str], Depends(oauth2_scheme
             return None
         user = User(
             id=payload.get("user_id"),
+            project_id=payload.get("project_id"),
             email=email,
             role=payload.get("role"),
             permissions=payload.get("permissions", [])
