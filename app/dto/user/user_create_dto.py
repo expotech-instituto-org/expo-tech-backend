@@ -5,7 +5,7 @@ import uuid
 
 class UserCreate(BaseModel):
     email: str
-    phone: Optional[str]
+    phone: Optional[str] = None
     password: str
     name: str
     role_id: Optional[str] = None
