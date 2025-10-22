@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend-blue:
+    image: dockerhub_usuario/backend:1.0.0
+    container_name: backend-blue
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/minha_base
+    expose:
+      - "8000"
+
+  backend-green:
+    image: dockerhub_usuario/backend:latest
+    container_name: backend-green
+    restart: always
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/minha_base
+    expose:
+      - "8000"
+
+  proxy:
+    image: nginx:latest
+    container_name: backend-proxy
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend-blue
+      - backend-green
+
+volumes:
+  mongo_data:
