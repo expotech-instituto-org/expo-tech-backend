@@ -1,3 +1,4 @@
+from http.client import HTTPException
 from typing import Optional
 from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
@@ -7,7 +8,7 @@ from app.model.role import RoleModel
 from app.repository import project_repository
 import uuid
 
-exhibition_collection= db["exhibions"]
+exhibition_collection= db["exhibitions"]
 
 def get_all_exhibition() -> list[ExhibitionModel]:
     exhibition_cursor = exhibition_collection.find()
@@ -34,21 +35,21 @@ def create_exhibition(exhibition: ExhibitionCreate):
         **exhibition.model_dump(),
         projects = [],
         roles = [
-            ExhibitionModel.RoleModel(
-                id = str(uuid.uuid4()),
+            ExhibitionModel.RoleResume(
+                _id = str(uuid.uuid4()),
                 name="Guest",
                 weight=1.0
             )
             # role_repository.get_default_role()
         ],
         criteria = [
-            ExhibitionModel.CriteriaModel(
+            ExhibitionModel.CriteriaResume(
                 name="Nota",
                 weight=1.0
             )
         ],
     )
-    result = exhibition_collection.insert_one(exhibition_model)
+    result = exhibition_collection.insert_one(exhibition_model.model_dump(by_alias=True))
     if result.inserted_id:
         return exhibition_model
     return None
@@ -60,7 +61,7 @@ def create_exhibition(exhibition: ExhibitionCreate):
 #     )
 #     return result.modified_count
 
-def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
+def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
         raise ValueError("Sum of role weights must be 1.0")
     if update_data.criteria and sum(criteria.weight for criteria in update_data.criteria) != 1.0:
@@ -68,7 +69,7 @@ def update_exhibition(update_data: ExhibitionUpdate) -> Optional[ExhibitionModel
     if update_data.end_date < update_data.start_date:
         raise ValueError("End date must be greater than start date")
     result = exhibition_collection.update_one(
-        {"_id": update_data.id, "deactivation_date": {"$exists": False}},
+        {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$set": {
             "name": update_data.name,
             "description": update_data.description,
@@ -99,6 +100,17 @@ def remove_project(exhibition_id: str, project_id: str):
         {"$pull": {"projects": {"id": project_id}}}
     )
     
-    project_repository.delete_project_by_id(project_id)
+    if result.modified_count == 0:
+      raise HTTPException(status_code=404, detail="Project not found in any exhibition")
+      
+    result_project = project_repository.delete_project_by_id(project_id)
+    return result_project.modified_count > 0
 
-    return result.modified_count > 0
+def is_role_in_use(role_id: str) -> bool:
+    exhibition = exhibition_collection.find_one(
+        {
+            "roles.id": role_id,
+            "deactivation_date": {"$exists": False}
+        }
+    )
+    return exhibition is not None
