@@ -1,10 +1,9 @@
-from http.client import HTTPException
+from fastapi import HTTPException, status
 from typing import Optional
 from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
-from app.model.role import RoleModel
 from app.repository import project_repository
 import uuid
 
@@ -101,7 +100,7 @@ def remove_project(exhibition_id: str, project_id: str):
     )
     
     if result.modified_count == 0:
-      raise HTTPException(status_code=404, detail="Project not found in any exhibition")
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found in any exhibition")
       
     result_project = project_repository.delete_project_by_id(project_id)
     return result_project.modified_count > 0
