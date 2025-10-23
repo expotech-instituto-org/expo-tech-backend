@@ -33,6 +33,7 @@ pip install -r requirements.txt
 Start the FastAPI server:
 
 ```bash
+docker-compose -f docker-compose-local.yml up -d --build
 uvicorn app.main:app --reload
 ```
 

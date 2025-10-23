@@ -6,11 +6,11 @@ from datetime import datetime
 class ExhibitionModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
     name: str = Field(..., description="Exhibition name")
-    image: Optional[str] = Field(..., description="Exhibition image")
+    image: Optional[str] = Field(None, description="Exhibition image")
     start_date: datetime  = Field(..., description="Exhibition start date")
     end_date: datetime  = Field(..., description="Exhibition end date")
-    description: Optional[str] = Field(..., description="Exhibition description")
-    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
+    description: Optional[str] = Field(None, description="Exhibition description")
+    deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
 
     class ProjectResume(BaseModel):
         id: Optional[str] = Field(alias="_id")
@@ -20,11 +20,11 @@ class ExhibitionModel(BaseModel):
 
     projects: List[ProjectResume] = Field(..., description="Exhibition projects")
 
-    class CriteriaModel(BaseModel):
+    class CriteriaResume(BaseModel):
         name: str = Field(..., description="Criteria name")
         weight: float = Field(..., description="Criteria weight")
 
-    criteria: List[CriteriaModel] = Field(..., description="Exhibition criteria")
+    criteria: List[CriteriaResume] = Field(..., description="Exhibition criteria")
 
     class RoleResume(BaseModel):
         id: str = Field(alias="_id")
