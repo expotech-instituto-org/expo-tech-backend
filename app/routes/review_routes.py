@@ -1,0 +1,35 @@
+from typing import List, Annotated
+from fastapi import APIRouter, Depends, HTTPException
+from app.model.review import ReviewModel
+from app.repository import review_repository
+from app.dto.review.review_resume_dto import ReviewResume
+from app.dto.review.review_create_dto import ReviewCreate
+from app.routes.security import User, get_current_user
+from app import constants as c
+router = APIRouter(
+    prefix="/reviews",
+    tags=["Reviews"]
+)
+
+@router.get("", response_model=List[ReviewModel])
+async def list_reviews():
+    return review_repository.get_all_reviews()
+
+@router.post("", response_model=ReviewModel)
+async def create_review(review: ReviewCreate):
+    return review_repository.create_review(review)
+
+@router.delete("/{review_id}", response_model=bool)
+async def delete_review(review_id: str):
+    return review_repository.delete_review(review_id)
+
+@router.get("/exhibition/{exhibition_id}", response_model=List[ReviewModel])
+async def get_reviews_by_exhibition(exhibition_id: str):
+    return review_repository.get_reviews_by_exhibition(exhibition_id)
+
+@router.get("/project/{project_id}", response_model=List[ReviewResume])
+async def get_reviews_by_user(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if c.PERMISSION_READ_REVIEW not in current_user.permissions and current_user.project_id != project_id:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    return review_repository.get_reviews_by_project(project_id)
