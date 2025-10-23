@@ -7,6 +7,7 @@ load_dotenv()
 
 from app.routes import (
     user_routes,
+    project_routes,
     class_routes,
     knowledge_routes,
     review_routes,
@@ -25,12 +26,12 @@ app.add_middleware(
 )
 
 app.include_router(user_routes.router)
+app.include_router(project_routes.router)
 app.include_router(review_routes.router)
 app.include_router(class_routes.router)
 app.include_router(knowledge_routes.router)
 app.include_router(company_routes.router)
 app.include_router(exhibition_routes.router)
-
 
 @app.get("/", include_in_schema=False)
 def read_root():

@@ -16,9 +16,24 @@ def get_project_by_id(project_id: str) -> Optional[ProjectModel]:
     if project_data:
         return ProjectModel(**project_data)
     return None
-
-def get_all_projects() -> List[ProjectModel]:
-    projects = project_collection.find()
+    
+def get_projects_with_filters(
+    exhibition_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+    company_name: Optional[str] = None
+) -> List[ProjectModel]:
+    query = {}
+    
+    if exhibition_id:
+        query["exhibition_id"] = exhibition_id
+    
+    if project_name:
+        query["name"] = {"$regex": project_name, "$options": "i"}
+    
+    if company_name:
+        query["company_name"] = {"$regex": company_name, "$options": "i"}
+    
+    projects = project_collection.find(query)
     return [ProjectModel(**p) for p in projects]
 
 def add_project(project: ProjectModel) -> Optional[ProjectModel]:
