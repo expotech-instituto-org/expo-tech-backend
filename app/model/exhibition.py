@@ -14,9 +14,9 @@ class ExhibitionModel(BaseModel):
 
     class ProjectResume(BaseModel):
         id: Optional[str] = Field(alias="_id")
-        name: str = Field(..., description="Exhibition name")
-        logo: str = Field(..., description="Exhibition image")
-        company_name: str = Field(..., description="Exhibition name")
+        name: Optional[str] = Field(None, description="Project name")
+        logo: Optional[str] = Field(None, description="Project logo")
+        company_name: Optional[str] = Field(None, description="Company name")
 
     projects: List[ProjectResume] = Field(..., description="Exhibition projects")
 

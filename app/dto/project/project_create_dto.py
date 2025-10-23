@@ -7,13 +7,13 @@ class UserIdDto(BaseModel):
 
 class ProjectCreateDto(BaseModel):
     name: str = Field(..., min_length=1, description="Project name")
-    company_name: str = Field(..., min_length=1, description="Company Name")
+    company_name: Optional[str] = Field(None, description="Company Name")
     description: str = Field(..., min_length=1, description="Description")
-    coordinates: int = Field(..., description="Coordinates")
+    coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: str = Field(..., description="Exhibition id")
-    expositors: List[UserIdDto] = Field(..., description="List of expositor users")
-    images: List[str] = Field(default=[], description="List of images")
-    logo: str = Field(..., description="Logo URL or path")
+    expositors: Optional[List[UserIdDto]] = Field(default_factory=list, description="List of expositor users")
+    images: Optional[List[str]] = Field(default_factory=list, description="List of images")
+    logo: Optional[str] = Field(None, description="Logo URL or path")
 
     class Config:
         json_schema_extra = {
@@ -28,8 +28,8 @@ class ProjectCreateDto(BaseModel):
                         "id": str(uuid.uuid4())
                     }
                 ],
-                "images": ["link1", "link2"],
-                "logo": "link"
+                "images": ["img1.png", "img2.png"],
+                "logo": "logo.png"
             }
         }
 
