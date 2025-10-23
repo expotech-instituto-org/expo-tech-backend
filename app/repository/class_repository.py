@@ -1,5 +1,6 @@
 from typing import Optional
 from app.database import db
+from app.dto.class_.class_create_dto import ClassCreateDTO
 from app.model.class_ import ClassModel
 import uuid
 
@@ -30,9 +31,9 @@ def create_class(class_name: str, class_year: str):
         return ClassModel(**class_dict)
     return None
 
-def update_class(update_data: ClassModel) -> Optional[ClassModel]:
+def update_class(class_id: str, update_data: ClassCreateDTO) -> Optional[ClassModel]:
     result = class_collection.update_one(
-        {"_id": update_data.id},             
+        {"_id": class_id},
         {"$set": {"name": update_data.name}} 
     )
     if result.modified_count > 0:

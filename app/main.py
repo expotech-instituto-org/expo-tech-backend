@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 import os
 load_dotenv()
 
@@ -14,6 +15,14 @@ from app.routes import (
     exhibition_routes
 )
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # TODO Change to specific origins in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(user_routes.router)
 app.include_router(review_routes.router)
