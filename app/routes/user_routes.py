@@ -16,7 +16,11 @@ router = APIRouter(
 )
 
 @router.get("", response_model=List[UserModel])
-async def list_users():
+async def list_users(current_user: Annotated[User, Depends(get_current_user)]):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_READ_USER not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
         return user_repository.list_all_users()
     except Exception as e:
@@ -24,6 +28,8 @@ async def list_users():
 
 @router.get("/{user_id}", response_model=UserModel)
 async def get_user(user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_READ_USER not in current_user.permissions and user_id != current_user.id:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -59,6 +65,20 @@ async def update_user(user_id: str, user: UserModel, current_user: Annotated[Use
         return user_repository.update_user(user_id, user)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+
+@router.patch("/{user_id}/{project_id}")
+async def favorite_project(project_id: str, user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_READ_USER not in current_user.permissions and user_id != current_user.id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+    try:
+        return user_repository.favorite_project(user_id, project_id)
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+
+
+
 
 @router.delete("/{user_id}", response_model=dict)
 async def delete_user(user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
