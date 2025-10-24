@@ -52,7 +52,7 @@ def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
 def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:
     result = users_collection.update_many(
         {"role.id": role_id},
-        {"$set": {"role": updated_role.dict()}}
+        {"$set": {"role": updated_role.model_dump(by_alias=True)}}
     )
     return result.modified_count
 
