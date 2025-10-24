@@ -58,12 +58,12 @@ def create_exhibition(exhibition: ExhibitionCreate):
         return exhibition_model
     return None
 
-# def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
-#     result = exhibition_collection.update_many(
-#         {"role.id": role_id},
-#         {"$set": {"role": updated_role.dict()}}
-#     )
-#     return result.modified_count
+def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
+    result = exhibition_collection.update_many(
+        {"role.id": role_id},
+        {"$set": {"role": updated_role.model_dump(by_alias=True)}}
+    )
+    return result.modified_count
 
 def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
     if update_data.roles and not any(role.id == c.DEFAULT_ROLE_ID for role in update_data.roles):
