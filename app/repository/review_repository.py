@@ -6,6 +6,8 @@ from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
 from app.repository import exhibition_repository, project_repository
 import uuid
+from app.model.role import RoleModel
+
 
 from app.routes.security import User
 from app.constants import DEFAULT_ROLE_ID
@@ -116,3 +118,10 @@ def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
         grades=review["grades"],
         project_id=project_id
     ) for review in reviews_cursor]
+
+def update_reviews_with_role(role_id: str, updated_role: RoleModel) -> int:
+    result = reviews_collection.update_many(
+        {"role.id": role_id},
+        {"$set": {"role": updated_role.model_dump(by_alias=True)}}
+    )
+    return result.modified_count
