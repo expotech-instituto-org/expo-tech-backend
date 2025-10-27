@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter
+from app.dto.exhibition.exhibition_resume_dto import ExhibitionResumeDTO
 
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
 from app.model.exhibition import ExhibitionModel
@@ -11,7 +12,7 @@ router = APIRouter(
     tags=["Exhibitions"]
 )
 
-@router.get("", response_model=List[ExhibitionModel])
+@router.get("", response_model=List[ExhibitionResumeDTO])
 async def list_exhibitions():
     return exhibition_repository.get_all_exhibition()
 
@@ -26,3 +27,14 @@ async def create_exhibition(exhibition: ExhibitionCreate):
 @router.delete("/{exhibition_id}", response_model=bool)
 async def delete_exhibition(exhibition_id: str):
     return exhibition_repository.delete_exhibition(exhibition_id)
+
+@router.get("/{exhibition_id}", response_model=ExhibitionModel)
+async def get_exhibition_by_id(exhibition_id: str):
+    return exhibition_repository.get_exhibition_by_id(exhibition_id)
+
+@router.get("/current", response_model=ExhibitionModel)
+async def get_exhibition_by_current_date():
+    exhibition = exhibition_repository.get_exhibition_by_current_date()
+    if exhibition is None:
+        raise HTTPException(status_code=404, detail="Exhibition not found")
+    return exhibition
