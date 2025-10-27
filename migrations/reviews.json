@@ -1,0 +1,314 @@
+[
+  {
+    "_id": "review-uuid-1-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1", "name": "NUTRIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-1", "name": "Reviewer 1", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "Ótima apresentação e solução inovadora."
+  },
+  {
+    "_id": "review-uuid-1-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1", "name": "NUTRIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-2", "name": "Reviewer 2", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "Bom trabalho, mas pode melhorar a apresentação."
+  },
+  {
+    "_id": "review-uuid-1-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1", "name": "NUTRIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-3", "name": "Reviewer 3", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Excelente em todos os critérios."
+  },
+  {
+    "_id": "review-uuid-2-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 3, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-2", "name": "Project Y"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-4", "name": "Reviewer 4", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "Boa apresentação, a solução pode ser aprimorada."
+  },
+  {
+    "_id": "review-uuid-2-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-2", "name": "Project Y"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-5", "name": "Reviewer 5", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "Trabalho interessante, mas a apresentação do stand deixou a desejar."
+  },
+  {
+    "_id": "review-uuid-2-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-2", "name": "Project Y"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-6", "name": "Reviewer 6", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Projeto excelente, atendeu a todas as expectativas."
+  },
+  {
+    "_id": "review-uuid-3-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-3", "name": "INOVATEC"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-7", "name": "Reviewer 7", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "Boa solução, mas a apresentação do projeto pode ser melhorada."
+  },
+  {
+    "_id": "review-uuid-3-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-3", "name": "INOVATEC"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-8", "name": "Reviewer 8", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "Trabalho bom, mas a apresentação do stand foi fraca."
+  },
+  {
+    "_id": "review-uuid-3-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-3", "name": "INOVATEC"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-9", "name": "Reviewer 9", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Excelente projeto, superou todas as expectativas."
+  },
+  {
+    "_id": "review-uuid-4-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-4", "name": "SINARA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-10", "name": "Reviewer 10", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "Apresentação do stand foi excelente."
+  },
+  {
+    "_id": "review-uuid-4-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-4", "name": "SINARA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-11", "name": "Reviewer 11", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "Solução desenvolvida foi boa, mas pode melhorar."
+  },
+  {
+    "_id": "review-uuid-4-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-4", "name": "SINARA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-12", "name": "Reviewer 12", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Projeto SINARA superou as expectativas."
+  },
+  {
+    "_id": "review-uuid-5-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-5", "name": "ZETA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-13", "name": "Reviewer 13", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "ZETA apresentou uma solução sólida."
+  },
+  {
+    "_id": "review-uuid-5-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-5", "name": "ZETA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-14", "name": "Reviewer 14", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "A apresentação do stand pode ser melhorada."
+  },
+  {
+    "_id": "review-uuid-5-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-5", "name": "ZETA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-15", "name": "Reviewer 15", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Projeto ZETA foi destaque em inovação."
+  },
+  {
+    "_id": "review-uuid-6-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-6", "name": "ESSENTIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-16", "name": "Reviewer 16", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "ESSENTIA apresentou uma solução sólida."
+  },
+  {
+    "_id": "review-uuid-6-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-6", "name": "ESSENTIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-17", "name": "Reviewer 17", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "A apresentação do stand pode ser melhorada."
+  },
+  {
+    "_id": "review-uuid-6-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-6", "name": "ESSENTIA"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-18", "name": "Reviewer 18", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Projeto ESSENTIA foi destaque em inovação."
+  },
+  {
+    "_id": "review-uuid-7-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-7", "name": "YBYRATECH"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-19", "name": "Reviewer 19", "role": {"_id": "role-uuid-professor-tech", "name": "professor_tech", "weight": 0.2}},
+    "comment": "YBYRATECH apresentou uma solução sólida."
+  },
+  {
+    "_id": "review-uuid-7-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-7", "name": "YBYRATECH"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-20", "name": "Reviewer 20", "role": {"_id": "role-uuid-professor-base", "name": "professor_base", "weight": 0.2}},
+    "comment": "A apresentação do stand pode ser melhorada."
+  },
+  {
+    "_id": "review-uuid-7-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-7", "name": "YBYRATECH"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-21", "name": "Reviewer 21", "role": {"_id": "role-uuid-cliente", "name": "cliente", "weight": 0.2}},
+    "comment": "Projeto YBYRATECH foi destaque em inovação."
+  },
+  {
+    "_id": "review-uuid-project-uuid-1234-1",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 4, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 4, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 4, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 4, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1234", "name": "Project X"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-auto-1", "name": "Auto Reviewer 1", "role": {"_id": "role-uuid-auto", "name": "auto", "weight": 0.2}},
+    "comment": "Auto-generated review for Project X."
+  },
+  {
+    "_id": "review-uuid-project-uuid-1234-2",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 5, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 5, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 5, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 5, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1234", "name": "Project X"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-auto-2", "name": "Auto Reviewer 2", "role": {"_id": "role-uuid-auto", "name": "auto", "weight": 0.2}},
+    "comment": "Auto-generated review for Project X."
+  },
+  {
+    "_id": "review-uuid-project-uuid-1234-3",
+    "grades": [
+      {"name": "Apresentação do projeto", "score": 3, "weight": 0.25},
+      {"name": "Solução desenvolvida", "score": 3, "weight": 0.25},
+      {"name": "Apresentação do stand", "score": 3, "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "score": 3, "weight": 0.25}
+    ],
+    "project": {"_id": "project-uuid-1234", "name": "Project X"},
+    "exhibition": {"_id": "exhibition-uuid-1234", "name": "Expo Tech 2025"},
+    "user": {"_id": "user-uuid-auto-3", "name": "Auto Reviewer 3", "role": {"_id": "role-uuid-auto", "name": "auto", "weight": 0.2}},
+    "comment": "Auto-generated review for Project X."
+  }
+]
