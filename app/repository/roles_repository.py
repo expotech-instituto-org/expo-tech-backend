@@ -4,6 +4,8 @@ from app.dto.role.role_upsert_dto import RoleUpsert
 from app.model.role import RoleModel
 import uuid
 import app.constants as c
+from app.repository import user_repository, exhibition_repository, review_repository
+
 
 roles_collection = db["roles"]
 
@@ -52,6 +54,9 @@ def update_role(role_id: str, update_data: RoleModel) -> Optional[RoleModel]:
         updated_role = {**role_data, **update_data.model_dump(exclude_unset=True)}
         
         roles_collection.replace_one({"id": role_id}, updated_role)
+        users_updated = user_repository.update_users_with_role(role_id, updated_role)
+        exhibitions_updated = exhibition_repository.update_exhibion_with_role(role_id, updated_role)
+        reviews_updated = review_repository.update_reviews_with_role(role_id, updated_role)
 
         return RoleModel(**updated_role)
     return None
