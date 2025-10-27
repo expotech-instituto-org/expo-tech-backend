@@ -3,18 +3,21 @@ from typing import Optional
 from app.database import db
 from app.dto.exhibition.exhibition_create_dto import ExhibitionCreate
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
+from app.dto.exhibition.exhibition_resume_dto import ExhibitionResumeDTO
 from app.model.exhibition import ExhibitionModel
 from app.model.role import RoleModel
 from app.repository import project_repository, roles_repository
 import app.constants as c
 import uuid
+from datetime import datetime, timezone
+from pymongo import ASCENDING
 
 exhibition_collection= db["exhibitions"]
 
 
-def get_all_exhibition() -> list[ExhibitionModel]:
-    exhibition_cursor = exhibition_collection.find()
-    return [ExhibitionModel (**exhibition) for exhibition in exhibition_cursor]
+def get_all_exhibition() -> list[ExhibitionResumeDTO]:
+    exhibition_cursor = exhibition_collection.find({"deactivation_date": {"$exists": False}})
+    return [ExhibitionResumeDTO(**exhibition, id=exhibition.get("id")) for exhibition in exhibition_cursor]
 
 def get_exhibition_by_id(exhibition_id: str) -> Optional[ExhibitionModel]:
     exhibition_data = exhibition_collection.find_one({"_id": exhibition_id})
@@ -121,3 +124,20 @@ def is_role_in_use(role_id: str) -> bool:
         }
     )
     return exhibition is not None
+
+def get_exhibition_by_current_date() -> Optional[ExhibitionModel]:
+    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    # Find exhibition happening today
+    exhibition_data = exhibition_collection.find_one({
+        "start_date": {"$lte": today},
+        "end_date": {"$gte": today}
+    })
+    if exhibition_data:
+        return ExhibitionModel(**exhibition_data)
+    # If none, find the next exhibition
+    next_exhibition = exhibition_collection.find({
+        "start_date": {"$gt": today}
+    }).sort("start_date", ASCENDING).limit(1)
+    for exhibition in next_exhibition:
+        return ExhibitionModel(**exhibition)
+    return None

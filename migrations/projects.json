@@ -1,0 +1,352 @@
+[
+{
+  "_id": "project-uuid-1234",
+  "name": "Project X",
+  "company_name": "Tech Corp",
+  "description": "A tech company specializing in AI",
+  "coordinates": 1,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "user-uuid-1234", "name": "John Doe"}
+  ],
+  "images": ["img1.png", "img2.png"],
+  "logo": "logo.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-1",
+  "name": "NUTRIA",
+  "company_name": "NUTRIA",
+  "description": "Project NUTRIA description.",
+  "coordinates": 1,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-1", "name": "Expositor NUTRIA"}
+  ],
+  "images": [],
+  "logo": "logo1.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-2",
+  "name": "SANCARAN",
+  "company_name": "SANCARAN",
+  "description": "Project SANCARAN description.",
+  "coordinates": 2,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-2", "name": "Expositor SANCARAN"}
+  ],
+  "images": [],
+  "logo": "logo2.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-3",
+  "name": "AION",
+  "company_name": "AION",
+  "description": "Project AION description.",
+  "coordinates": 3,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-3", "name": "Expositor AION"}
+  ],
+  "images": [],
+  "logo": "logo3.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-4",
+  "name": "SINARA",
+  "company_name": "SINARA",
+  "description": "Project SINARA description.",
+  "coordinates": 4,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-4", "name": "Expositor SINARA"}
+  ],
+  "images": [],
+  "logo": "logo4.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-5",
+  "name": "ZETA",
+  "company_name": "ZETA",
+  "description": "Project ZETA description.",
+  "coordinates": 5,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-5", "name": "Expositor ZETA"}
+  ],
+  "images": [],
+  "logo": "logo5.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-6",
+  "name": "ESSENTIA",
+  "company_name": "ESSENTIA",
+  "description": "Project ESSENTIA description.",
+  "coordinates": 6,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-6", "name": "Expositor ESSENTIA"}
+  ],
+  "images": [],
+  "logo": "logo6.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-7",
+  "name": "YBYRATECH",
+  "company_name": "YBYRATECH",
+  "description": "Project YBYRATECH description.",
+  "coordinates": 7,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-7", "name": "Expositor YBYRATECH"}
+  ],
+  "images": [],
+  "logo": "logo7.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-8",
+  "name": "IARA",
+  "company_name": "IARA",
+  "description": "Project IARA description.",
+  "coordinates": 8,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-8", "name": "Expositor IARA"}
+  ],
+  "images": [],
+  "logo": "logo8.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-9",
+  "name": "CODCOZ",
+  "company_name": "CODCOZ",
+  "description": "Project CODCOZ description.",
+  "coordinates": 9,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-9", "name": "Expositor CODCOZ"}
+  ],
+  "images": [],
+  "logo": "logo9.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-10",
+  "name": "INVOLUCRE",
+  "company_name": "INVOLUCRE",
+  "description": "Project INVOLUCRE description.",
+  "coordinates": 10,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-10", "name": "Expositor INVOLUCRE"}
+  ],
+  "images": [],
+  "logo": "logo10.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-11",
+  "name": "I_GESTA",
+  "company_name": "I_GESTA",
+  "description": "Project I_GESTA description.",
+  "coordinates": 11,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-11", "name": "Expositor I_GESTA"}
+  ],
+  "images": [],
+  "logo": "logo11.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-12",
+  "name": "FROTA VIVA",
+  "company_name": "FROTA VIVA",
+  "description": "Project FROTA VIVA description.",
+  "coordinates": 12,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-12", "name": "Expositor FROTA VIVA"}
+  ],
+  "images": [],
+  "logo": "logo12.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-13",
+  "name": "KRONOS",
+  "company_name": "KRONOS",
+  "description": "Project KRONOS description.",
+  "coordinates": 13,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-13", "name": "Expositor KRONOS"}
+  ],
+  "images": [],
+  "logo": "logo13.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-14",
+  "name": "SCANEIA",
+  "company_name": "SCANEIA",
+  "description": "Project SCANEIA description.",
+  "coordinates": 14,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-14", "name": "Expositor SCANEIA"}
+  ],
+  "images": [],
+  "logo": "logo14.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-15",
+  "name": "INFOONE",
+  "company_name": "INFOONE",
+  "description": "Project INFOONE description.",
+  "coordinates": 15,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-15", "name": "Expositor INFOONE"}
+  ],
+  "images": [],
+  "logo": "logo15.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-16",
+  "name": "TIMELEAN",
+  "company_name": "TIMELEAN",
+  "description": "Project TIMELEAN description.",
+  "coordinates": 16,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-16", "name": "Expositor TIMELEAN"}
+  ],
+  "images": [],
+  "logo": "logo16.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-17",
+  "name": "VIREYA",
+  "company_name": "VIREYA",
+  "description": "Project VIREYA description.",
+  "coordinates": 17,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-17", "name": "Expositor VIREYA"}
+  ],
+  "images": [],
+  "logo": "logo17.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-18",
+  "name": "ECOFACTORY",
+  "company_name": "ECOFACTORY",
+  "description": "Project ECOFACTORY description.",
+  "coordinates": 18,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-18", "name": "Expositor ECOFACTORY"}
+  ],
+  "images": [],
+  "logo": "logo18.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-19",
+  "name": "MAGNA",
+  "company_name": "MAGNA",
+  "description": "Project MAGNA description.",
+  "coordinates": 19,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-19", "name": "Expositor MAGNA"}
+  ],
+  "images": [],
+  "logo": "logo19.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-20",
+  "name": "NEOTECH",
+  "company_name": "NEOTECH",
+  "description": "Project NEOTECH description.",
+  "coordinates": 20,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-20", "name": "Expositor NEOTECH"}
+  ],
+  "images": [],
+  "logo": "logo20.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-21",
+  "name": "EI_TRUCK",
+  "company_name": "EI_TRUCK",
+  "description": "Project EI_TRUCK description.",
+  "coordinates": 21,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-21", "name": "Expositor EI_TRUCK"}
+  ],
+  "images": [],
+  "logo": "logo21.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-22",
+  "name": "CONTABACO",
+  "company_name": "CONTABACO",
+  "description": "Project CONTABACO description.",
+  "coordinates": 22,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-22", "name": "Expositor CONTABACO"}
+  ],
+  "images": [],
+  "logo": "logo22.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-23",
+  "name": "PURPURA",
+  "company_name": "PURPURA",
+  "description": "Project PURPURA description.",
+  "coordinates": 23,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-23", "name": "Expositor PURPURA"}
+  ],
+  "images": [],
+  "logo": "logo23.png",
+  "deactivation_date": null
+},
+{
+  "_id": "project-uuid-24",
+  "name": "SIMBIA",
+  "company_name": "SIMBIA",
+  "description": "Project SIMBIA description.",
+  "coordinates": 24,
+  "exhibition_id": "exhibition-uuid-1234",
+  "expositors": [
+    {"_id": "expositor-project-uuid-24", "name": "Expositor SIMBIA"}
+  ],
+  "images": [],
+  "logo": "logo24.png",
+  "deactivation_date": null
+}
+]
