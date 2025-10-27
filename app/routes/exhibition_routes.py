@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.dto.exhibition.exhibition_resume_dto import ExhibitionResumeDTO
 
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate
@@ -30,7 +30,10 @@ async def delete_exhibition(exhibition_id: str):
 
 @router.get("/{exhibition_id}", response_model=ExhibitionModel)
 async def get_exhibition_by_id(exhibition_id: str):
-    return exhibition_repository.get_exhibition_by_id(exhibition_id)
+    exhibition = exhibition_repository.get_exhibition_by_id(exhibition_id)
+    if exhibition is None:
+        raise HTTPException(status_code=404, detail="Exhibition not found")
+    return exhibition
 
 @router.get("/current", response_model=ExhibitionModel)
 async def get_exhibition_by_current_date():
