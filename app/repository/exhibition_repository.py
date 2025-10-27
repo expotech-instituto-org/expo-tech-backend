@@ -16,8 +16,8 @@ exhibition_collection= db["exhibitions"]
 
 
 def get_all_exhibition() -> list[ExhibitionResumeDTO]:
-    exhibition_cursor = exhibition_collection.find({"deactivation_date": {"$exists": False}})
-    return [ExhibitionResumeDTO(**exhibition, id=exhibition.get("id")) for exhibition in exhibition_cursor]
+    exhibition_cursor = exhibition_collection.find({"deactivation_date": None})
+    return [ExhibitionResumeDTO(**exhibition, id=exhibition.get("_id")) for exhibition in exhibition_cursor]
 
 def get_exhibition_by_id(exhibition_id: str) -> Optional[ExhibitionModel]:
     exhibition_data = exhibition_collection.find_one({"_id": exhibition_id})
