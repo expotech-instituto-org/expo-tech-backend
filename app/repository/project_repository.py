@@ -14,9 +14,11 @@ review_collection = db["reviews"]
 def get_project_by_id(project_id: str) -> Optional[ProjectModel]:
     project_data = project_collection.find_one({"_id": project_id})
     if project_data:
+        if project_data.get("_id"):
+            project_data["_id"] = str(project_data["_id"])
         return ProjectModel(**project_data)
     return None
-    
+
 def get_projects_with_filters(
     exhibition_id: Optional[str] = None,
     project_name: Optional[str] = None,
@@ -34,7 +36,12 @@ def get_projects_with_filters(
         query["company_name"] = {"$regex": company_name, "$options": "i"}
     
     projects = project_collection.find(query)
-    return [ProjectModel(**p) for p in projects]
+    result = []
+    for p in projects:
+        if p.get("_id"):
+            p["_id"] = str(p["_id"])
+        result.append(ProjectModel(**p))
+    return result
 
 def add_project(project: ProjectModel) -> Optional[ProjectModel]:
     project_dict = project.model_dump(by_alias=True)
@@ -43,8 +50,20 @@ def add_project(project: ProjectModel) -> Optional[ProjectModel]:
     result = project_collection.insert_one(project_dict)
 
     if result.inserted_id:
-        expositor_ids = [e["_id"] for e in project_dict["expositors"]]
-        user_repository.set_project_id_on_users(expositor_ids, project_dict["_id"])
+        expositor_ids = []
+        for expositor in project_dict.get("expositors", []):
+            if isinstance(expositor, dict):
+                if "_id" in expositor and expositor["_id"]:
+                    expositor_ids.append(expositor["_id"])
+                elif "id" in expositor and expositor["id"]:
+                    expositor_ids.append(expositor["id"])
+            elif hasattr(expositor, 'id') and expositor.id:
+                expositor_ids.append(expositor.id)
+            elif hasattr(expositor, '_id') and expositor._id:
+                expositor_ids.append(expositor._id)
+        
+        if expositor_ids:
+            user_repository.set_project_id_on_users(expositor_ids, project_dict["_id"])
 
         exhibition_repository.add_project(
             project_dict["exhibition_id"],
@@ -60,12 +79,14 @@ def add_project(project: ProjectModel) -> Optional[ProjectModel]:
 
     return None
 
-def update_project_by_id(project_id: str, update_data: ProjectModel) -> Optional[ProjectModel]:
-    update_dict = update_data.model_dump(by_alias=True)
+def update_project_by_id(project_id: str, update_data: dict) -> Optional[ProjectModel]:
+    update_dict = update_data.copy() 
+    
+    if "_id" in update_dict:
+        update_dict.pop("_id")
 
     current_project = project_collection.find_one({"_id": project_id})
     old_exhibition_id = None
-
     if current_project:
         old_exhibition_id = current_project.get("exhibition_id")
 
@@ -82,11 +103,22 @@ def update_project_by_id(project_id: str, update_data: ProjectModel) -> Optional
             "company_name": update_dict.get("company_name")
         }
 
-        user_repository.set_project_resume_on_users_by_project_id(project_id, project_resume_dict)
+        user_repository.set_project(project_id, project_resume_dict)
 
-        if "expositors" in update_dict:
-            expositor_ids = [e["_id"] for e in update_dict.get("expositors", [])]
-            user_repository.set_project_resume_on_users_by_ids(expositor_ids, project_resume_dict)
+        if "expositors" in update_dict and update_dict["expositors"]:
+            expositor_ids = []
+            for e in update_dict.get("expositors", []):
+                if isinstance(e, dict):
+                    if "_id" in e and e["_id"]:
+                        expositor_ids.append(e["_id"])
+                    elif "id" in e and e["id"]:
+                        expositor_ids.append(e["id"])
+                elif hasattr(e, 'id') and e.id:
+                    expositor_ids.append(e.id)
+                elif hasattr(e, '_id') and e._id:
+                    expositor_ids.append(e._id)
+            if expositor_ids:
+                user_repository.set_project_resume_on_users_by_ids(expositor_ids, project_resume_dict)
 
         new_exhibition_id = update_dict.get("exhibition_id") or (current_project.get("exhibition_id") if current_project else None)
         
@@ -110,21 +142,32 @@ def update_project_by_id(project_id: str, update_data: ProjectModel) -> Optional
         updated_project = project_collection.find_one({"_id": project_id})
         
         if updated_project:
-            return ProjectModel(**updated_project)
+            try:
+                if updated_project.get("_id"):
+                    updated_project["_id"] = str(updated_project["_id"])
+                return ProjectModel(**updated_project)
+            except Exception as e:
+                return None
 
     return None
 
 def delete_project_by_id(project_id: str) -> bool:
-    review_collection.update_many(
-        {"project_id": project_id},
-        {"$set": {"active": False}}
-    )
-    
-    user_repository.unset_project_by_project_id(project_id)
+    try:
+        review_collection.update_many(
+            {"project_id": project_id},
+            {"$set": {"active": False}}
+        )
+        
+        user_repository.unset_project_by_project_id(project_id)
 
-    project = project_collection.find_one({"_id": project_id})
-    if project and project.get("exhibition_id"):
-        exhibition_repository.remove_project(project.get("exhibition_id"), project_id)
+        project = project_collection.find_one({"_id": project_id})
+        if project and project.get("exhibition_id"):
+            try:
+                exhibition_repository.remove_project(project.get("exhibition_id"), project_id)
+            except Exception:
+                pass
 
-    result = project_collection.delete_one({"_id": project_id})
-    return result.deleted_count > 0
+        result = project_collection.delete_one({"_id": project_id})
+        return result.deleted_count > 0
+    except Exception as e:
+        return False
