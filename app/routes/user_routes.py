@@ -62,7 +62,15 @@ async def update_user(user_id: str, user: UserModel, current_user: Annotated[Use
     if c.PERMISSION_UPDATE_USER not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
-        return user_repository.update_user(user_id, user)
+        update_user = user_repository.update_user(user_id, user)
+        update_user.id = user_id
+        return update_user
+    except ValueError as e:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+    except PermissionError as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, str(e))
+    except DuplicateKeyError as e:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Duplicate email")
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
@@ -84,10 +92,10 @@ async def favorite_project(project_id: str, user_id: str, current_user: Annotate
 async def delete_user(user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if c.PERMISSION_DELETE_USER not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
-    try:
-        return user_repository.delete_user(user_id)
-    except Exception as e:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+    success = user_repository.delete_user(user_id)
+    if not success:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    return {"message": "User deleted successfully"}
 
 @router.get("/me/", response_model=Optional[User])
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):

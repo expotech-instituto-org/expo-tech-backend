@@ -56,6 +56,7 @@ class UserModel(BaseModel):
                 "project": {
                     "_id": str(uuid.uuid4()),
                     "name": "Projeto Exemplo",
+                    "logo": "https://link-to-image.com/image.png",
                     "company_name": "Tech Corporation"
                 },
                 "reviews": [

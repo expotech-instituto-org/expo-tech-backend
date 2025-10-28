@@ -34,10 +34,8 @@ def create_class(class_name: str, class_year: str):
 def update_class(class_id: str, update_data: ClassCreateDTO) -> Optional[ClassModel]:
     result = class_collection.update_one(
         {"_id": class_id},
-        {"$set": {"name": update_data.name}} 
+        {"$set": {"name": update_data.name, "year": update_data.year}}
     )
     if result.modified_count > 0:
-        updated_class = class_collection.find_one({"_id": update_data.id})
-        if updated_class:
-            return ClassModel(**updated_class)
+        return ClassModel(_id=class_id, **update_data.model_dump())
     return None
