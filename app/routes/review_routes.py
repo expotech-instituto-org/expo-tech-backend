@@ -28,9 +28,15 @@ async def create_review(review: ReviewCreate, current_user: Annotated[User, Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/{review_id}", response_model=bool)
+@router.delete("/{review_id}", response_model=ReviewModel)
 async def delete_review(review_id: str):
-    return review_repository.delete_review(review_id)
+    try:
+        review = review_repository.delete_review(review_id)
+        return review
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/exhibition/{exhibition_id}", response_model=List[ReviewModel])
 async def get_reviews_by_exhibition(exhibition_id: str):
@@ -46,9 +52,8 @@ async def get_reviews_by_user(project_id: str, current_user: Annotated[User, Dep
     reviews = review_repository.get_reviews_by_project(project_id)
     if c.PERMISSION_READ_REVIEW in current_user.permissions:
         return reviews
-    else:
-        return [ReviewResume(
-            id=review.id,
-            grades=[ReviewResume.Grade(**grade.model_dump()) for grade in review.grades],
-            project_id=project_id
-        ) for review in reviews]
+    return [ReviewResume(
+        id=review.id,
+        grades=[ReviewResume.Grade(**grade.model_dump()) for grade in review.grades],
+        project_id=project_id
+    ) for review in reviews]
