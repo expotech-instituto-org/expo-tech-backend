@@ -40,13 +40,10 @@ def create_user(user: UserCreate, requesting_role_permissions: list[str]) -> Opt
 
 def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
     user_dict = update_data.model_dump(exclude_unset=True)
-    result = users_collection.update_one({"id": user_id}, {"$set": user_dict})
-    if result.modified_count == 0:
-        return None
-    updated_user = users_collection.find_one({"id": user_id})
-    if updated_user:
-        return UserModel(**updated_user)
-    return None
+    result = users_collection.update_one({"_id": user_id}, {"$set": user_dict})
+    if result.matched_count == 0:
+        raise ValueError("User not found")
+    return UserModel(**update_data.model_dump(by_alias=True))
 
 
 def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:
@@ -57,7 +54,7 @@ def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:
     return result.modified_count
 
 def delete_user(user_id: str) -> bool:
-    result = users_collection.delete_one({"id": user_id})
+    result = users_collection.delete_one({"_id": user_id})
     return result.deleted_count > 0
 
 def get_user_by_email(email: str):

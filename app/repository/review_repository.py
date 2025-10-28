@@ -22,7 +22,7 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
     exhibition = exhibition_repository.get_exhibition_by_id(dto.exhibition_id)
     if exhibition is None:
         raise ValueError("Exhibition not found")
-    project = project_repository.get_project_by_id(dto.project_id)
+    project = next((p for p in exhibition.projects if p.id == dto.project_id), None)
     if project is None:
         raise ValueError("Project not found")
 

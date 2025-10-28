@@ -28,7 +28,7 @@ async def create_knowledge(knowledge_dto: KnowledgeCreateDTO):
     return knowledge_created
 
 @router.put("/{knowledge_id}", response_model=KnowledgeModel)
-async def update_knowledge(knowledge_id: str, knowledge_update: KnowledgeModel):
+async def update_knowledge(knowledge_id: str, knowledge_update: KnowledgeCreateDTO):
     updated = knowledge_repository.update_knowledge(knowledge_id, knowledge_update)
     if updated is None:
         raise HTTPException(status_code=404, detail="Knowledge not found or not updated")
