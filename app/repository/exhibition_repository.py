@@ -127,16 +127,18 @@ def is_role_in_use(role_id: str) -> bool:
 
 def get_exhibition_by_current_date() -> Optional[ExhibitionModel]:
     today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    # Find exhibition happening today
+    # Find exhibition happening today (and not deactivated)
     exhibition_data = exhibition_collection.find_one({
         "start_date": {"$lte": today},
-        "end_date": {"$gte": today}
+        "end_date": {"$gte": today},
+        "deactivation_date": None
     })
     if exhibition_data:
         return ExhibitionModel(**exhibition_data)
-    # If none, find the next exhibition
+    # If none, find the next exhibition (and not deactivated)
     next_exhibition = exhibition_collection.find({
-        "start_date": {"$gt": today}
+        "start_date": {"$gt": today},
+        "deactivation_date": None
     }).sort("start_date", ASCENDING).limit(1)
     for exhibition in next_exhibition:
         return ExhibitionModel(**exhibition)

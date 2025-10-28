@@ -35,7 +35,7 @@ async def get_exhibition_by_id(exhibition_id: str):
         raise HTTPException(status_code=404, detail="Exhibition not found")
     return exhibition
 
-@router.get("/current", response_model=ExhibitionModel)
+@router.get("/current/", response_model=ExhibitionModel)
 async def get_exhibition_by_current_date():
     exhibition = exhibition_repository.get_exhibition_by_current_date()
     if exhibition is None:
