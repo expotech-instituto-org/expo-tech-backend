@@ -97,9 +97,14 @@ def get_review_by_id(review_id: str) -> Optional[ReviewModel]:
         return ReviewModel(**review_data)
     return None
 
-def delete_review(review_id: str) -> bool:
-    result = reviews_collection.delete_one({"id": review_id})
-    return result.deleted_count > 0
+def delete_review(review_id: str) -> Optional[ReviewModel]:
+    review = reviews_collection.find_one({"_id": review_id})
+    if not review:
+        raise ValueError("Review not found")
+    result = reviews_collection.delete_one({"_id": review_id})
+    if result.deleted_count == 0:
+        raise Exception("Error deleting review")
+    return ReviewModel(**review)
 
 def is_role_in_use(role_id: str) -> bool:
     review = reviews_collection.find_one(
