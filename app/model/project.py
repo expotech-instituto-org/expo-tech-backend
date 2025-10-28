@@ -8,17 +8,17 @@ class ProjectModel(BaseModel):
     name: str = Field(..., description="Project name")
     company_name: str = Field(..., description="Company Name")
     description: str = Field(..., description="Description")
-    coordinates: int = Field(..., description="Coordinates")
+    coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: str = Field(..., description="Exhibition id")
 
     class UserResume(BaseModel):
         id: Optional[str] = Field(None, alias="_id")
-        name: str = Field(..., description="User full name")
+        name: Optional[str] = Field(None, description="User full name")
     
     expositors: list[UserResume] = Field(..., description="List users")
-    images: list[str] = Field(..., description="List images")
-    logo: str = Field(..., description="Logo")
-    deactivation_date: Optional[datetime] = Field(..., description="Exhibition deactivation date")
+    images: Optional[list[str]] = Field(default_factory=list, description="List images")
+    logo: Optional[str] = Field(None, description="Logo")
+    deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
 
     class Config:
         validate_by_name = True
