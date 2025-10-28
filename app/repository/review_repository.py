@@ -110,14 +110,10 @@ def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
     return [ReviewModel(**review) for review in reviews_cursor]
 
-def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
+def get_reviews_by_project(project_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"project._id": project_id})
 
-    return [ReviewResume(
-        id=review["_id"],
-        grades=review["grades"],
-        project_id=project_id
-    ) for review in reviews_cursor]
+    return [ReviewModel(**review) for review in reviews_cursor]
 
 def update_reviews_with_role(role_id: str, updated_role: RoleModel) -> int:
     result = reviews_collection.update_many(
