@@ -182,7 +182,6 @@ async def update_project(
         if project.coordinates is not None:
             update_data["coordinates"] = project.coordinates
         if project.exhibition_id is not None:
-            # Validar se a exposição existe
             exhibition = exhibition_repository.get_exhibition_by_id(project.exhibition_id)
             if not exhibition:
                 raise HTTPException(
@@ -191,13 +190,19 @@ async def update_project(
                 )
             update_data["exhibition_id"] = project.exhibition_id
         if project.expositors is not None:
+            if project.expositors:
+                for expositor in project.expositors:
+                    if not user_repository.get_user_by_id(expositor.id):
+                        raise HTTPException(
+                            status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"Usuário expositor não encontrado: {expositor.id}"
+                        )
             update_data["expositors"] = [ProjectModel.UserResume(id=exp.id) for exp in project.expositors] if project.expositors else []
         if project.images is not None:
             update_data["images"] = project.images
         if project.logo is not None:
             update_data["logo"] = project.logo
         
-        # Criar apenas os campos que foram alterados
         updated_fields = {}
         if "name" in update_data:
             updated_fields["name"] = update_data["name"]
@@ -210,14 +215,11 @@ async def update_project(
         if "exhibition_id" in update_data:
             updated_fields["exhibition_id"] = update_data["exhibition_id"]
         if "expositors" in update_data:
-            updated_fields["expositors"] = update_data["expositors"]
+            updated_fields["expositors"] = [exp.model_dump(by_alias=True) for exp in update_data["expositors"]]
         if "images" in update_data:
             updated_fields["images"] = update_data["images"]
         if "logo" in update_data:
             updated_fields["logo"] = update_data["logo"]
-        
-        # Adicionar o ID
-        updated_fields["_id"] = project_id
         
         result = project_repository.update_project_by_id(project_id, updated_fields)
         if result is None:
