@@ -28,8 +28,8 @@ async def create_class(class_dto: ClassCreateDTO):
     return created
 
 @router.put("/{class_id}", response_model=ClassModel)
-async def update_class(class_id: str, class_update: ClassModel):
-    updated = class_repository.update_class(class_update)
+async def update_class(class_id: str, class_update: ClassCreateDTO):
+    updated = class_repository.update_class(class_id, class_update)
     if not updated:
         raise HTTPException(status_code=404, detail="Class not found or not updated")
     return updated

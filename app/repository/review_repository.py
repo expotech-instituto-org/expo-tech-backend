@@ -4,7 +4,13 @@ from app.model.review import ReviewModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
+from app.repository import exhibition_repository, project_repository
 import uuid
+from app.model.role import RoleModel
+
+
+from app.routes.security import User
+from app.constants import DEFAULT_ROLE_ID
 
 reviews_collection = db["reviews"]    
 
@@ -12,25 +18,49 @@ def get_all_reviews() -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find()
     return [ReviewModel(**review) for review in reviews_cursor]
 
-def create_review(dto: ReviewCreate, ) -> Optional[ReviewModel]:
+def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel]:
+    exhibition = exhibition_repository.get_exhibition_by_id(dto.exhibition_id)
+    if exhibition is None:
+        raise ValueError("Exhibition not found")
+    project = project_repository.get_project_by_id(dto.project_id)
+    if project is None:
+        raise ValueError("Project not found")
+
+    criteria_weight_map = {c.name: c.weight for c in exhibition.criteria}
+    exhibition_criteria_names = set(criteria_weight_map.keys())
+    review_grade_names = set([g.name for g in dto.grades])
+    if exhibition_criteria_names != review_grade_names:
+        raise ValueError("Grades do not match exhibition criteria")
+
+
+    exhibition_role = next((r for r in exhibition.roles if r.id == current_user.role.id), None)
+    if exhibition_role is None:
+        exhibition_role = next(r for r in exhibition.roles if r.id == DEFAULT_ROLE_ID)
+
     review_model = ReviewModel(
         _id=str(uuid.uuid4()),
-        grades=[ReviewModel.Grade(**grade.model_dump()) for grade in dto.grades],
+        grades=[
+            ReviewModel.Grade(
+                name=grade.name,
+                score=grade.score,
+                weight=criteria_weight_map[grade.name]
+            ) for grade in dto.grades
+        ],
         project=ReviewModel.ProjectResume(
-            _id=dto.project.id,
-            name=dto.project.name
+            _id=project.id,
+            name=project.name
         ),
         exhibition=ReviewModel.ExhibitionResume(
-            _id=dto.exhibition.id,
-            name=dto.exhibition.name
+            _id=exhibition.id,
+            name=exhibition.name
         ),
         user=ReviewModel.UserResume(
-            _id="",
-            name="(nome do usuário)",
+            _id=current_user.id,
+            name=current_user.email,
             role=ReviewModel.UserResume.UserRole(
-                _id="",
-                name="(nome do papel)",
-                weight=1.0
+                _id=exhibition_role.id,
+                name=exhibition_role.name,
+                weight=exhibition_role.weight
             )
         ),
         comment=dto.comment    
@@ -88,3 +118,10 @@ def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
         grades=review["grades"],
         project_id=project_id
     ) for review in reviews_cursor]
+
+def update_reviews_with_role(role_id: str, updated_role: RoleModel) -> int:
+    result = reviews_collection.update_many(
+        {"role.id": role_id},
+        {"$set": {"role": updated_role.model_dump(by_alias=True)}}
+    )
+    return result.modified_count

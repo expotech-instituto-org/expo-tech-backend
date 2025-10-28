@@ -52,7 +52,7 @@ def update_user(user_id: str, update_data: UserModel) -> Optional[UserModel]:
 def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:
     result = users_collection.update_many(
         {"role.id": role_id},
-        {"$set": {"role": updated_role.dict()}}
+        {"$set": {"role": updated_role.model_dump(by_alias=True)}}
     )
     return result.modified_count
 
@@ -111,3 +111,28 @@ def is_role_in_use(role_id: str) -> bool:
 def get_users_by_role(role_id: str) -> list[UserModel]:
     users_data = users_collection.find({"role.id": role_id})
     return [UserModel(**user) for user in users_data]
+
+
+def favorite_project(user_id: str, project_id: str):
+    user = users_collection.find_one({"_id": user_id})
+    if not user or "favorited_projects" not in user:
+        raise Exception("User not updated")
+
+    favorited_projects = user.get("favorited_projects", [])
+    if project_id in favorited_projects:
+        # Remove project_id
+        new_projects = favorited_projects.copy()
+        new_projects.remove(project_id)
+        action_result = False
+    else:
+        # Add project_id
+        new_projects = favorited_projects + [project_id]
+        action_result = True
+
+    result = users_collection.update_one(
+        {"_id": user_id},
+        {"$set": {"favorited_projects": new_projects}}
+    )
+    if result.modified_count == 0:
+        raise Exception("User not updated")
+    return action_result

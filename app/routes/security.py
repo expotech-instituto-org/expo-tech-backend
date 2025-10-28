@@ -15,7 +15,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 class User(BaseModel):
     id: str
-    project_id: str
+    project_id: Optional[str]
     email: str
     class Role(BaseModel):
         id: str
