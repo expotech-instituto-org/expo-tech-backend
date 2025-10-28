@@ -29,9 +29,9 @@ def create_knowledge(knowledge_name: str ):
         return KnowledgeModel(**knowledge_dict)
     return None
 
-def update_knowledge(update_data: KnowledgeModel) -> Optional[KnowledgeModel]:
+def update_knowledge(knowledge_id:str, update_data: KnowledgeModel) -> Optional[KnowledgeModel]:
     result = knowledge_collection.update_one(
-        {"_id": update_data.id},             
+        {"_id": knowledge_id},
         {"$set": {"name": update_data.name}} 
     )
     if result.modified_count > 0:

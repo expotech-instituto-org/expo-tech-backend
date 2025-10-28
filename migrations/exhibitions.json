@@ -1,0 +1,61 @@
+[
+  {
+    "_id": "exhibition-uuid-1234",
+    "name": "Expo Tech 2025",
+    "image": "https://example.com/expo.jpg",
+    "start_date": "2025-01-01T15:30:00Z",
+    "end_date": "2025-01-02T18:00:00Z",
+    "description": "Annual technology exhibition.",
+    "deactivation_date": null,
+    "projects": [
+      {"_id": "project-uuid-1", "name": "NUTRIA", "logo": "logo1.png", "company_name": "NUTRIA"},
+      {"_id": "project-uuid-2", "name": "SANCARAN", "logo": "logo2.png", "company_name": "SANCARAN"},
+      {"_id": "project-uuid-3", "name": "AION", "logo": "logo3.png", "company_name": "AION"},
+      {"_id": "project-uuid-4", "name": "SINARA", "logo": "logo4.png", "company_name": "SINARA"},
+      {"_id": "project-uuid-5", "name": "ZETA", "logo": "logo5.png", "company_name": "ZETA"},
+      {"_id": "project-uuid-6", "name": "ESSENTIA", "logo": "logo6.png", "company_name": "ESSENTIA"},
+      {"_id": "project-uuid-7", "name": "YBYRATECH", "logo": "logo7.png", "company_name": "YBYRATECH"},
+      {"_id": "project-uuid-8", "name": "IARA", "logo": "logo8.png", "company_name": "IARA"},
+      {"_id": "project-uuid-9", "name": "CODCOZ", "logo": "logo9.png", "company_name": "CODCOZ"},
+      {"_id": "project-uuid-10", "name": "INVOLUCRE", "logo": "logo10.png", "company_name": "INVOLUCRE"},
+      {"_id": "project-uuid-11", "name": "I_GESTA", "logo": "logo11.png", "company_name": "I_GESTA"},
+      {"_id": "project-uuid-12", "name": "FROTA VIVA", "logo": "logo12.png", "company_name": "FROTA VIVA"},
+      {"_id": "project-uuid-13", "name": "KRONOS", "logo": "logo13.png", "company_name": "KRONOS"},
+      {"_id": "project-uuid-14", "name": "SCANEIA", "logo": "logo14.png", "company_name": "SCANEIA"},
+      {"_id": "project-uuid-15", "name": "INFOONE", "logo": "logo15.png", "company_name": "INFOONE"},
+      {"_id": "project-uuid-16", "name": "TIMELEAN", "logo": "logo16.png", "company_name": "TIMELEAN"},
+      {"_id": "project-uuid-17", "name": "VIREYA", "logo": "logo17.png", "company_name": "VIREYA"},
+      {"_id": "project-uuid-18", "name": "ECOFACTORY", "logo": "logo18.png", "company_name": "ECOFACTORY"},
+      {"_id": "project-uuid-19", "name": "MAGNA", "logo": "logo19.png", "company_name": "MAGNA"},
+      {"_id": "project-uuid-20", "name": "NEOTECH", "logo": "logo20.png", "company_name": "NEOTECH"},
+      {"_id": "project-uuid-21", "name": "EI_TRUCK", "logo": "logo21.png", "company_name": "EI_TRUCK"},
+      {"_id": "project-uuid-22", "name": "CONTABACO", "logo": "logo22.png", "company_name": "CONTABACO"},
+      {"_id": "project-uuid-23", "name": "PURPURA", "logo": "logo23.png", "company_name": "PURPURA"},
+      {"_id": "project-uuid-24", "name": "SIMBIA", "logo": "logo24.png", "company_name": "SIMBIA"}
+    ],
+    "criteria": [
+      {"name": "Apresentação do projeto", "weight": 0.25},
+      {"name": "Solução desenvolvida", "weight": 0.25},
+      {"name": "Apresentação do stand", "weight": 0.25},
+      {"name": "Ideia usada para resolver o problema", "weight": 0.25}
+    ],
+    "roles": [
+      {
+        "_id": "role-uuid-professor-tech",
+        "name": "professor_tech",
+        "weight": 0.5
+      },
+      {
+        "_id": "role-uuid-professor-base",
+        "name": "professor_base",
+        "weight": 0.4
+      },
+      {
+        "_id": "role-uuid-visitante",
+        "name": "visitante",
+        "weight": 0.1
+      }
+    ]
+  }
+]
+

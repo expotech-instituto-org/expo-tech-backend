@@ -34,6 +34,7 @@ class UserModel(BaseModel):
 
     reviews: list[ReviewResume] = Field([], description="List of user reviews")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
+    favorited_projects: list[str] = Field([], description="List of favorited projects")
 
     class Config:
         validate_by_name = True
@@ -65,6 +66,6 @@ class UserModel(BaseModel):
                         "comment": "Great project!"
                     }
                 ],
-                "active": True,
+                "favorited_projects": [str(uuid.uuid4())],
             }
         }

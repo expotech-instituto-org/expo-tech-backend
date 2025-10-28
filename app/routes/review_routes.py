@@ -16,8 +16,17 @@ async def list_reviews():
     return review_repository.get_all_reviews()
 
 @router.post("", response_model=ReviewModel)
-async def create_review(review: ReviewCreate):
-    return review_repository.create_review(review)
+async def create_review(review: ReviewCreate, current_user: Annotated[User, Depends(get_current_user)] = None):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    try:
+        created = review_repository.create_review(review, current_user)
+        return created
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{review_id}", response_model=bool)
 async def delete_review(review_id: str):
@@ -29,6 +38,8 @@ async def get_reviews_by_exhibition(exhibition_id: str):
 
 @router.get("/project/{project_id}", response_model=List[ReviewResume])
 async def get_reviews_by_user(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     if c.PERMISSION_READ_REVIEW not in current_user.permissions and current_user.project_id != project_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
