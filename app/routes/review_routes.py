@@ -1,4 +1,4 @@
-from typing import List, Annotated
+from typing import List, Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from app.model.review import ReviewModel
 from app.repository import review_repository
@@ -42,10 +42,14 @@ async def delete_review(review_id: str):
 async def get_reviews_by_exhibition(exhibition_id: str):
     return review_repository.get_reviews_by_exhibition(exhibition_id)
 
-@router.get("/project/{project_id}", response_model=List[ReviewResume|ReviewModel])
-async def get_reviews_by_user(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+@router.get("/project/", response_model=List[ReviewResume|ReviewModel])
+async def get_reviews_by_user(project_id: Optional[str] = None, current_user: Annotated[User, Depends(get_current_user)] = None):
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized")
+    if not project_id:
+        project_id = current_user.project_id
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required")
     if c.PERMISSION_READ_REVIEW not in current_user.permissions and current_user.project_id != project_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
