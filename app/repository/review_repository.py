@@ -4,6 +4,7 @@ from app.model.review import ReviewModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
+from app.repository import user_repository
 import uuid
 
 reviews_collection = db["reviews"]    
@@ -12,7 +13,7 @@ def get_all_reviews() -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find()
     return [ReviewModel(**review) for review in reviews_cursor]
 
-def create_review(dto: ReviewCreate, ) -> Optional[ReviewModel]:
+def create_review(dto: ReviewCreate) -> Optional[ReviewModel]:
     review_model = ReviewModel(
         _id=str(uuid.uuid4()),
         grades=[ReviewModel.Grade(**grade.model_dump()) for grade in dto.grades],
@@ -25,18 +26,22 @@ def create_review(dto: ReviewCreate, ) -> Optional[ReviewModel]:
             name=dto.exhibition.name
         ),
         user=ReviewModel.UserResume(
-            _id="",
-            name="(nome do usuário)",
-            role=ReviewModel.UserResume.UserRole(
-                _id="",
-                name="(nome do papel)",
-                weight=1.0
-            )
+            _id=dto.user.id,
+            name=dto.user.name,
+            role=dto.user.role,
+            weight=dto.user.weight
         ),
-        comment=dto.comment    
+        comment=dto.comment
     )
+
     result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
     if result.inserted_id:
+        user_repository.add_review_to_user(
+            review_model.user._id,
+            review_model.project._id,
+            review_model.exhibition._id,
+            review_model.comment
+        )
         return review_model
     return None
 
@@ -68,8 +73,15 @@ def get_review_by_id(review_id: str) -> Optional[ReviewModel]:
     return None
 
 def delete_review(review_id: str) -> bool:
-    result = reviews_collection.delete_one({"id": review_id})
-    return result.deleted_count > 0
+    review = reviews_collection.find_one({"_id": review_id})
+    result = reviews_collection.delete_one({"_id": review_id})
+    if result.deleted_count > 0:
+        user_repository.remove_review_from_user(
+            review["user"]["_id"],
+            review["project"]["_id"]
+        )
+        return True
+    return False
 
 def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
