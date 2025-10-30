@@ -78,6 +78,9 @@ def default_permissions() -> list[str]:
         c.PERMISSION_READ_EXHIBITION,
         c.PERMISSION_READ_PROJECT,
         c.PERMISSION_CREATE_REVIEW,
+        c.PERMISSION_READ_COMPANY,
+        c.PERMISSION_READ_CLASS,
+        c.PERMISSION_READ_KNOWLEDGE
     ]
 
 roles_collection.update_one(
