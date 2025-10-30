@@ -107,3 +107,24 @@ def unset_project_by_project_id(project_id: str) -> None:
 def get_users_by_role(role_id: str) -> list[UserModel]:
     users_data = users_collection.find({"role.id": role_id})
     return [UserModel(**user) for user in users_data]
+
+def add_review_to_user(user_id: str, project_id: str, exhibition_id: str, comment: str):
+    users_collection = db["users"]
+    users_collection.update_one(
+        {"_id": user_id},
+        {"$push": {
+            "reviews": {
+                "project_id": project_id,
+                "exhibition_id": exhibition_id,
+                "comment": comment
+            }
+        }}
+    )
+
+
+def remove_review_from_user(user_id: str, project_id: str):
+    users_collection = db["users"]
+    users_collection.update_one(
+        {"_id": user_id},
+        {"$pull": {"reviews": {"project_id": project_id}}}
+    )
