@@ -151,6 +151,13 @@ def update_project_by_id(project_id: str, update_data: dict) -> Optional[Project
 
     return None
 
+def update_project_with_user(user_id: str, update_user: UserModel) -> int:
+    result = project_collection.update_many(
+        {"user_id": user_id},
+        {"$set": {"user": update_user.model_dump(by_alias=True)}}
+    )
+    return result.modified_count
+
 def delete_project_by_id(project_id: str) -> bool:
     try:
         review_collection.update_many(

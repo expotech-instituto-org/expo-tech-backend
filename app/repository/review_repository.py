@@ -1,6 +1,7 @@
 from typing import Optional
 from app.database import db
 from app.model.review import ReviewModel
+from app.model.user import UserModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
@@ -124,5 +125,12 @@ def update_reviews_with_role(role_id: str, updated_role: RoleModel) -> int:
     result = reviews_collection.update_many(
         {"role.id": role_id},
         {"$set": {"role": updated_role.model_dump(by_alias=True)}}
+    )
+    return result.modified_count
+
+def update_reviews_with_user(user_id: str, update_user: UserModel) -> int:
+    result = reviews_collection.update_many(
+        {"user._id": user_id},
+        {"$set": {"user": update_user.model_dump(by_alias=True)}}
     )
     return result.modified_count
