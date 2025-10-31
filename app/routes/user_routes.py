@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import json
+
+from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile
 from fastapi.security import OAuth2PasswordRequestForm
 from pymongo.errors import DuplicateKeyError
 
@@ -9,6 +11,8 @@ from app.routes.security import get_current_user, create_access_token, User, Tok
 from app.dto.user.user_create_dto import UserCreate
 
 import app.constants as c
+
+
 
 router = APIRouter(
     prefix="/users",
@@ -42,35 +46,66 @@ async def get_user(user_id: str, current_user: Annotated[User, Depends(get_curre
 
 @router.post("", response_model=UserModel)
 async def create_user(
-    user: UserCreate,
+    user: UserCreate|str = Form(...),
+    profile_picture: UploadFile = File(None),
     current_user: Annotated[User | None, Depends(get_current_user)] = None
 ):# <--- Carinha triste ou brava?
+    # HANDLE USER DATA PARSING
+    try:
+        user_create_data = UserCreate.model_validate_json(user)
+    except json.JSONDecodeError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid JSON format in user_data.")
+    except Exception as e:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+
     try:
         permissions = current_user.permissions if current_user else None
-        return user_repository.create_user(user, permissions)
+        created_user = await user_repository.create_user(user_create_data, permissions, profile_picture)
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
     except PermissionError as e:
         raise HTTPException(status.HTTP_403_FORBIDDEN, str(e))
     except DuplicateKeyError as e:
         raise HTTPException(status.HTTP_409_CONFLICT, "Duplicate email")
+    except RuntimeError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e))
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 @router.put("/{user_id}", response_model=UserModel)
-async def update_user(user_id: str, user: UserModel, current_user: Annotated[User, Depends(get_current_user)]):
+async def update_user(
+        user_id: str,
+        user: UserModel = Form(...),
+        profile_picture: UploadFile = File(None),
+        current_user: Annotated[User, Depends(get_current_user)] = None
+):
+    # HANDLE PERMISSIONS
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_UPDATE_USER not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+
+    # HANDLE USER DATA PARSING
     try:
-        update_user = user_repository.update_user(user_id, user)
-        update_user.id = user_id
-        return update_user
+        user_update_data = UserModel.model_validate_json(user)
+    except json.JSONDecodeError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid JSON format in user_data.")
+    except Exception as e:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+
+    # UPDATE USER DATA AND RETURN
+    try:
+        updated_user = user_repository.update_user(user_id, user_update_data)
+        updated_user.id = user_id
+        return updated_user
     except ValueError as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
     except PermissionError as e:
         raise HTTPException(status.HTTP_403_FORBIDDEN, str(e))
     except DuplicateKeyError as e:
         raise HTTPException(status.HTTP_409_CONFLICT, "Duplicate email")
+    except RuntimeError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e))
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
