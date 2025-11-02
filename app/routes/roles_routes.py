@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, status
+from app.dto.role.role_upsert_dto import RoleUpsert
 from app.repository import roles_repository
-from typing import List, Annotated
+from typing import List
 from app.model.role import RoleModel
-from app.routes.security import get_current_user, create_access_token, Token
 
 router = APIRouter(
     prefix="/roles",
@@ -30,8 +29,8 @@ async def get_role(role_id: str):
     return role
 
 @router.post("", response_model=RoleModel, status_code=status.HTTP_201_CREATED)
-async def create_role(role: RoleModel):
-    created = roles_repository.create_(roles_repository.roles_collection, role)
+async def create_role(role: RoleUpsert):
+    created = roles_repository.create_role(role)
     if created is None:
         raise HTTPException(status_code=400, detail="Could not create role")
     return created

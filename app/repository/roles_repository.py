@@ -10,7 +10,7 @@ from app.repository import user_repository, exhibition_repository, review_reposi
 roles_collection = db["roles"]
 
 def get_role_by_id(role_id: str, requesting_role_permissions: Optional[list[str]] = None) -> Optional[RoleModel]:
-    role_data = roles_collection.find_one({"id": role_id})
+    role_data = roles_collection.find_one({"_id": role_id})
     if not role_data:
         return None
 

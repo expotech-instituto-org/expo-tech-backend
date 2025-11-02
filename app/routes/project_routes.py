@@ -4,12 +4,9 @@ from app.model.project import ProjectModel
 from app.dto.project.project_create_dto import ProjectCreateDto
 from app.dto.project.project_update_dto import ProjectUpdateDto
 from typing import List, Optional
-import logging
 from pymongo.errors import DuplicateKeyError, OperationFailure
 from bson.errors import InvalidId
 from app.repository import exhibition_repository, user_repository
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/projects",
@@ -29,20 +26,17 @@ async def list_projects(
             company_name=company_name
         )
         return projects
-    except InvalidId as e:
-        logger.error(f"ID inválido fornecido: {str(e)}")
+    except InvalidId:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ID fornecido é inválido"
         )
-    except OperationFailure as e:
-        logger.error(f"Erro de operação do MongoDB: {str(e)}")
+    except OperationFailure:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do banco de dados"
         )
     except Exception as e:
-        logger.error(f"Erro ao listar projetos: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
@@ -66,14 +60,12 @@ async def get_project(
                 detail="Projeto não encontrado"
             )
         return project
-    except InvalidId as e:
-        logger.error(f"ID inválido fornecido: {str(e)}")
+    except InvalidId:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ID do projeto é inválido"
         )
-    except OperationFailure as e:
-        logger.error(f"Erro de operação do MongoDB: {str(e)}")
+    except OperationFailure:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do banco de dados"
@@ -81,7 +73,6 @@ async def get_project(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Erro ao buscar projeto {project_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
@@ -127,19 +118,16 @@ async def create_project(
             )
         return result
     except ValueError as e:
-        logger.error(f"Erro de validação ao criar projeto: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Dados inválidos: {str(e)}"
         )
-    except DuplicateKeyError as e:
-        logger.error(f"Tentativa de criar projeto duplicado: {str(e)}")
+    except DuplicateKeyError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Projeto com dados duplicados já existe"
         )
-    except OperationFailure as e:
-        logger.error(f"Erro de operação do MongoDB ao criar projeto: {str(e)}")
+    except OperationFailure:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do banco de dados"
@@ -147,7 +135,6 @@ async def create_project(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Erro ao criar projeto: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
@@ -223,26 +210,22 @@ async def update_project(
         
         result = project_repository.update_project_by_id(project_id, updated_fields)
         if result is None:
-            logger.error(f"Falha ao atualizar projeto {project_id} - result é None")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Falha ao atualizar projeto"
             )
         return result
     except ValueError as e:
-        logger.error(f"Erro de validação ao atualizar projeto {project_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Dados inválidos: {str(e)}"
         )
-    except InvalidId as e:
-        logger.error(f"ID inválido fornecido: {str(e)}")
+    except InvalidId:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ID do projeto é inválido"
         )
-    except OperationFailure as e:
-        logger.error(f"Erro de operação do MongoDB ao atualizar projeto: {str(e)}")
+    except OperationFailure:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do banco de dados"
@@ -250,7 +233,6 @@ async def update_project(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Erro ao atualizar projeto {project_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
@@ -282,14 +264,12 @@ async def delete_project(
             )
         
         return {"message": "Projeto removido com sucesso"}
-    except InvalidId as e:
-        logger.error(f"ID inválido fornecido: {str(e)}")
+    except InvalidId:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ID do projeto é inválido"
         )
-    except OperationFailure as e:
-        logger.error(f"Erro de operação do MongoDB ao deletar projeto: {str(e)}")
+    except OperationFailure:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do banco de dados"
@@ -297,7 +277,6 @@ async def delete_project(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Erro ao remover projeto {project_id}: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
