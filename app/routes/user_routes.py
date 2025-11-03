@@ -8,6 +8,8 @@ from app.repository import user_repository
 from typing import List, Annotated, Optional
 from app.model.user import UserModel
 from app.routes.security import get_current_user, create_access_token, User, Token
+import os
+from app.service.sendEmail import send_login_token_email
 from app.dto.user.user_create_dto import UserCreate
 
 import app.constants as c
@@ -61,6 +63,30 @@ async def create_user(
     try:
         permissions = current_user.permissions if current_user else None
         created_user = await user_repository.create_user(user_create_data, permissions, profile_picture)
+        
+        if created_user:
+            # Generate first access token
+            token_data = create_access_token(data={
+                "sub": created_user.email,
+                "user_id": created_user.id,
+                "project_id": created_user.project.id if created_user.project else None,
+                "scope": "",
+                "permissions": created_user.role.permissions,
+                "role": {"id": created_user.role.id, "name": created_user.role.name}
+            })
+            
+            # Build token URL with router param
+            frontend_url = os.getenv("EXPO_FRONT_URL", "")
+            if frontend_url:
+                frontend_url = frontend_url.rstrip('/')
+                token_url = f"{frontend_url}?token={token_data.access_token}"
+                 # Send welcome email with token
+                user_name = created_user.name if created_user.name else "Olá, visitante!"
+                send_login_token_email(created_user.email, user_name, token_url)
+            else:
+                raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "EXPO_FRONT_URL not configured")\
+
+            return created_user
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
     except PermissionError as e:
