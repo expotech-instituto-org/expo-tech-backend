@@ -12,6 +12,7 @@ from app.model.role import RoleModel
 import uuid
 import bcrypt
 from app.repository.roles_repository import get_role_by_id, get_default_role
+from app.repository import project_repository, review_repository
 
 users_collection = db["users"]
 users_collection.create_index("email", unique=True) # TODO Fazer isso direto no mongo
@@ -57,6 +58,8 @@ async def update_user(user_id: str, update_data: UserModel, profile_picture: Opt
 
     user_dict = update_data.model_dump(exclude_unset=True)
     result = users_collection.update_one({"_id": user_id}, {"$set": user_dict})
+    project_update = project_repository.update_project_with_user(user_id, update_data)
+    review_update = review_repository.update_reviews_with_user(user_id, update_data)
     return UserModel(**update_data.model_dump(by_alias=True))
 
 
