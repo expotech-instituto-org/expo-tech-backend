@@ -88,7 +88,9 @@ def add_project(project_create_dto, logo: UploadFile = None, images: List[Upload
                 _id= project_dict["_id"],
                 name= project_dict.get("name"),
                 logo= project_dict.get("logo"),
-                company_name= project_dict.get("company_name")
+                company_name= project_dict.get("company_name"),
+                banners= project_dict.get("images") if project_dict.get("images") else None,
+                coordinates= project_dict.get("coordinates")
             )
         )
 
@@ -131,7 +133,9 @@ def update_project(project_id: str, project_update_dto, logo: UploadFile = None,
             "_id": project_id,
             "name": update_dict.get("name"),
             "logo": update_dict.get("logo"),
-            "company_name": update_dict.get("company_name")
+            "company_name": update_dict.get("company_name"),
+            "banners": update_dict.get("images") if update_dict.get("images") else None,
+            "coordinates": update_dict.get("coordinates")
         }
         if old_exhibition_id and "exhibition_id" in update_dict and update_dict["exhibition_id"] != old_exhibition_id:
             exhibition_repository.remove_project(old_exhibition_id, project_id)
