@@ -1,3 +1,6 @@
+from typing_extensions import Annotated
+from app.routes.security import User, get_current_user
+from fastapi import APIRouter, HTTPException, status, Query, Depends, status
 from fastapi import APIRouter, HTTPException, status, Query, UploadFile, File, Form
 from app.repository import project_repository
 from app.model.project import ProjectModel
@@ -7,6 +10,7 @@ from typing import List, Optional
 from pymongo.errors import DuplicateKeyError, OperationFailure
 from bson.errors import InvalidId
 from app.repository import exhibition_repository, user_repository
+import app.constants as c
 import json
 
 router = APIRouter(
@@ -16,10 +20,15 @@ router = APIRouter(
 
 @router.get("", response_model=List[ProjectModel])
 async def list_projects(
+    current_user: Annotated[User, Depends(get_current_user)],
     exhibition_id: Optional[str] = Query(None, description="ID da exposição para filtrar projetos"),
     project_name: Optional[str] = Query(None, description="Nome do projeto para busca parcial"),
     company_name: Optional[str] = Query(None, description="Nome da empresa para busca parcial")
 ):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_READ_PROJECT not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
         projects = project_repository.get_projects_with_filters(
             exhibition_id=exhibition_id,
@@ -46,7 +55,12 @@ async def list_projects(
 @router.get("/{project_id}", response_model=ProjectModel)
 async def get_project(
     project_id: str, 
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_READ_PROJECT not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     if not project_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -83,7 +97,8 @@ async def get_project(
 async def create_project(
     project: ProjectCreateDto | str = Form(...),
     logo: UploadFile = File(None),
-    images: List[UploadFile] = File(None)
+    images: List[UploadFile] = File(None),
+    current_user: Annotated[User, Depends(get_current_user)] = None
 ):
     """
     Create a new project.
@@ -92,6 +107,10 @@ async def create_project(
     - images: Optional list of image files for the project
     """
     # HANDLE PROJECT DATA PARSING
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_CREATE_PROJECT not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
         if isinstance(project, str):
             project_create_data = ProjectCreateDto.model_validate_json(project)
@@ -111,7 +130,8 @@ async def update_project(
     project_id: str,
     project: ProjectUpdateDto | str = Form(...),
     logo: UploadFile = File(None),
-    images: List[UploadFile] = File(None)
+    images: List[UploadFile] = File(None),
+    current_user: Annotated[User, Depends(get_current_user)] = None
 ):
     """
     Update a project.
@@ -120,6 +140,10 @@ async def update_project(
     - logo: Optional logo image file for the project
     - images: Optional list of image files for the project
     """
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_UPDATE_PROJECT not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     # HANDLE PROJECT DATA PARSING
     try:
         if isinstance(project, str):
@@ -229,8 +253,13 @@ async def update_project(
 
 @router.delete("/{project_id}")
 async def delete_project(
-    project_id: str,    
+    project_id: str,
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_DELETE_PROJECT not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     if not project_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
