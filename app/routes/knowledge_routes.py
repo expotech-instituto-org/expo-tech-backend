@@ -13,11 +13,7 @@ router = APIRouter(
 )
 
 @router.get("", response_model=List[KnowledgeModel])
-async def get_all_knowledge(current_user: Annotated[User, Depends(get_current_user)]):
-    if not current_user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
-    if c.PERMISSION_READ_KNOWLEDGE not in current_user.permissions:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+async def get_all_knowledge():
     try:
         return knowledge_repository.get_all_knowledge()
     except Exception as e:
