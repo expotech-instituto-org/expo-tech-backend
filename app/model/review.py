@@ -4,6 +4,7 @@ from typing import Optional, List, Union
 from pydantic import BaseModel, Field
 
 from app.model.project import ProjectModel
+from app.model.user import UserModel
 
 
 class ReviewModel(BaseModel):
@@ -39,7 +40,7 @@ class ReviewModel(BaseModel):
 
         role: UserRole = Field(..., description="User role")
     
-    user: UserResume = Field(...)
+    user: Union[UserResume, UserModel] = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
 
     class Config:
