@@ -14,7 +14,7 @@ router = APIRouter(
 @router.get("", response_model=List[ClassModel])
 async def list_classes():
     try:
-        return class_repository.list_all_users()
+        return class_repository.get_all_class()
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 

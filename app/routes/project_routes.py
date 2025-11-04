@@ -1,6 +1,7 @@
 from typing_extensions import Annotated
 from app.routes.security import User, get_current_user
 from fastapi import APIRouter, HTTPException, status, Query, Depends, status
+from fastapi import APIRouter, HTTPException, status, Query, UploadFile, File, Form
 from app.repository import project_repository
 from app.model.project import ProjectModel
 from app.dto.project.project_create_dto import ProjectCreateDto
@@ -10,6 +11,7 @@ from pymongo.errors import DuplicateKeyError, OperationFailure
 from bson.errors import InvalidId
 from app.repository import exhibition_repository, user_repository
 import app.constants as c
+import json
 
 router = APIRouter(
     prefix="/projects",
@@ -49,7 +51,7 @@ async def list_projects(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erro interno do servidor"
         )
-    
+
 @router.get("/{project_id}", response_model=ProjectModel)
 async def get_project(
     project_id: str, 
@@ -93,81 +95,69 @@ async def get_project(
         
 @router.post("", response_model=ProjectModel)
 async def create_project(
-    project: ProjectCreateDto,
-    current_user: Annotated[User, Depends(get_current_user)]
+    project: ProjectCreateDto | str = Form(...),
+    logo: UploadFile = File(None),
+    images: List[UploadFile] = File(None),
+    current_user: Annotated[User, Depends(get_current_user)] = None
 ):
+    """
+    Create a new project.
+    - project: ProjectCreateDto data (as JSON string in 'project' form field)
+    - logo: Optional logo image file for the project
+    - images: Optional list of image files for the project
+    """
+    # HANDLE PROJECT DATA PARSING
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_CREATE_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
-        exhibition = exhibition_repository.get_exhibition_by_id(project.exhibition_id)
-        if not exhibition:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Exposição não encontrada"
-            )
-        
-        if project.expositors:
-            for expositor in project.expositors:
-                if not user_repository.get_user_by_id(expositor.id):
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Usuário expositor não encontrado: {expositor.id}"
-                    )
-        
-        project_model = ProjectModel(
-            name=project.name,
-            company_name=project.company_name,
-            description=project.description,
-            coordinates=project.coordinates,
-            exhibition_id=project.exhibition_id,
-            expositors=[ProjectModel.UserResume(id=exp.id) for exp in project.expositors] if project.expositors else [],
-            images=project.images,
-            logo=project.logo,
-            deactivation_date=None
-        )
-        
-        result = project_repository.add_project(project_model)
-        if result is None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Falha ao criar projeto. Verifique os dados fornecidos."
-            )
-        return result
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Dados inválidos: {str(e)}"
-        )
-    except DuplicateKeyError:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Projeto com dados duplicados já existe"
-        )
-    except OperationFailure:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro interno do banco de dados"
-        )
-    except HTTPException:
-        raise
+        if isinstance(project, str):
+            project_create_data = ProjectCreateDto.model_validate_json(project)
+        else:
+            project_create_data = project
+    except json.JSONDecodeError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid JSON format in project data.")
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro interno do servidor"
-        )
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+    try:
+        return project_repository.add_project(project_create_data, logo, images)
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 @router.put("/{project_id}", response_model=ProjectModel)
 async def update_project(
-    project_id: str, 
-    project: ProjectUpdateDto,
-    current_user: Annotated[User, Depends(get_current_user)]
+    project_id: str,
+    project: ProjectUpdateDto | str = Form(...),
+    logo: UploadFile = File(None),
+    images: List[UploadFile] = File(None),
+    current_user: Annotated[User, Depends(get_current_user)] = None
 ):
+    """
+    Update a project.
+    - project_id: ID of the project to update
+    - project: ProjectUpdateDto data (as JSON string in 'project' form field)
+    - logo: Optional logo image file for the project
+    - images: Optional list of image files for the project
+    """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_UPDATE_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+    # HANDLE PROJECT DATA PARSING
+    try:
+        if isinstance(project, str):
+            project_update_data = ProjectUpdateDto.model_validate_json(project)
+        else:
+            project_update_data = project
+    except json.JSONDecodeError:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid JSON format in project data.")
+    except Exception as e:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+    try:
+        return project_repository.update_project(project_id, project_update_data, logo, images)
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
     if not project_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -263,8 +253,8 @@ async def update_project(
 
 @router.delete("/{project_id}")
 async def delete_project(
-    project_id: str,   
-    current_user: Annotated[User, Depends(get_current_user)] 
+    project_id: str,
+    current_user: Annotated[User, Depends(get_current_user)]
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
