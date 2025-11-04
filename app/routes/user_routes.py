@@ -135,18 +135,14 @@ async def update_user(
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
-@router.patch("/{user_id}/{project_id}")
-async def favorite_project(project_id: str, user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+@router.patch("/favorite/{project_id}")
+async def favorite_project(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
-    if c.PERMISSION_READ_USER not in current_user.permissions and user_id != current_user.id:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
-        return user_repository.favorite_project(user_id, project_id)
+        return user_repository.favorite_project(current_user.id, project_id)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
-
-
 
 
 @router.delete("/{user_id}", response_model=dict)
