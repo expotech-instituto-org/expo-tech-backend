@@ -15,8 +15,16 @@ from pymongo import ASCENDING
 exhibition_collection= db["exhibitions"]
 
 
-def get_all_exhibition() -> list[ExhibitionResumeDTO]:
-    exhibition_cursor = exhibition_collection.find({"deactivation_date": None})
+def get_all_exhibition(name: Optional[str] = None, start_date: Optional[datetime] = None) -> list[ExhibitionResumeDTO]:
+    query = {"deactivation_date": None}
+    
+    if name is not None:
+        query["name"] = {"$regex": name, "$options": "i"}
+    
+    if start_date is not None:
+        query["start_date"] = {"$gte": start_date}
+    
+    exhibition_cursor = exhibition_collection.find(query)
     return [ExhibitionResumeDTO(**exhibition, id=exhibition.get("_id")) for exhibition in exhibition_cursor]
 
 def get_exhibition_by_id(exhibition_id: str) -> Optional[ExhibitionModel]:
