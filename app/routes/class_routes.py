@@ -12,11 +12,7 @@ router = APIRouter(
 )
 
 @router.get("", response_model=List[ClassModel])
-async def list_classes(current_user: Annotated[User, Depends(get_current_user)]):
-    if not current_user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
-    if c.PERMISSION_READ_CLASS not in current_user.permissions:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+async def list_classes():
     try:
         return class_repository.list_all_users()
     except Exception as e:
