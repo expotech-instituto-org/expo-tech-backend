@@ -6,7 +6,7 @@ from pymongo import MongoClient
 def main():
     parser = argparse.ArgumentParser(description="Migrate all JSON documents in the migrations directory to MongoDB.")
     parser.add_argument('--mongo-url', type=str, default='mongodb://localhost:27017', help='MongoDB connection URL (default: mongodb://localhost:27017)')
-    parser.add_argument('--db', type=str, default='expo_tech', help='MongoDB database name (default: expo_tech)')
+    parser.add_argument('--db', type=str, default='expotech_db', help='MongoDB database name (default: expo_tech)')
     parser.add_argument('--migrations-dir', type=str, default='./', help='Directory containing JSON files (default: migrations)')
     args = parser.parse_args()
 

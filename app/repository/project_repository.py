@@ -71,7 +71,9 @@ def add_project(project: ProjectModel) -> Optional[ProjectModel]:
                 _id= project_dict["_id"],
                 name= project_dict.get("name"),
                 logo= project_dict.get("logo"),
-                company_name= project_dict.get("company_name")
+                company_name= project_dict.get("company_name"),
+                banners= project_dict.get("images") if project_dict.get("images") else None,
+                coordinates= project_dict.get("coordinates")
             )
         )
 
@@ -100,7 +102,9 @@ def update_project_by_id(project_id: str, update_data: dict) -> Optional[Project
             "_id": project_id,
             "name": update_dict.get("name"),
             "logo": update_dict.get("logo"),
-            "company_name": update_dict.get("company_name")
+            "company_name": update_dict.get("company_name"),
+            "banners": update_dict.get("images") if update_dict.get("images") else None,
+            "coordinates": update_dict.get("coordinates")
         }
 
         user_repository.set_project(project_id, project_resume_dict)
@@ -133,7 +137,9 @@ def update_project_by_id(project_id: str, update_data: dict) -> Optional[Project
                         _id=project_id,
                         name=project_resume_dict.get("name"),
                         logo=project_resume_dict.get("logo"),
-                        company_name=project_resume_dict.get("company_name")
+                        company_name=project_resume_dict.get("company_name"),
+                        banners= project_resume_dict.get("images") if project_resume_dict.get("images") else None,
+                        coordinates= project_resume_dict.get("coordinates")
                     )
                 )
         except Exception:
