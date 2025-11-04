@@ -9,6 +9,7 @@ class ExhibitionUpdate(BaseModel):
     description: Optional[str] = None
     start_date: datetime
     end_date: datetime
+    banners: Optional[list[str]] = None
 
     class Criteria(BaseModel):
         name: str
@@ -31,6 +32,7 @@ class ExhibitionUpdate(BaseModel):
                 "description": "Exhibition description",
                 "start_date": "2025-01-01",
                 "end_date": "2025-01-01",
+                "banners": ["https://example.com/banner1.png", "https://example.com/banner2.png"],
                 "criteria": [
                     {"name": "Ideia", "weight": 0.5 },
                     {"name": "Execução", "weight": 0.5 },
