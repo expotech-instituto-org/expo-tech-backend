@@ -10,6 +10,7 @@ class ExhibitionUpdate(BaseModel):
     image: Optional[str] = None
     start_date: datetime
     end_date: datetime
+    banners: Optional[list[str]] = None
 
     class Criteria(BaseModel):
         name: str
@@ -33,6 +34,7 @@ class ExhibitionUpdate(BaseModel):
                 "image": "https://br.pinterest.com/pin/345088390217105894/",
                 "start_date": "2025-01-01",
                 "end_date": "2025-01-01",
+                "banners": ["https://example.com/banner1.png", "https://example.com/banner2.png"],
                 "criteria": [
                     {"name": "Ideia", "weight": 0.5 },
                     {"name": "Execução", "weight": 0.5 },

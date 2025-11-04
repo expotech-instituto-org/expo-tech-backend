@@ -96,6 +96,7 @@ def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Opti
             "end_date": update_data.end_date,
             "criteria": update_data.criteria,
             "roles": update_data.roles,
+            "banners": update_data.banners
             }
         }
     )
@@ -108,6 +109,7 @@ def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Opti
 def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
     result = exhibition_collection.update_one(
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
+        {"$addToSet": {"banners": project.banners[0]}},
         {"$addToSet": {"projects": project.model_dump()}}
     )
     return result.modified_count > 0

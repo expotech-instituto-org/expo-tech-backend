@@ -8,4 +8,4 @@ class ExhibitionResumeDTO(BaseModel):
     image: Optional[str] = None
     start_date: datetime
     end_date: datetime
-
+    banners: Optional[list[str]] = Field(default_factory=list)
