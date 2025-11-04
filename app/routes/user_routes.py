@@ -80,7 +80,7 @@ async def create_user(
             if frontend_url:
                 frontend_url = frontend_url.rstrip('/')
                 token_url = f"{frontend_url}?token={token_data.access_token}"
-                 # Send welcome email with token
+                # Send welcome email with token
                 user_name = created_user.name if created_user.name else "Olá, visitante!"
                 send_login_token_email(created_user.email, user_name, token_url)
             else:
@@ -101,7 +101,7 @@ async def create_user(
 @router.put("/{user_id}", response_model=UserModel)
 async def update_user(
         user_id: str,
-        user: UserModel = Form(...),
+        user: UserModel|str = Form(...),
         profile_picture: UploadFile = File(None),
         current_user: Annotated[User, Depends(get_current_user)] = None
 ):
@@ -121,7 +121,7 @@ async def update_user(
 
     # UPDATE USER DATA AND RETURN
     try:
-        updated_user = user_repository.update_user(user_id, user_update_data)
+        updated_user = user_repository.update_user(user_id, user_update_data, profile_picture)
         updated_user.id = user_id
         return updated_user
     except ValueError as e:
