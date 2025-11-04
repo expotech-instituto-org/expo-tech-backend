@@ -93,7 +93,7 @@ def get_reviews_by_exhibition(exhibition_id: str, entire_project: bool = False) 
             },
             {
                 "$lookup": {
-                    "from": "project",
+                    "from": "projects",
                     "localField": "project._id",
                     "foreignField": "_id",
                     "as": "project"
