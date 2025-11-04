@@ -11,6 +11,9 @@ import app.constants as c
 import uuid
 from datetime import datetime, timezone
 from pymongo import ASCENDING
+from app.bucket import upload_image
+from fastapi import UploadFile
+import asyncio
 
 exhibition_collection= db["exhibitions"]
 
@@ -32,15 +35,20 @@ def delete_exhibition(exhibition_id: str) -> bool:
     )
     return result.deleted_count > 0
 
-def create_exhibition(exhibition: ExhibitionCreate):
+def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = None):
     if exhibition.end_date < exhibition.start_date:
         raise ValueError("End date must be greater than start date")
 
     default_role = roles_repository.get_default_role()
 
+    image_url = None
+    if image:
+        image_url = asyncio.run(upload_image(image, folder="exhibitions"))
+
     exhibition_model = ExhibitionModel(
         _id = str(uuid.uuid4()),
         **exhibition.model_dump(),
+        image=image_url or exhibition.image,
         projects = [],
         roles = [
             ExhibitionModel.RoleResume(
@@ -68,7 +76,7 @@ def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
     )
     return result.modified_count
 
-def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Optional[ExhibitionModel]:
+def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, image: UploadFile = None) -> Optional[ExhibitionModel]:
     if update_data.roles and not any(role.id == c.DEFAULT_ROLE_ID for role in update_data.roles):
         raise ValueError("Default role must be present in roles")
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
@@ -78,23 +86,21 @@ def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate) -> Opti
     if update_data.end_date < update_data.start_date:
         raise ValueError("End date must be greater than start date")
 
+    image_url = None
+    if image:
+        image_url = asyncio.run(upload_image(image, folder="exhibitions"))
+
+    update_dict = update_data.model_dump(exclude_unset=True)
+    if image_url:
+        update_dict["image"] = image_url
+
     result = exhibition_collection.update_one(
-        {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
-        {"$set": {
-            "name": update_data.name,
-            "description": update_data.description,
-            "image": update_data.image,
-            "start_date": update_data.start_date,
-            "end_date": update_data.end_date,
-            "criteria": update_data.criteria,
-            "roles": update_data.roles,
-            }
-        }
+        {"_id": exhibition_id},
+        {"$set": update_dict}
     )
-    if result.modified_count > 0:
-        updated_exhibition = exhibition_collection.find_one({"_id": update_data.id})
-        if updated_exhibition:
-            return ExhibitionModel(**updated_exhibition)
+    if result.modified_count:
+        updated = exhibition_collection.find_one({"_id": exhibition_id})
+        return ExhibitionModel(**updated)
     return None
 
 def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
@@ -109,12 +115,10 @@ def remove_project(exhibition_id: str, project_id: str):
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
         {"$pull": {"projects": {"id": project_id}}}
     )
-    
     if result.modified_count == 0:
-      raise HTTPException(status_code=404, detail="Project not found in any exhibition")
-      
+        raise HTTPException(status_code=404, detail="Project not found in any exhibition")
     result_project = project_repository.delete_project_by_id(project_id)
-    return result_project.modified_count > 0
+    return result_project
 
 def is_role_in_use(role_id: str) -> bool:
     exhibition = exhibition_collection.find_one(

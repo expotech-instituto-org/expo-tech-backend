@@ -7,6 +7,9 @@ from app.model.user import UserModel
 from app.model.exhibition import ExhibitionModel
 from app.repository import user_repository
 from app.repository import exhibition_repository
+from app.bucket import upload_image
+from fastapi import UploadFile
+import asyncio
 
 project_collection = db["projects"]
 review_collection = db["reviews"]
@@ -43,9 +46,23 @@ def get_projects_with_filters(
         result.append(ProjectModel(**p))
     return result
 
-def add_project(project: ProjectModel) -> Optional[ProjectModel]:
-    project_dict = project.model_dump(by_alias=True)
+def add_project(project_create_dto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+    project_dict = project_create_dto.model_dump(by_alias=True)
     project_dict["_id"] = str(uuid.uuid4())
+
+    # Handle logo upload
+    if logo:
+        project_dict["logo"] = asyncio.run(upload_image(logo, folder="projects/logos"))
+
+    # Handle images upload
+    image_urls = []
+    if images:
+        for image in images:
+            if image:
+                url = asyncio.run(upload_image(image, folder="projects/images"))
+                image_urls.append(url)
+    if image_urls:
+        project_dict["images"] = image_urls
 
     result = project_collection.insert_one(project_dict)
 
@@ -79,9 +96,23 @@ def add_project(project: ProjectModel) -> Optional[ProjectModel]:
 
     return None
 
-def update_project_by_id(project_id: str, update_data: dict) -> Optional[ProjectModel]:
-    update_dict = update_data.copy() 
-    
+def update_project(project_id: str, project_update_dto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+    update_dict = project_update_dto.model_dump(exclude_unset=True)
+
+    # Handle logo upload
+    if logo:
+        update_dict["logo"] = asyncio.run(upload_image(logo, folder="projects/logos"))
+
+    # Handle images upload
+    image_urls = []
+    if images:
+        for image in images:
+            if image:
+                url = asyncio.run(upload_image(image, folder="projects/images"))
+                image_urls.append(url)
+    if image_urls:
+        update_dict["images"] = image_urls
+
     if "_id" in update_dict:
         update_dict.pop("_id")
 
@@ -102,53 +133,14 @@ def update_project_by_id(project_id: str, update_data: dict) -> Optional[Project
             "logo": update_dict.get("logo"),
             "company_name": update_dict.get("company_name")
         }
-
-        user_repository.set_project(project_id, project_resume_dict)
-
-        if "expositors" in update_dict and update_dict["expositors"]:
-            expositor_ids = []
-            for e in update_dict.get("expositors", []):
-                if isinstance(e, dict):
-                    if "_id" in e and e["_id"]:
-                        expositor_ids.append(e["_id"])
-                    elif "id" in e and e["id"]:
-                        expositor_ids.append(e["id"])
-                elif hasattr(e, 'id') and e.id:
-                    expositor_ids.append(e.id)
-                elif hasattr(e, '_id') and e._id:
-                    expositor_ids.append(e._id)
-            if expositor_ids:
-                user_repository.set_project_resume_on_users_by_ids(expositor_ids, project_resume_dict)
-
-        new_exhibition_id = update_dict.get("exhibition_id") or (current_project.get("exhibition_id") if current_project else None)
-        
-        try:
-            if old_exhibition_id and old_exhibition_id != new_exhibition_id:
-                exhibition_repository.remove_project(old_exhibition_id, project_id)
-
-            if new_exhibition_id:
-                exhibition_repository.add_project(
-                    new_exhibition_id,
-                    ExhibitionModel.ProjectResume(
-                        _id=project_id,
-                        name=project_resume_dict.get("name"),
-                        logo=project_resume_dict.get("logo"),
-                        company_name=project_resume_dict.get("company_name")
-                    )
-                )
-        except Exception:
-            pass
-
-        updated_project = project_collection.find_one({"_id": project_id})
-        
-        if updated_project:
-            try:
-                if updated_project.get("_id"):
-                    updated_project["_id"] = str(updated_project["_id"])
-                return ProjectModel(**updated_project)
-            except Exception as e:
-                return None
-
+        if old_exhibition_id and "exhibition_id" in update_dict and update_dict["exhibition_id"] != old_exhibition_id:
+            exhibition_repository.remove_project(old_exhibition_id, project_id)
+            exhibition_repository.add_project(update_dict["exhibition_id"], ExhibitionModel.ProjectResume(**project_resume_dict))
+        elif "exhibition_id" in update_dict:
+            exhibition_repository.add_project(update_dict["exhibition_id"], ExhibitionModel.ProjectResume(**project_resume_dict))
+        updated = project_collection.find_one({"_id": project_id})
+        if updated:
+            return ProjectModel(**updated)
     return None
 
 def update_project_with_user(user_id: str, update_user: UserModel) -> int:
