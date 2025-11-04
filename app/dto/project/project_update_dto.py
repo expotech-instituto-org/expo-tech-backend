@@ -12,8 +12,6 @@ class ProjectUpdateDto(BaseModel):
     coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: Optional[str] = Field(None, description="Exhibition id")
     expositors: Optional[List[UserIdDto]] = Field(None, description="List of expositor users")
-    images: Optional[List[str]] = Field(None, description="List of images")
-    logo: Optional[str] = Field(None, description="Logo URL or path")
 
     class Config:
         json_schema_extra = {
@@ -27,9 +25,6 @@ class ProjectUpdateDto(BaseModel):
                     {
                         "id": str(uuid.uuid4())
                     }
-                ],
-                "images": ["link1", "link2"],
-                "logo": "link"
+                ]
             }
         }
-

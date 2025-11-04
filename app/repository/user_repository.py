@@ -57,7 +57,7 @@ async def update_user(user_id: str, update_data: UserModel, profile_picture: Opt
         update_data.profile_picture = url
 
     user_dict = update_data.model_dump(exclude_unset=True)
-    result = users_collection.update_one({"_id": user_id}, {"$set": user_dict})
+    users_collection.update_one({"_id": user_id}, {"$set": user_dict})
     project_update = project_repository.update_project_with_user(user_id, update_data)
     review_update = review_repository.update_reviews_with_user(user_id, update_data)
     return UserModel(**update_data.model_dump(by_alias=True))

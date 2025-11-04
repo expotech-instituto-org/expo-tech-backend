@@ -12,8 +12,6 @@ class ProjectCreateDto(BaseModel):
     coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: str = Field(..., description="Exhibition id")
     expositors: Optional[List[UserIdDto]] = Field(default_factory=list, description="List of expositor users")
-    images: Optional[List[str]] = Field(default_factory=list, description="List of images")
-    logo: Optional[str] = Field(None, description="Logo URL or path")
 
     class Config:
         json_schema_extra = {
@@ -27,9 +25,6 @@ class ProjectCreateDto(BaseModel):
                     {
                         "id": str(uuid.uuid4())
                     }
-                ],
-                "images": ["img1.png", "img2.png"],
-                "logo": "logo.png"
+                ]
             }
         }
-

@@ -6,27 +6,40 @@ from urllib.parse import urlparse
 from fastapi import UploadFile
 from google.auth.credentials import AnonymousCredentials
 from google.cloud import storage
+from google.oauth2 import service_account
 
 
 class GCSBucketManager:
 
     def __init__(self):
         try:
-            emulator_host = os.getenv("STORAGE_EMULATOR_HOST")
-            if emulator_host:
-                self.storage_client = storage.Client(
-                    credentials=AnonymousCredentials(),
-                    client_options={"api_endpoint": emulator_host}
-                )
+            use_gcs = os.getenv("GCP_ACTIVE", "false").lower() == "true"
+            if not use_gcs:
+                print("GCS feature flag is disabled. GCS will not be initialized.")
+                self.storage_client = None
+                self.bucket = None
+                return
+
+            json_path = os.getenv("GCP_CREDENTIALS_JSON")
+            emulator_host = os.getenv("GCP_STORAGE_EMULATOR_HOST")
+
+            if json_path and os.path.isfile(json_path):
+                credentials = service_account.Credentials.from_service_account_file(json_path)
+                client_options = None
+            elif emulator_host:
+                credentials = AnonymousCredentials()
+                client_options = {"api_endpoint": emulator_host}
             else:
-                self.storage_client = storage.Client()
+                raise RuntimeError("Neither a valid GCP_CREDENTIALS_JSON file nor STORAGE_EMULATOR_HOST is set. One is required.")
+
+            self.storage_client = storage.Client(credentials=credentials, client_options=client_options) if credentials or client_options else storage.Client()
 
             self.gcp_bucket_name = os.getenv("GCP_BUCKET_NAME")
             if not self.gcp_bucket_name:
                 raise ValueError("GCP_BUCKET_NAME environment variable is not set.")
 
             # Create bucket if using emulator and it doesn't exist
-            if emulator_host:
+            if json_path and os.path.isfile(json_path):
                 try:
                     self.bucket = self.storage_client.get_bucket(self.gcp_bucket_name)
                 except Exception:
@@ -47,9 +60,10 @@ class GCSBucketManager:
         image: UploadFile,
         image_to_replace: Optional[str]=None,
         folder: Optional[str]=None
-    ) -> str:
-        if not self.storage_client:
-            raise RuntimeError("Storage service is not configured.")
+    ) -> Optional[str]:
+        if not self.storage_client or not self.bucket:
+            print("Warning: GCS is not enabled or not properly configured. Skipping image upload.")
+            return None
 
         # --- Delete old image if it exists ---
         if image_to_replace:
