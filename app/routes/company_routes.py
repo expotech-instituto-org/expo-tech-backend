@@ -19,14 +19,10 @@ router = APIRouter(
 
 # Routes
 @router.get("/", response_model=List[CompanyModel])
-async def get_all_companies(current_user: Annotated[User, Depends(get_current_user)]):
+async def get_all_companies():
     """
     Retrieve all companies
     """
-    if not current_user:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
-    if c.PERMISSION_READ_COMPANY not in current_user.permissions:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
         companies = get_all_company()
         return companies
