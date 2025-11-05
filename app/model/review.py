@@ -41,6 +41,7 @@ class ReviewModel(BaseModel):
     
     user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
+    review_timestamp: datetime = Field(default_factory=datetime.now)
 
     class Config:
         validate_by_name = True
