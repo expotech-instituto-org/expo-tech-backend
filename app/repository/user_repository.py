@@ -65,7 +65,7 @@ async def create_user(
         if profile_picture:
             logger.info(f"[REPO_CREATE_USER] Iniciando upload de imagem - Filename: {profile_picture.filename}")
             upload_start = datetime.now()
-            url = await upload_image(profile_picture)
+            url = await upload_image(profile_picture, folder="/users")
             upload_duration = (datetime.now() - upload_start).total_seconds()
             logger.info(f"[REPO_CREATE_USER] Upload de imagem concluído em {upload_duration:.2f}s - URL: {url}")
             user_model.profile_picture = url
@@ -107,7 +107,7 @@ async def update_user(user_id: str, update_data: UserModel, profile_picture: Opt
     if user_data is None:
         raise ValueError("User not found")
     if profile_picture:
-        url = await upload_image(profile_picture, user_data.get("profile_picture"))
+        url = await upload_image(profile_picture, user_data.get("profile_picture"), folder="/users")
         update_data.profile_picture = url
 
     user_dict = update_data.model_dump(exclude_unset=True)
@@ -211,7 +211,7 @@ async def upload_profile_picture(user_id: Optional[str], file: UploadFile) -> st
         if not user:
             raise ValueError("User not found")
 
-    url = await upload_image(file, user.get("profile_picture") if user_id else None)
+    url = await upload_image(file, user.get("profile_picture", folder="/users") if user_id else None)
     return url
 
 def add_review_to_user(user_id: str, review_id: str, project_id: str, exhibition_id: str, comment: Optional[str], criteria: Optional[List[dict]] = None) -> None:
@@ -232,3 +232,9 @@ def add_review_to_user(user_id: str, review_id: str, project_id: str, exhibition
     
     if result.modified_count == 0:
         raise ValueError("User not found or not updated")
+
+
+def add_project_to_user(user_id: str, project_resume: UserModel.ProjectResume) -> Optional[UserModel]:
+    result = users_collection.update_one({"_id": user_id},{"$set": {"project": project_resume.model_dump(by_alias=True)}})
+    if result.matched_count == 0:
+        raise ValueError("User not found")
