@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile, Query, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from pymongo.errors import DuplicateKeyError
 
@@ -52,6 +52,7 @@ async def get_user(user_id: str, current_user: Annotated[User, Depends(get_curre
 
 @router.post("", response_model=UserModel)
 async def create_user(
+    background_tasks: BackgroundTasks,
     user: UserCreate|str = Form(...),
     profile_picture: UploadFile = File(None),
     current_user: Annotated[User | None, Depends(get_current_user)] = None
@@ -66,38 +67,55 @@ async def create_user(
 
     try:
         permissions = current_user.permissions if current_user else None
-
-        # Define callback with the function that will be executed after creating the user
-        # If it fails, the repository makes a rollback automatically
-        def post_create_handler(created_user: UserModel):
-            # Generate first access token
-            token_data = create_access_token(data={
-                "sub": created_user.email,
-                "user_id": created_user.id,
-                "project_id": created_user.project.id if created_user.project else None,
-                "scope": "",
-                "permissions": created_user.role.permissions,
-                "role": {"id": created_user.role.id, "name": created_user.role.name}
-            })
-            
-            # Build token URL with router param
-            frontend_url = os.getenv("EXPO_FRONT_URL", "")
-            if not frontend_url:
-                raise RuntimeError("EXPO_FRONT_URL not configured")
-            
-            frontend_url = frontend_url.rstrip('/')
-            token_url = f"{frontend_url}?token={token_data.access_token}"
-            
-            # Send welcome email with token
-            user_name = created_user.name if created_user.name else "Olá, visitante!"
-            send_login_token_email(created_user.email, user_name, token_url)
         
-        # Create user with automatic rollback if callback fails
+        # Verify basic settings before creating the user
+        frontend_url = os.getenv("EXPO_FRONT_URL", "")
+        if not frontend_url:
+            raise RuntimeError("EXPO_FRONT_URL not configured")
+        
+        # Create the user first (without email callback)
         created_user = await user_repository.create_user(
             user_create_data, 
             permissions, 
-            profile_picture,
-            post_create_handler
+            profile_picture
+        )
+        
+        if not created_user:
+            raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Not able to create user")
+        
+        # Generate the token
+        token_data = create_access_token(data={
+            "sub": created_user.email,
+            "user_id": created_user.id,
+            "project_id": created_user.project.id if created_user.project else None,
+            "scope": "",
+            "permissions": created_user.role.permissions,
+            "role": {"id": created_user.role.id, "name": created_user.role.name}
+        })
+        
+        # Prepare the token URL
+        frontend_url = frontend_url.rstrip('/')
+        token_url = f"{frontend_url}?token={token_data.access_token}"
+        user_name = created_user.name if created_user.name else "Olá, visitante!"
+        
+        # Add the email sending as a background task
+        # If it fails, try to delete the user
+        def send_email_with_rollback(user_id: str, email: str, name: str, token: str):
+            try:
+                send_login_token_email(email, name, token)
+            except Exception as e:
+                try:
+                    user_repository.delete_user(user_id)
+                except Exception:
+                    pass
+                print(f"Error sending email to {email}: {str(e)}")
+        
+        background_tasks.add_task(
+            send_email_with_rollback,
+            created_user.id,
+            created_user.email,
+            user_name,
+            token_url
         )
         
         if created_user is None:
