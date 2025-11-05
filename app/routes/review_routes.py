@@ -24,8 +24,16 @@ async def delete_review(review_id: str):
     return review_repository.delete_review(review_id)
 
 @router.get("/exhibition/{exhibition_id}", response_model=List[ReviewModel])
-async def get_reviews_by_exhibition(exhibition_id: str):
-    return review_repository.get_reviews_by_exhibition(exhibition_id)
+async def get_reviews_by_exhibition(
+    exhibition_id: str,
+    entire_project: bool = False,
+    entire_user: bool = False
+):
+    return review_repository.get_reviews_by_exhibition(
+        exhibition_id,
+        entire_project,
+        entire_user
+    )
 
 @router.get("/project/{project_id}", response_model=List[ReviewResume])
 async def get_reviews_by_user(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
