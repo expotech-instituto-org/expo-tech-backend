@@ -53,7 +53,7 @@ for module in route_modules:
 def read_root():
     return RedirectResponse(url="/api/docs")
 
-@app.get("/health", include_in_schema=False)
+@app.get("/api/health", include_in_schema=False)
 def health_check():
     return {"status": "ok"}
 
