@@ -91,18 +91,23 @@ jobs:
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin || true
 
             echo "Pull das imagens"
-            docker pull "$IMAGE_BLUE"
-            docker pull "$IMAGE_GREEN"
+            docker pull "$IMAGE_BLUE" || true
+            docker pull "$IMAGE_GREEN" || true
 
             echo "Verificando se o Mongo está ativo..."
             if ! docker ps | grep -q "mongo"; then
               echo "Mongo não está rodando — iniciando..."
               if [ -f "$DEPLOY_PATH/docker-compose.yml" ]; then
                 echo "Subindo Mongo via docker-compose..."
-                docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo
+                docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo || {
+                  echo "Falha ao subir via compose — tentando subir manualmente..."
+                  docker rm -f mongo >/dev/null 2>&1 || true
+                  docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
+                }
               else
                 echo "Arquivo docker-compose.yml não encontrado — subindo Mongo manualmente..."
-                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6
+                docker rm -f mongo >/dev/null 2>&1 || true
+                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
               fi
             else
               echo "Mongo já está ativo."
