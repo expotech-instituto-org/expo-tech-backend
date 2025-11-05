@@ -1,6 +1,10 @@
 import os
+import logging
+from datetime import datetime
 from email.message import EmailMessage
 from smtplib import SMTP, SMTPException
+
+logger = logging.getLogger(__name__)
 
 EXPO_EMAIL = os.getenv("EXPO_EMAIL", "")
 EXPO_APP_PASSWORD = os.getenv("EXPO_APP_PASSWORD", "")
@@ -13,16 +17,22 @@ def send_login_token_email(
     user_name: str,
     token: str,
 ) -> bool:
+    logger.info(f"[SEND_EMAIL] Iniciando envio de email - Destinatário: {user_email}")
+    
     if not EXPO_EMAIL:
+        logger.error("[SEND_EMAIL] EXPO_EMAIL não configurado")
         raise RuntimeError("EXPO_EMAIL não configurado")
     
     if not EXPO_APP_PASSWORD:
+        logger.error("[SEND_EMAIL] EXPO_APP_PASSWORD não configurado")
         raise RuntimeError("EXPO_APP_PASSWORD não configurado")
     
     if not EXPO_FRONT_URL:
+        logger.error("[SEND_EMAIL] EXPO_FRONT_URL não configurado")
         raise RuntimeError("EXPO_FRONT_URL não configurado")
     
     try:
+        logger.info(f"[SEND_EMAIL] Preparando mensagem de email - Destinatário: {user_email}")
         assunto = "Bem-vindo a ExpoTech!"
 
         corpo_email = f"""<!DOCTYPE html>
@@ -94,14 +104,24 @@ def send_login_token_email(
         msg["To"] = user_email
         msg.add_alternative(corpo_email, subtype="html", charset="utf-8")
 
-        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=10) as smtp:
+        logger.info(f"[SEND_EMAIL] Conectando ao servidor SMTP - Host: {HOST_SMTP}:{PORTA_SMTP}")
+        smtp_start = datetime.now()
+        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=100) as smtp:
+            logger.info("[SEND_EMAIL] Iniciando TLS...")
             smtp.starttls()
+            logger.info("[SEND_EMAIL] Fazendo login no SMTP...")
             smtp.login(EXPO_EMAIL, EXPO_APP_PASSWORD)
+            logger.info("[SEND_EMAIL] Enviando mensagem...")
             smtp.send_message(msg)
+        
+        smtp_duration = (datetime.now() - smtp_start).total_seconds()
+        logger.info(f"[SEND_EMAIL] Email enviado com sucesso em {smtp_duration:.2f}s - Destinatário: {user_email}")
 
         return True
     except SMTPException as e:
+        logger.error(f"[SEND_EMAIL] Erro SMTP: {str(e)}")
         raise RuntimeError(f"Erro ao enviar email: {str(e)}")
     except Exception as e:
+        logger.error(f"[SEND_EMAIL] Erro inesperado: {type(e).__name__}: {str(e)}", exc_info=True)
         raise RuntimeError(f"Erro ao enviar email: {type(e).__name__}: {str(e)}")
         
