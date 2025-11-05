@@ -112,8 +112,49 @@ def is_role_in_use(role_id: str) -> bool:
         {"user.role.id": role_id}
     )
     return review is not None
-def get_reviews_by_exhibition(exhibition_id: str) -> list[ReviewModel]:
-    reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
+
+def get_reviews_by_exhibition(
+    exhibition_id: str,
+    entire_project: bool = False,
+    entire_user: bool = False
+) -> list[ReviewModel]:
+    pipeline = [
+        {
+            "$match": {
+                "exhibition._id": exhibition_id
+            }
+        }
+    ]
+    if entire_project:
+        pipeline.extend([
+            {
+                "$lookup": {
+                    "from": "projects",
+                    "localField": "project._id",
+                    "foreignField": "_id",
+                    "as": "project"
+                }
+            },
+            {
+                "$unwind": "$project"
+            }
+        ])
+    if entire_user:
+        pipeline.extend([
+            {
+                "$lookup": {
+                    "from": "users",
+                    "localField": "user._id",
+                    "foreignField": "_id",
+                    "as": "user"
+                }
+            },
+            {
+                "$unwind": "$user"
+            }
+        ])
+
+    reviews_cursor = reviews_collection.aggregate(pipeline)
     return [ReviewModel(**review) for review in reviews_cursor]
 
 def get_reviews_by_project(project_id: str) -> list[ReviewModel]:
