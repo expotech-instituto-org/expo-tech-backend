@@ -14,6 +14,8 @@ class ProjectModel(BaseModel):
     class UserResume(BaseModel):
         id: Optional[str] = Field(None, alias="_id")
         name: Optional[str] = Field(None, description="User full name")
+        profile_picture: Optional[str] = Field(None, description="User profile picture")
+        class_field: Optional[str] = Field(None, description="User class")
     
     expositors: list[UserResume] = Field(..., description="List users")
     images: Optional[list[str]] = Field(default_factory=list, description="List images")
@@ -33,7 +35,8 @@ class ProjectModel(BaseModel):
                 "expositors": [
                     {
                         "_id": str(uuid.uuid4()),
-                        "name": "John Doe"
+                        "name": "John Doe",
+                        "profile_picture": "profile1.png"
                     }
                 ],
                 "images": ["img1.png", "img2.png"],
