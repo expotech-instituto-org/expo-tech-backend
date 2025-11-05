@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from pymongo.errors import DuplicateKeyError
 
@@ -22,13 +22,17 @@ router = APIRouter(
 )
 
 @router.get("", response_model=List[UserModel])
-async def list_users(current_user: Annotated[User, Depends(get_current_user)]):
+async def list_users(
+    current_user: Annotated[User, Depends(get_current_user)],
+    name: Optional[str] = Query(None, description="Name of the user"),
+    role_id: Optional[str] = Query(None, description="Role ID of the user")
+):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_READ_USER not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
-        return user_repository.list_all_users()
+        return user_repository.list_all_users(name, role_id)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
