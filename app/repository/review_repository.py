@@ -64,10 +64,17 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
                 weight=exhibition_role.weight
             )
         ),
-        comment=dto.comment    
+        comment=dto.comment
     )
+
     result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
     if result.inserted_id:
+        user_repository.add_review_to_user(
+            review_model.user._id,
+            review_model.project._id,
+            review_model.exhibition._id,
+            review_model.comment
+        )
         return review_model
     return None
 
