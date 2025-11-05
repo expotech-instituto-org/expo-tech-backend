@@ -53,13 +53,13 @@ route_modules = [
 ]
 
 for module in route_modules:
-    app.include_router(module.router, prefix="")
+    app.include_router(module.router)
 
 @app.get("/", include_in_schema=False)
 def read_root():
     return RedirectResponse(url="/docs")
 
-@app.get("health", include_in_schema=False)
+@app.get("/health", include_in_schema=False)
 def health_check():
     return {"status": "ok"}
 
