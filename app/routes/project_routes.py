@@ -29,6 +29,8 @@ async def list_projects(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -61,6 +63,8 @@ async def get_project(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     if not project_id:
@@ -111,6 +115,8 @@ async def create_project(
     # HANDLE PROJECT DATA PARSING
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -144,6 +150,8 @@ async def update_project(
     """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_UPDATE_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     # HANDLE PROJECT DATA PARSING
@@ -169,6 +177,8 @@ async def delete_project(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_DELETE_PROJECT not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     if not project_id:

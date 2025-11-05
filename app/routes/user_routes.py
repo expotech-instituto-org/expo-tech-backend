@@ -107,7 +107,8 @@ async def create_user(
             "project_id": created_user.project.id if created_user.project else None,
             "scope": "",
             "permissions": created_user.role.permissions,
-            "role": {"id": created_user.role.id, "name": created_user.role.name}
+            "role": {"id": created_user.role.id, "name": created_user.role.name},
+            "verified": False
         })
         
         # Prepare the token URL
@@ -227,9 +228,13 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
     #TODO: Remover depois
     return current_user
 
+
+
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = user_repository.authenticate_user(form_data.username, form_data.password)
+    if not user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if not user:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
@@ -243,6 +248,31 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
             "project_id": user.project.id if user.project else None,
             "scope": " ".join(form_data.scopes),
             "permissions": user.role.permissions,
-            "role": {"id": user.role.id, "name": user.role.name}
+            "role": {"id": user.role.id, "name": user.role.name},
+            "verified": True
         })
         return token
+
+@router.post("/verify", response_model=Token)
+async def verify_user(current_user: Annotated[User, Depends(get_current_user)]):
+    """
+    Verify the current user (set verified=True) and return a new access token.
+    """
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if current_user.verified:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "User already verified")
+    # Update verified status
+    current_user.verified = True
+    updated_user = user_repository.update_user(current_user.id, current_user)
+    # Generate new access token
+    token = create_access_token(data={
+        "sub": updated_user.email,
+        "user_id": updated_user.id,
+        "project_id": updated_user.project.id if updated_user.project else None,
+        "scope": "",
+        "permissions": updated_user.role.permissions,
+        "role": {"id": updated_user.role.id, "name": updated_user.role.name},
+        "verified": True
+    })
+    return token

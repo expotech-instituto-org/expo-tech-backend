@@ -56,10 +56,11 @@ async def create_user(
         user_dump.pop("password")
         user_id = str(uuid.uuid4())
         user_model = UserModel(
-            id=user_id,
+            _id=user_id,
             **user_dump,
             role=role,
             password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+            verified=False
         )
         
         if profile_picture:
