@@ -98,6 +98,8 @@ def send_login_token_email(
             smtp.starttls()
             smtp.login(EXPO_EMAIL, EXPO_APP_PASSWORD)
             smtp.send_message(msg)
+
+        return True
     except SMTPException as e:
         raise RuntimeError(f"Erro ao enviar email: {str(e)}")
     except Exception as e:
