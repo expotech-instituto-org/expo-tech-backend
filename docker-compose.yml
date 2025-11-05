@@ -9,6 +9,8 @@ services:
       - mongo_data:/data/db
     networks:
       - backend_net
+    ports:
+      - "27017:27017"
 
   backend-blue:
     image: ${DOCKERHUB_USERNAME}/expo_tech_backend:blue
@@ -16,6 +18,11 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/service-account.json
+      - GCP_BUCKET_NAME=bkt-shared-expotech-001
+    volumes:
+      - /home/expo_tech/backend/service-account.json:/run/secrets/service-account.json:ro
     expose:
       - "8000"
     networks:
@@ -27,6 +34,11 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/service-account.json
+      - GCP_BUCKET_NAME=bkt-shared-expotech-001
+    volumes:
+      - /home/expo_tech/backend/service-account.json:/run/secrets/service-account.json:ro
     expose:
       - "8000"
     networks:
