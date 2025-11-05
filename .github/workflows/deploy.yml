@@ -129,7 +129,7 @@ jobs:
             HEALTHY=false
 
             while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
-              STATUS=$(docker run --rm --network "$NETWORK" curlimages/curl:latest -s -o /dev/null -w "%{http_code}" http://backend-green-temp:8000/docs || echo "000")
+              STATUS=$(docker run --rm --network "$NETWORK" curlimages/curl:latest -s -o /dev/null -w "%{http_code}" http://backend-green-temp:8000/health || echo "000")
               echo "Tentativa $((ATTEMPTS+1))/$MAX_ATTEMPTS - HTTP $STATUS"
               if [ "$STATUS" = "200" ]; then
                 HEALTHY=true
