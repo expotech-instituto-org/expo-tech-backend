@@ -1,4 +1,6 @@
 from typing_extensions import Annotated
+from watchfiles import awatch
+
 from app.routes.security import User, get_current_user
 from fastapi import APIRouter, HTTPException, status, Query, Depends, status
 from fastapi import APIRouter, HTTPException, status, Query, UploadFile, File, Form
@@ -121,7 +123,7 @@ async def create_project(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return project_repository.create_project(project_create_data, logo, images)
+        return await project_repository.create_project(project_create_data, logo, images)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
@@ -155,7 +157,7 @@ async def update_project(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return project_repository.update_project(project_id, project_update_data, logo, images)
+        return await project_repository.update_project(project_id, project_update_data, logo, images)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 

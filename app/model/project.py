@@ -15,7 +15,7 @@ class ProjectModel(BaseModel):
         id: Optional[str] = Field(None, alias="_id")
         name: Optional[str] = Field(None, description="User full name")
         profile_picture: Optional[str] = Field(None, description="User profile picture")
-        class_field: Optional[str] = Field(None, description="User class")
+        class_field: Optional[str] = Field(None, description="User class", alias="class")
     
     expositors: list[UserResume] = Field(..., description="List users")
     images: Optional[list[str]] = Field(default_factory=list, description="List images")

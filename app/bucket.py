@@ -55,6 +55,26 @@ class GCSBucketManager:
             self.storage_client = None
             self.bucket = None
 
+    async def delete_image(self, image_url: str):
+        if not self.storage_client or not self.bucket:
+            print("Warning: GCS is not enabled or not properly configured. Skipping image deletion.")
+            return
+
+        try:
+            parsed_url = urlparse(image_url)
+            blob_name = os.path.basename(parsed_url.path)
+            if blob_name:
+                blob = self.bucket.blob(blob_name)
+                if blob.exists():
+                    blob.delete()
+                    print(f"Deleted image '{blob_name}' from GCS.")
+                else:
+                    print(f"Blob '{blob_name}' does not exist in GCS.")
+            else:
+                print("Could not parse blob name from image URL.")
+        except Exception as e:
+            print(f"Error deleting image from GCS: {e}")
+
     async def upload_image(
         self,
         image: UploadFile,
@@ -80,15 +100,27 @@ class GCSBucketManager:
 
         # --- Upload new image ---
         folder = (folder or "").strip("/")
-        unique_filename = f"{folder + '/' if folder else ''}{uuid.uuid4()}-{image.filename}"
+        unique_filename = f"{'public/' + folder + '/' if folder else ''}{uuid.uuid4()}-{image.filename}"
         blob = self.bucket.blob(unique_filename)
 
         await image.seek(0)
         blob.upload_from_file(image.file, content_type=image.content_type)
-        blob.make_public()
 
         return blob.public_url
+
+    async def generate_signed_url(self, blob_name: str, expiration: int = 3600) -> str:
+        if not self.storage_client or not self.bucket:
+            print("Warning: GCS is not enabled or not properly configured. Skipping signed URL generation.")
+            return ""
+        try:
+            blob = self.bucket.blob(blob_name)
+            url = blob.generate_signed_url(expiration=expiration)
+            return url
+        except Exception as e:
+            print(f"Error generating signed URL for blob '{blob_name}': {e}")
+            return ""
 
 # For backward compatibility, you can instantiate a default manager and expose the function
 _gcs_manager = GCSBucketManager()
 upload_image = _gcs_manager.upload_image
+delete_image = _gcs_manager.delete_image

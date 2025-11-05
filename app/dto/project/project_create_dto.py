@@ -8,7 +8,7 @@ class ProjectCreateDto(BaseModel):
     description: str = Field(..., min_length=1, description="Description")
     coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: str = Field(..., description="Exhibition id")
-    expositor_ids: Optional[List[str]] = Field(default_factory=list, description="List of expositor users")
+    expositors: Optional[List[str]] = Field(default_factory=list, description="List of expositor users")
 
     class Config:
         json_schema_extra = {
