@@ -154,7 +154,7 @@ jobs:
 
             docker rm -f backend-green-temp >/dev/null 2>&1 || true
 
-            echo "Recarregando Nginx (se existir)"
-            docker exec backend-proxy nginx -s reload || echo "Aviso: Nginx não encontrado para reload."
+            echo "Recarregando Nginx do proxy principal"
+            docker exec frontend-proxy nginx -s reload || echo "Aviso: proxy principal não encontrado para reload."
 
             echo "===== Deploy do backend concluído com sucesso ====="
