@@ -121,7 +121,7 @@ async def create_project(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return project_repository.add_project(project_create_data, logo, images)
+        return project_repository.create_project(project_create_data, logo, images)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 

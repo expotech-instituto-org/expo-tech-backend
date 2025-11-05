@@ -1,6 +1,8 @@
 import uuid
 from typing import Optional, List
 from app.database import db
+from app.dto.project.project_create_dto import ProjectCreateDto
+from app.dto.project.project_update_dto import ProjectUpdateDto
 from app.model.project import ProjectModel
 from app.model.review import ReviewModel
 from app.model.user import UserModel
@@ -46,107 +48,55 @@ def get_projects_with_filters(
         result.append(ProjectModel(**p))
     return result
 
-def add_project(project_create_dto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
-    project_dict = project_create_dto.model_dump(by_alias=True)
-    project_dict["_id"] = str(uuid.uuid4())
+async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+    exhibition = exhibition_repository.get_exhibition_by_id(project_create_dto.exhibition_id)
+    if not exhibition:
+        ValueError("Exhibition not found")
 
-    # Handle logo upload
+    expositors: List[ProjectModel.UserResume] = []
+    for expositor_id in project_create_dto.expositor_ids:
+        expositor = user_repository.get_user_by_id(expositor_id)
+        if not expositor:
+            ValueError(f"Expositor {expositor_id} not found")
+        expositors.append(expositor.model_dump(by_alias=True))
+
+    logo_url = None
     if logo:
-        project_dict["logo"] = asyncio.run(upload_image(logo, folder="projects/logos"))
+        url = await upload_image(logo)
+        logo_url = url
 
-    # Handle images upload
     image_urls = []
     if images:
         for image in images:
-            if image:
-                url = asyncio.run(upload_image(image, folder="projects/images"))
-                image_urls.append(url)
-    if image_urls:
-        project_dict["images"] = image_urls
+            url = await upload_image(image)
+            image_urls.append(url)
 
-    result = project_collection.insert_one(project_dict)
-
-    if result.inserted_id:
-        expositor_ids = []
-        for expositor in project_dict.get("expositors", []):
-            if isinstance(expositor, dict):
-                if "_id" in expositor and expositor["_id"]:
-                    expositor_ids.append(expositor["_id"])
-                elif "id" in expositor and expositor["id"]:
-                    expositor_ids.append(expositor["id"])
-            elif hasattr(expositor, 'id') and expositor.id:
-                expositor_ids.append(expositor.id)
-            elif hasattr(expositor, '_id') and expositor._id:
-                expositor_ids.append(expositor._id)
-        
-        if expositor_ids:
-            user_repository.set_project_id_on_users(expositor_ids, project_dict["_id"])
-
-        exhibition_repository.add_project(
-            project_dict["exhibition_id"],
-            ExhibitionModel.ProjectResume(
-                _id= project_dict["_id"],
-                name= project_dict.get("name"),
-                logo= project_dict.get("logo"),
-                company_name= project_dict.get("company_name"),
-                description=project_dict.get("description"),
-                banners= project_dict.get("images") if project_dict.get("images") else None,
-                coordinates= project_dict.get("coordinates")
-            )
-        )
-
-        return ProjectModel(**project_dict)
-
-    return None
-
-def update_project(project_id: str, project_update_dto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
-    update_dict = project_update_dto.model_dump(exclude_unset=True)
-
-    # Handle logo upload
-    if logo:
-        update_dict["logo"] = asyncio.run(upload_image(logo, folder="projects/logos"))
-
-    # Handle images upload
-    image_urls = []
-    if images:
-        for image in images:
-            if image:
-                url = asyncio.run(upload_image(image, folder="projects/images"))
-                image_urls.append(url)
-    if image_urls:
-        update_dict["images"] = image_urls
-
-    if "_id" in update_dict:
-        update_dict.pop("_id")
-
-    current_project = project_collection.find_one({"_id": project_id})
-    old_exhibition_id = None
-    if current_project:
-        old_exhibition_id = current_project.get("exhibition_id")
-
-    result = project_collection.update_one(
-        {"_id": project_id},
-        {"$set": update_dict}
+    project = ProjectModel(
+        _id=str(uuid.uuid4()),
+        expositors=expositors,
+        logo=logo_url,
+        images=image_urls,
+        **project_create_dto.model_dump()
     )
 
-    if result.modified_count > 0:
-        project_resume_dict = {
-            "_id": project_id,
-            "name": update_dict.get("name"),
-            "logo": update_dict.get("logo"),
-            "company_name": update_dict.get("company_name"),
-            "description": update_dict.get("description"),
-            "banners": update_dict.get("images") if update_dict.get("images") else None,
-            "coordinates": update_dict.get("coordinates")
-        }
-        if old_exhibition_id and "exhibition_id" in update_dict and update_dict["exhibition_id"] != old_exhibition_id:
-            exhibition_repository.remove_project(old_exhibition_id, project_id)
-            exhibition_repository.add_project(update_dict["exhibition_id"], ExhibitionModel.ProjectResume(**project_resume_dict))
-        elif "exhibition_id" in update_dict:
-            exhibition_repository.add_project(update_dict["exhibition_id"], ExhibitionModel.ProjectResume(**project_resume_dict))
-        updated = project_collection.find_one({"_id": project_id})
-        if updated:
-            return ProjectModel(**updated)
+    result = project_collection.insert_one(project.model_dump(by_alias=True))
+    if result.inserted_id:
+        return project
+    return None
+
+def update_project(project_id: str, project_update_dto: ProjectUpdateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+    project = get_project_by_id(project_id)
+    if not project:
+        ValueError("Project not found")
+
+    if logo:
+        url = upload_image(logo, project.logo)
+        project.logo = url
+
+    if images:
+        for image in images:
+            url = upload_image(image)
+            project.images.append(url)
     return None
 
 def update_project_with_user(user_id: str, update_user: UserModel) -> int:
