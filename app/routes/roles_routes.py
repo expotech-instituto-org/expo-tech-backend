@@ -15,6 +15,8 @@ router = APIRouter(
 async def list_roles(current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_ROLE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -26,6 +28,8 @@ async def list_roles(current_user: Annotated[User, Depends(get_current_user)]):
 async def get_default_role(current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_ROLE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -40,6 +44,8 @@ async def get_default_role(current_user: Annotated[User, Depends(get_current_use
 async def get_role(role_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_ROLE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -54,6 +60,8 @@ async def get_role(role_id: str, current_user: Annotated[User, Depends(get_curre
 async def create_role(role: RoleUpsert, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_ROLE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -68,6 +76,8 @@ async def create_role(role: RoleUpsert, current_user: Annotated[User, Depends(ge
 async def update_role(role_id: str, role: RoleModel, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_UPDATE_ROLE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:

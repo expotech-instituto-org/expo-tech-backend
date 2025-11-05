@@ -36,6 +36,8 @@ async def create_new_company(company_data: CompanyDTO, current_user: Annotated[U
     """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_COMPANY not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -56,6 +58,8 @@ async def update_existing_company(company_id: str, company_data: CompanyDTO, cur
     """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_UPDATE_COMPANY not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -89,6 +93,8 @@ async def delete_existing_company(company_id: str, current_user: Annotated[User,
     """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_DELETE_COMPANY not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:

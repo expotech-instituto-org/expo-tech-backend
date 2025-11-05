@@ -34,6 +34,7 @@ class UserModel(BaseModel):
 
     reviews: list[ReviewResume] = Field([], description="List of user reviews")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
+    verified: bool = Field(True, description="User active status")
     favorited_projects: list[str] = Field([], description="List of favorited projects")
 
     class Config:
