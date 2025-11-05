@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File, Form
-from typing import Annotated, List, Optional
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File, Form, Query
 from app.routes.security import User, get_current_user
-from fastapi import APIRouter, HTTPException, Query, Depends, status
 from app.dto.exhibition.exhibition_resume_dto import ExhibitionResumeDTO
 
 from app.dto.exhibition.exhibition_update_dto import ExhibitionUpdate

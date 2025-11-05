@@ -23,8 +23,13 @@ def get_user_by_id(user_id: str) -> Optional[UserModel]:
         return UserModel(**user_data)
     return None
 
-def list_all_users() -> list[UserModel]:
-    users_cursor = users_collection.find()
+def list_all_users(name: Optional[str] = None, role_id: Optional[str] = None) -> list[UserModel]:
+    query = {"deactivation_date": None}
+    if name:
+        query["name"] = {"$regex": name, "$options": "i"}
+    if role_id:
+        query["role._id"] = role_id
+    users_cursor = users_collection.find(query)
     return [UserModel(**user) for user in users_cursor]
 
 async def create_user(user: UserCreate, requesting_role_permissions: list[str], profile_picture: Optional[UploadFile]) -> Optional[UserModel]:
