@@ -54,13 +54,22 @@ async def delete_review(review_id: str, current_user: Annotated[User, Depends(ge
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 @router.get("/exhibition/{exhibition_id}", response_model=List[ReviewModel])
-async def get_reviews_by_exhibition(exhibition_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+async def get_reviews_by_exhibition(
+    exhibition_id: str,
+    current_user: Annotated[User, Depends(get_current_user)],
+    entire_project: bool = False,
+    entire_user: bool = False
+):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
     if c.PERMISSION_READ_REVIEW not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
-        return review_repository.get_reviews_by_exhibition(exhibition_id)
+        return review_repository.get_reviews_by_exhibition(
+            exhibition_id,
+            entire_project,
+            entire_user
+        )
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
