@@ -4,23 +4,23 @@ from smtplib import SMTP, SMTPException
 
 EXPO_EMAIL = os.getenv("EXPO_EMAIL", "")
 EXPO_APP_PASSWORD = os.getenv("EXPO_APP_PASSWORD", "")
-HOST_SMTP = os.getenv("HOST_SMTP", "smtp.gmail.com")
-PORTA_SMTP = int(os.getenv("PORTA_SMTP", "587"))
 EXPO_FRONT_URL = os.getenv("EXPO_FRONT_URL", "")
+HOST_SMTP = "smtp-mail.outlook.com"
+PORTA_SMTP = 587
 
 def send_login_token_email(
     user_email: str,
     user_name: str,
     token: str,
 ) -> bool:
-    """
-    Envia o token de primeiro acesso para o usuário realizar o primeiro login.
-
-    Returns:
-        True se enviado com sucesso, False caso contrário.
-    """
-    if not EXPO_EMAIL or not EXPO_APP_PASSWORD or not EXPO_FRONT_URL:
-        return False
+    if not EXPO_EMAIL:
+        raise RuntimeError("EXPO_EMAIL não configurado")
+    
+    if not EXPO_APP_PASSWORD:
+        raise RuntimeError("EXPO_APP_PASSWORD não configurado")
+    
+    if not EXPO_FRONT_URL:
+        raise RuntimeError("EXPO_FRONT_URL não configurado")
     
     try:
         assunto = "Bem-vindo a ExpoTech!"
@@ -98,7 +98,8 @@ def send_login_token_email(
             smtp.starttls()
             smtp.login(EXPO_EMAIL, EXPO_APP_PASSWORD)
             smtp.send_message(msg)
-
-        return True
-    except (SMTPException, Exception):
-        return False
+    except SMTPException as e:
+        raise RuntimeError(f"Erro ao enviar email: {str(e)}")
+    except Exception as e:
+        raise RuntimeError(f"Erro ao enviar email: {type(e).__name__}: {str(e)}")
+        
