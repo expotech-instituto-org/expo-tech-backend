@@ -66,7 +66,7 @@ jobs:
             DOCKER_PASSWORD="${{ secrets.DOCKERHUB_TOKEN }}"
             NETWORK="backend_net"
 
-            echo "=== Iniciando deploy Blue-Green do Backend ==="
+            echo "Iniciando deploy Blue-Green do Backend"
             cd $DEPLOY_PATH
 
             echo "Gerando arquivo .env"
@@ -93,6 +93,14 @@ jobs:
             echo "Pull das imagens"
             docker pull "$IMAGE_BLUE"
             docker pull "$IMAGE_GREEN"
+
+            echo "Verificando se o Mongo está ativo..."
+            if ! docker ps | grep -q "mongo"; then
+              echo "Mongo não está rodando — iniciando com docker compose..."
+              docker compose up -d mongo
+            else
+              echo "Mongo já está ativo."
+            fi
 
             echo "Removendo container temporário se existir"
             docker rm -f backend-green-temp >/dev/null 2>&1 || true
