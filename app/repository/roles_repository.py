@@ -4,11 +4,13 @@ from app.dto.role.role_upsert_dto import RoleUpsert
 from app.model.role import RoleModel
 import uuid
 import app.constants as c
+from app.repository import user_repository, exhibition_repository, review_repository
+
 
 roles_collection = db["roles"]
 
 def get_role_by_id(role_id: str, requesting_role_permissions: Optional[list[str]] = None) -> Optional[RoleModel]:
-    role_data = roles_collection.find_one({"id": role_id})
+    role_data = roles_collection.find_one({"_id": role_id})
     if not role_data:
         return None
 
@@ -20,7 +22,7 @@ def get_role_by_id(role_id: str, requesting_role_permissions: Optional[list[str]
     return RoleModel(**role_data)
 
 def get_default_role() -> Optional[RoleModel]:
-    role_data = roles_collection.find_one({"_id": "default"})
+    role_data = roles_collection.find_one({"_id": c.DEFAULT_ROLE_ID})
     if role_data:
         return RoleModel(**role_data)
     return None
@@ -39,7 +41,7 @@ def create_role (role: RoleUpsert) -> Optional[RoleModel]:
         permissions=role.permissions or default_permissions(),
     )
 
-    result = roles_collection.insert_one(role_model)
+    result = roles_collection.insert_one(role_model.model_dump(by_alias=True))
 
     if result.inserted_id:
         return role_model
@@ -52,16 +54,33 @@ def update_role(role_id: str, update_data: RoleModel) -> Optional[RoleModel]:
         updated_role = {**role_data, **update_data.model_dump(exclude_unset=True)}
         
         roles_collection.replace_one({"id": role_id}, updated_role)
+        users_updated = user_repository.update_users_with_role(role_id, updated_role)
+        exhibitions_updated = exhibition_repository.update_exhibion_with_role(role_id, updated_role)
+        reviews_updated = review_repository.update_reviews_with_role(role_id, updated_role)
 
         return RoleModel(**updated_role)
     return None
 
+def delete_role(role_id: str) -> bool:
+    
+    if user_repository.is_role_in_use(role_id):
+        return False
+    if exhibition_repository.is_role_in_use(role_id):
+        return False
+    if review_repository.is_role_in_use(role_id):
+        return False
+
+    result = roles_collection.delete_one({"id": role_id})
+    return result.deleted_count > 0
 
 def default_permissions() -> list[str]:
     return [
         c.PERMISSION_READ_EXHIBITION,
         c.PERMISSION_READ_PROJECT,
         c.PERMISSION_CREATE_REVIEW,
+        c.PERMISSION_READ_COMPANY,
+        c.PERMISSION_READ_CLASS,
+        c.PERMISSION_READ_KNOWLEDGE
     ]
 
 roles_collection.update_one(

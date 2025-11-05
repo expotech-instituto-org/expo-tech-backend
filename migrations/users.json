@@ -1,0 +1,1060 @@
+[
+  {
+    "_id": "b7e6c1e2-1234-4a56-8b9a-abcdef123456",
+    "email": "user@example.com",
+    "phone": "(11) 99999-9999",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "John Doe",
+    "role": {
+      "_id": "role-uuid-1234",
+      "name": "admin",
+      "permissions": [
+        "create_user",
+        "read_user",
+        "update_user",
+        "delete_user",
+        "create_role",
+        "read_role",
+        "update_role",
+        "delete_role",
+        "create_class",
+        "read_class",
+        "update_class",
+        "delete_class",
+        "create_company",
+        "read_company",
+        "update_company",
+        "delete_company",
+        "create_exhibition",
+        "read_exhibition",
+        "update_exhibition",
+        "delete_exhibition",
+        "create_knowledge",
+        "read_knowledge",
+        "update_knowledge",
+        "delete_knowledge",
+        "create_project",
+        "read_project",
+        "update_project",
+        "delete_project",
+        "create_review",
+        "read_review",
+        "update_review"
+      ]
+    },
+    "profile_picture": "https://example.com/profile.jpg",
+    "knowledge": "Internet",
+    "age": 30,
+    "company": "Tech Corp",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-1234",
+      "name": "Project X",
+      "logo": "https://example.com/logo.png",
+      "company_name": "Tech Corp"
+    },
+    "reviews": [
+      {
+        "_id": "review-uuid-1234",
+        "project_id": "project-uuid-1234",
+        "exhibition_id": "exhibition-uuid-1234",
+        "comment": "Great project!"
+      }
+    ],
+    "deactivation_date": null,
+    "favorited_projects": ["project-uuid-1234", "project-uuid-5678"]
+  },
+  {
+    "_id": "expositor-project-uuid-1234",
+    "email": "expositor_project-uuid-1234@example.com",
+    "phone": "(00) 00000-0000",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor Project X",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-1234.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "Tech Corp",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-1234",
+      "name": "Project X",
+      "logo": "logo.png",
+      "company_name": "Tech Corp"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-5678",
+    "email": "expositor_project-uuid-5678@example.com",
+    "phone": "(00) 00000-0001",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor Project Y",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-5678.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "Tech Corp",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-5678",
+      "name": "Project Y",
+      "logo": "logo.png",
+      "company_name": "Tech Corp"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-1",
+    "email": "expositor_project-uuid-1@example.com",
+    "phone": "(00) 00000-0001",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor NUTRIA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-1.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "NUTRIA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-1",
+      "name": "NUTRIA",
+      "logo": "logo1.png",
+      "company_name": "NUTRIA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-2",
+    "email": "expositor_project-uuid-2@example.com",
+    "phone": "(00) 00000-0002",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor SANCARAN",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-2.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "SANCARAN",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-2",
+      "name": "SANCARAN",
+      "logo": "logo2.png",
+      "company_name": "SANCARAN"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-3",
+    "email": "expositor_project-uuid-3@example.com",
+    "phone": "(00) 00000-0003",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor AION",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-3.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "AION",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-3",
+      "name": "AION",
+      "logo": "logo3.png",
+      "company_name": "AION"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-4",
+    "email": "expositor_project-uuid-4@example.com",
+    "phone": "(00) 00000-0004",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor SINARA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-4.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "SINARA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-4",
+      "name": "SINARA",
+      "logo": "logo4.png",
+      "company_name": "SINARA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-5",
+    "email": "expositor_project-uuid-5@example.com",
+    "phone": "(00) 00000-0005",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor ZETA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-5.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "ZETA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-5",
+      "name": "ZETA",
+      "logo": "logo5.png",
+      "company_name": "ZETA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-6",
+    "email": "expositor_project-uuid-6@example.com",
+    "phone": "(00) 00000-0006",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor ESSENTIA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-6.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "ESSENTIA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-6",
+      "name": "ESSENTIA",
+      "logo": "logo6.png",
+      "company_name": "ESSENTIA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-7",
+    "email": "expositor_project-uuid-7@example.com",
+    "phone": "(00) 00000-0007",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor YBYRATECH",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-7.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "YBYRATECH",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-7",
+      "name": "YBYRATECH",
+      "logo": "logo7.png",
+      "company_name": "YBYRATECH"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-8",
+    "email": "expositor_project-uuid-8@example.com",
+    "phone": "(00) 00000-0008",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor IARA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-8.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "IARA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-8",
+      "name": "IARA",
+      "logo": "logo8.png",
+      "company_name": "IARA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-9",
+    "email": "expositor_project-uuid-9@example.com",
+    "phone": "(00) 00000-0009",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor CODCOZ",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-9.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "CODCOZ",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-9",
+      "name": "CODCOZ",
+      "logo": "logo9.png",
+      "company_name": "CODCOZ"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-10",
+    "email": "expositor_project-uuid-10@example.com",
+    "phone": "(00) 00000-0010",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor INVOLUCRE",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-10.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "INVOLUCRE",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-10",
+      "name": "INVOLUCRE",
+      "logo": "logo10.png",
+      "company_name": "INVOLUCRE"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-11",
+    "email": "expositor_project-uuid-11@example.com",
+    "phone": "(00) 00000-0011",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor I_GESTA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-11.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "I_GESTA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-11",
+      "name": "I_GESTA",
+      "logo": "logo11.png",
+      "company_name": "I_GESTA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-12",
+    "email": "expositor_project-uuid-12@example.com",
+    "phone": "(00) 00000-0012",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor FROTA VIVA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-12.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "FROTA VIVA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-12",
+      "name": "FROTA VIVA",
+      "logo": "logo12.png",
+      "company_name": "FROTA VIVA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-13",
+    "email": "expositor_project-uuid-13@example.com",
+    "phone": "(00) 00000-0013",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor KRONOS",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-13.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "KRONOS",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-13",
+      "name": "KRONOS",
+      "logo": "logo13.png",
+      "company_name": "KRONOS"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-14",
+    "email": "expositor_project-uuid-14@example.com",
+    "phone": "(00) 00000-0014",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor SCANEIA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-14.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "SCANEIA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-14",
+      "name": "SCANEIA",
+      "logo": "logo14.png",
+      "company_name": "SCANEIA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-15",
+    "email": "expositor_project-uuid-15@example.com",
+    "phone": "(00) 00000-0015",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor INFOONE",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-15.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "INFOONE",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-15",
+      "name": "INFOONE",
+      "logo": "logo15.png",
+      "company_name": "INFOONE"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-16",
+    "email": "expositor_project-uuid-16@example.com",
+    "phone": "(00) 00000-0016",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor TIMELEAN",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-16.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "TIMELEAN",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-16",
+      "name": "TIMELEAN",
+      "logo": "logo16.png",
+      "company_name": "TIMELEAN"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-17",
+    "email": "expositor_project-uuid-17@example.com",
+    "phone": "(00) 00000-0017",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor VIREYA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-17.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "VIREYA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-17",
+      "name": "VIREYA",
+      "logo": "logo17.png",
+      "company_name": "VIREYA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-18",
+    "email": "expositor_project-uuid-18@example.com",
+    "phone": "(00) 00000-0018",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor ECOFACTORY",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-18.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "ECOFACTORY",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-18",
+      "name": "ECOFACTORY",
+      "logo": "logo18.png",
+      "company_name": "ECOFACTORY"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-19",
+    "email": "expositor_project-uuid-19@example.com",
+    "phone": "(00) 00000-0019",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor MAGNA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-19.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "MAGNA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-19",
+      "name": "MAGNA",
+      "logo": "logo19.png",
+      "company_name": "MAGNA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-20",
+    "email": "expositor_project-uuid-20@example.com",
+    "phone": "(00) 00000-0020",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor NEOTECH",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-20.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "NEOTECH",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-20",
+      "name": "NEOTECH",
+      "logo": "logo20.png",
+      "company_name": "NEOTECH"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-21",
+    "email": "expositor_project-uuid-21@example.com",
+    "phone": "(00) 00000-0021",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor EI_TRUCK",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-21.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "EI_TRUCK",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-21",
+      "name": "EI_TRUCK",
+      "logo": "logo21.png",
+      "company_name": "EI_TRUCK"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-22",
+    "email": "expositor_project-uuid-22@example.com",
+    "phone": "(00) 00000-0022",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor CONTABACO",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-22.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "CONTABACO",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-22",
+      "name": "CONTABACO",
+      "logo": "logo22.png",
+      "company_name": "CONTABACO"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-23",
+    "email": "expositor_project-uuid-23@example.com",
+    "phone": "(00) 00000-0023",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor PURPURA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-23.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "PURPURA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-23",
+      "name": "PURPURA",
+      "logo": "logo23.png",
+      "company_name": "PURPURA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  },
+  {
+    "_id": "expositor-project-uuid-24",
+    "email": "expositor_project-uuid-24@example.com",
+    "phone": "(00) 00000-0024",
+    "password": {
+      "$binary": {
+        "base64": "JDJhJDEyJEhRa1lISHpIZHBxYUFSem5mVEF6WE9sWVhUNi5tQmpzUU1aNkhOUThHVGs0cFJDVFdPbjNP",
+        "subType": "00"
+      }
+    },
+    "name": "Expositor SIMBIA",
+    "role": {
+      "_id": "role-uuid-expositor",
+      "name": "expositor",
+      "permissions": [
+        "read_exhibition",
+        "read_project",
+        "create_project",
+        "update_project",
+        "read_user",
+        "update_user"
+      ]
+    },
+    "profile_picture": "https://example.com/expositor_project-uuid-24.jpg",
+    "knowledge": "Internet",
+    "age": 25,
+    "company": "SIMBIA",
+    "class": "3ºF Dev",
+    "project": {
+      "_id": "project-uuid-24",
+      "name": "SIMBIA",
+      "logo": "logo24.png",
+      "company_name": "SIMBIA"
+    },
+    "reviews": [],
+    "deactivation_date": null,
+    "favorited_projects": []
+  }
+]

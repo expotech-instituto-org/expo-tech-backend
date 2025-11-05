@@ -6,4 +6,5 @@ pymongo
 pyjwt
 bcrypt
 python-multipart
+google-cloud-storage
 pydantic

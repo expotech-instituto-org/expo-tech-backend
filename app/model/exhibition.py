@@ -11,12 +11,16 @@ class ExhibitionModel(BaseModel):
     end_date: datetime  = Field(..., description="Exhibition end date")
     description: Optional[str] = Field(None, description="Exhibition description")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
+    banners: Optional[List[str]] = Field(None, description="Projects banners")
 
     class ProjectResume(BaseModel):
         id: Optional[str] = Field(alias="_id")
-        name: str = Field(..., description="Exhibition name")
-        logo: str = Field(..., description="Exhibition image")
-        company_name: str = Field(..., description="Exhibition name")
+        name: Optional[str] = Field(None, description="Project name")
+        logo: Optional[str] = Field(None, description="Project logo")
+        company_name: Optional[str] = Field(None, description="Company name")
+        description: Optional[str] = Field(None, description="Project description")
+        banners: Optional[List[str]] = Field(None, description="Project banners")
+        coordinates: Optional[int] = None
 
     projects: List[ProjectResume] = Field(..., description="Exhibition projects")
 
@@ -49,12 +53,15 @@ class ExhibitionModel(BaseModel):
                         "weight": 0.8
                     }
                 ],
+                "banners": ["banner1.png", "banner2.png"],
                 "projects": [
                     {
                         "_id": str(uuid.uuid4()),
                         "name": "AI Project",
                         "logo": "https://example.com/logo.png",
-                        "company_name": "Tech Corp"
+                        "company_name": "Tech Corp",
+                        "banners": ["proj_banner1.png", "proj_banner2.png"],
+                        "coordinates": 1
                     }
                 ],
                 "criteria": [
