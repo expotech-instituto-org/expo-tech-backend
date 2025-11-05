@@ -25,7 +25,7 @@ from app.routes import (
     exhibition_routes,
     roles_routes
 )
-app = FastAPI()
+app = FastAPI(docs_url="/api/docs")
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,18 +35,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user_routes.router)
-app.include_router(exhibition_routes.router)
-app.include_router(project_routes.router)
-app.include_router(review_routes.router)
-app.include_router(roles_routes.router)
-app.include_router(class_routes.router)
-app.include_router(company_routes.router)
-app.include_router(knowledge_routes.router)
+route_modules = [
+    user_routes,
+    exhibition_routes,
+    project_routes,
+    review_routes,
+    roles_routes,
+    class_routes,
+    company_routes,
+    knowledge_routes,
+]
+
+for module in route_modules:
+    app.include_router(module.router, prefix="/api")
 
 @app.get("/", include_in_schema=False)
 def read_root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/api/docs")
 
 @app.get("/health", include_in_schema=False)
 def health_check():
