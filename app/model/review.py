@@ -1,7 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel, Field
+
+from app.model.project import ProjectModel
+from app.model.user import UserModel
+
 
 class ReviewModel(BaseModel):
     id: Optional[str] = Field(alias="_id")
@@ -17,7 +21,7 @@ class ReviewModel(BaseModel):
         id: str = Field(..., alias="_id")
         name: str = Field(..., description="Project name")
 
-    project: ProjectResume = Field(...)
+    project: Union[ProjectResume, ProjectModel] = Field(...)
 
     class ExhibitionResume(BaseModel):
         id: str = Field(..., alias="_id")
@@ -36,8 +40,9 @@ class ReviewModel(BaseModel):
 
         role: UserRole = Field(..., description="User role")
     
-    user: UserResume = Field(...)
+    user: Union[UserResume, UserModel] = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
+    review_timestamp: datetime = Field(default_factory=datetime.now)
 
     class Config:
         validate_by_name = True
