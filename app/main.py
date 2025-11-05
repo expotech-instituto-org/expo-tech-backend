@@ -25,7 +25,13 @@ from app.routes import (
     exhibition_routes,
     roles_routes
 )
-app = FastAPI(docs_url="/api/docs")
+
+app = FastAPI(
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    root_path="/api"  
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -47,13 +53,13 @@ route_modules = [
 ]
 
 for module in route_modules:
-    app.include_router(module.router, prefix="/api")
+    app.include_router(module.router, prefix="")
 
 @app.get("/", include_in_schema=False)
 def read_root():
-    return RedirectResponse(url="/api/docs")
+    return RedirectResponse(url="/docs")
 
-@app.get("/api/health", include_in_schema=False)
+@app.get("health", include_in_schema=False)
 def health_check():
     return {"status": "ok"}
 
