@@ -5,7 +5,7 @@ from app.model.user import UserModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
-from app.repository import exhibition_repository, project_repository
+from app.repository import exhibition_repository, user_repository
 import uuid
 from app.model.role import RoleModel
 
@@ -28,7 +28,7 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
         raise ValueError("Project not found")
 
     criteria_weight_map = {c.name: c.weight for c in exhibition.criteria}
-    exhibition_criteria_names = set(criteria_weight_map.keys())
+    exhibition_criteria_names = set[str](criteria_weight_map.keys())
     review_grade_names = set([g.name for g in dto.grades])
     if exhibition_criteria_names != review_grade_names:
         raise ValueError("Grades do not match exhibition criteria")
@@ -69,11 +69,17 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
 
     result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
     if result.inserted_id:
+        criteria = [
+            {"name": grade.name, "score": grade.score}
+            for grade in review_model.grades
+        ]
         user_repository.add_review_to_user(
             review_model.user._id,
+            review_model._id,
             review_model.project._id,
             review_model.exhibition._id,
-            review_model.comment
+            review_model.comment,
+            criteria
         )
         return review_model
     return None

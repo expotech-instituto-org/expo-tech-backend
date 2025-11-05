@@ -4,17 +4,15 @@ from app.database import db
 from app.dto.project.project_create_dto import ProjectCreateDto
 from app.dto.project.project_update_dto import ProjectUpdateDto
 from app.model.project import ProjectModel
-from app.model.review import ReviewModel
 from app.model.user import UserModel
-from app.model.exhibition import ExhibitionModel
 from app.repository import user_repository
 from app.repository import exhibition_repository
 from app.bucket import upload_image
 from fastapi import UploadFile
-import asyncio
+
+from app.repository.review_repository import reviews_collection
 
 project_collection = db["projects"]
-review_collection = db["reviews"]
 
 def get_project_by_id(project_id: str) -> Optional[ProjectModel]:
     project_data = project_collection.find_one({"_id": project_id})
@@ -108,7 +106,7 @@ def update_project_with_user(user_id: str, update_user: UserModel) -> int:
 
 def delete_project_by_id(project_id: str) -> bool:
     try:
-        review_collection.update_many(
+        reviews_collection.update_many(
             {"project_id": project_id},
             {"$set": {"active": False}}
         )

@@ -1,4 +1,4 @@
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, List
 import logging
 from datetime import datetime
 
@@ -213,3 +213,22 @@ async def upload_profile_picture(user_id: Optional[str], file: UploadFile) -> st
 
     url = await upload_image(file, user.get("profile_picture") if user_id else None)
     return url
+
+def add_review_to_user(user_id: str, review_id: str, project_id: str, exhibition_id: str, comment: Optional[str], criteria: Optional[List[dict]] = None) -> None:
+    review_resume = {
+        "_id": review_id,
+        "project_id": project_id,
+        "exhibition_id": exhibition_id,
+        "comment": comment
+    }
+    
+    if criteria:
+        review_resume["criteria"] = criteria
+    
+    result = users_collection.update_one(
+        {"_id": user_id},
+        {"$push": {"reviews": review_resume}}
+    )
+    
+    if result.modified_count == 0:
+        raise ValueError("User not found or not updated")
