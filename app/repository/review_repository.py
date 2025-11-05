@@ -83,14 +83,20 @@ def delete_review(review_id: str) -> bool:
         return True
     return False
 
-def get_reviews_by_exhibition(exhibition_id: str, entire_project: bool = False) -> list[ReviewModel]:
+def get_reviews_by_exhibition(
+    exhibition_id: str,
+    entire_project: bool = False,
+    entire_user: bool = False
+) -> list[ReviewModel]:
+    pipeline = [
+        {
+            "$match": {
+                "exhibition._id": exhibition_id
+            }
+        }
+    ]
     if entire_project:
-        reviews_cursor = reviews_collection.aggregate([
-            {
-                "$match": {
-                    "exhibition._id": exhibition_id
-                }
-            },
+        pipeline.extend([
             {
                 "$lookup": {
                     "from": "projects",
@@ -103,8 +109,22 @@ def get_reviews_by_exhibition(exhibition_id: str, entire_project: bool = False) 
                 "$unwind": "$project"
             }
         ])
-    else:
-        reviews_cursor = reviews_collection.find({"exhibition._id": exhibition_id})
+    if entire_user:
+        pipeline.extend([
+            {
+                "$lookup": {
+                    "from": "users",
+                    "localField": "user._id",
+                    "foreignField": "_id",
+                    "as": "user"
+                }
+            },
+            {
+                "$unwind": "$user"
+            }
+        ])
+
+    reviews_cursor = reviews_collection.aggregate(pipeline)
     return [ReviewModel(**review) for review in reviews_cursor]
 
 def get_reviews_by_project(project_id: str) -> list[ReviewResume]:
