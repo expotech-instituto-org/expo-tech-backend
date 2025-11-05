@@ -122,7 +122,7 @@ async def create_user(
             logger.info(f"[BACKGROUND_EMAIL] Iniciando envio de email em background - User ID: {user_id}, Email: {email}")
             email_start = datetime.now()
             try:
-                send_login_token_email(email, name, token)
+                # send_login_token_email(email, name, token)
                 email_duration = (datetime.now() - email_start).total_seconds()
                 logger.info(f"[BACKGROUND_EMAIL] Email enviado com sucesso em {email_duration:.2f}s - Email: {email}")
             except Exception as e:
