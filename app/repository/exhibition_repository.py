@@ -43,7 +43,7 @@ def delete_exhibition(exhibition_id: str) -> bool:
     )
     return result.deleted_count > 0
 
-def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = None):
+async def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = None):
     if exhibition.end_date < exhibition.start_date:
         raise ValueError("End date must be greater than start date")
 
@@ -51,7 +51,7 @@ def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = None):
 
     image_url = None
     if image:
-        image_url = asyncio.run(upload_image(image, folder="exhibitions"))
+        image_url = await asyncio.run(upload_image(image, folder="exhibitions"))
 
     exhibition_model = ExhibitionModel(
         _id = str(uuid.uuid4()),
