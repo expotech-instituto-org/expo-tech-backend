@@ -1,4 +1,4 @@
-name: Deploy Backend (Zero Downtime)
+name: Deploy Backend (Blue-Green)
 
 on:
   push:
@@ -8,9 +8,21 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_PATH: /home/expo_tech/backend
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+      ALGORITHM: ${{ secrets.ALGORITHM }}
+      EXPO_APP_PASSWORD: ${{ secrets.EXPO_APP_PASSWORD }}
+      EXPO_EMAIL: ${{ secrets.EXPO_EMAIL }}
+      EXPO_FRONT_URL: ${{ secrets.EXPO_FRONT_URL }}
+      HOST_SMTP: ${{ secrets.HOST_SMTP }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      PORTA_SMTP: ${{ secrets.PORTA_SMTP }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -18,24 +30,131 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build & Push Docker Images
         run: |
-          IMAGE=dockerhub_usuario/backend:latest
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend"
+          echo "Build & Push das imagens blue e green"
+          docker build -t "${IMAGE_BASE}:blue" .
+          docker push "${IMAGE_BASE}:blue"
+          docker build -t "${IMAGE_BASE}:green" .
+          docker push "${IMAGE_BASE}:green"
 
-      - name: SSH and Deploy
+      - name: Copy Compose & Nginx to VM
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: 22
+          source: "docker-compose.yml,nginx/nginx.conf"
+          target: "${{ env.DEPLOY_PATH }}"
+
+      - name: SSH Deploy Backend Blue-Green
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
+          script_stop: false
+          envs: ACCESS_TOKEN_EXPIRE_MINUTES,ALGORITHM,EXPO_APP_PASSWORD,EXPO_EMAIL,EXPO_FRONT_URL,HOST_SMTP,MONGODB_URI,PORTA_SMTP,SECRET_KEY,DEPLOY_PATH
           script: |
-            cd /caminho/para/backend
-            docker pull dockerhub_usuario/backend:latest
-            docker-compose up -d backend-green
-            sed -i 's/backend-blue/backend-green/' nginx/nginx.conf
-            docker exec backend-proxy nginx -s reload
-            docker-compose rm -sf backend-blue
-            docker rename backend-green backend-blue
+            set -e
+            DEPLOY_PATH=${DEPLOY_PATH}
+            IMAGE_BLUE="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend:blue"
+            IMAGE_GREEN="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend:green"
+            DOCKER_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
+            DOCKER_PASSWORD="${{ secrets.DOCKERHUB_TOKEN }}"
+            NETWORK="backend_net"
+
+            echo "===== Iniciando deploy Blue-Green do Backend ====="
+            cd $DEPLOY_PATH
+
+            echo "Gerando arquivo .env"
+            cat <<EOF > .env
+            ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+            ALGORITHM=${ALGORITHM}
+            EXPO_APP_PASSWORD=${EXPO_APP_PASSWORD}
+            EXPO_EMAIL=${EXPO_EMAIL}
+            EXPO_FRONT_URL=${EXPO_FRONT_URL}
+            HOST_SMTP=${HOST_SMTP}
+            MONGODB_URI=${MONGODB_URI}
+            PORTA_SMTP=${PORTA_SMTP}
+            SECRET_KEY=${SECRET_KEY}
+            EOF
+
+            echo "Arquivo .env criado."
+
+            echo "Criando rede (se não existir)"
+            docker network create $NETWORK >/dev/null 2>&1 || true
+
+            echo "Login no Docker Hub"
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin || true
+
+            echo "Pull das imagens"
+            docker pull "$IMAGE_BLUE" || true
+            docker pull "$IMAGE_GREEN" || true
+
+            echo "Verificando se o Mongo está ativo..."
+            if docker ps --format '{{.Names}}' | grep -q "^mongo$"; then
+              echo "Mongo já está rodando."
+            else
+              echo "Mongo não está rodando — iniciando..."
+              if [ -f "$DEPLOY_PATH/docker-compose.yml" ]; then
+                echo "Subindo Mongo via docker compose..."
+                docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo || {
+                  echo "Falha ao subir via compose — subindo manualmente."
+                  docker rm -f mongo >/dev/null 2>&1 || true
+                  docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
+                }
+              else
+                echo "docker-compose.yml não encontrado — subindo Mongo manualmente."
+                docker rm -f mongo >/dev/null 2>&1 || true
+                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
+              fi
+            fi
+
+            echo "Removendo container temporário (se existir)"
+            docker rm -f backend-green-temp >/dev/null 2>&1 || true
+
+            echo "Subindo backend-green-temp"
+            docker run -d --name backend-green-temp --env-file .env --network $NETWORK "$IMAGE_GREEN"
+
+            echo "Aguardando inicialização do container..."
+            sleep 5
+
+            echo "Executando healthcheck..."
+            ATTEMPTS=0
+            MAX_ATTEMPTS=10
+            HEALTHY=false
+
+            while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+              STATUS=$(docker run --rm --network "$NETWORK" curlimages/curl:latest -s -o /dev/null -w "%{http_code}" http://backend-green-temp:8000/docs || echo "000")
+              echo "Tentativa $((ATTEMPTS+1))/$MAX_ATTEMPTS - HTTP $STATUS"
+              if [ "$STATUS" = "200" ]; then
+                HEALTHY=true
+                break
+              fi
+              ATTEMPTS=$((ATTEMPTS+1))
+              sleep 3
+            done
+
+            if [ "$HEALTHY" != true ]; then
+              echo "Healthcheck falhou — revertendo para a versão anterior."
+              docker logs backend-green-temp || true
+              docker rm -f backend-green-temp || true
+              exit 1
+            fi
+
+            echo "Healthcheck OK — promovendo nova versão"
+            docker stop backend-blue >/dev/null 2>&1 || true
+            docker rm backend-blue >/dev/null 2>&1 || true
+
+            docker run -d --name backend-blue --env-file .env --network $NETWORK -p 8000:8000 "$IMAGE_GREEN"
+
+            docker rm -f backend-green-temp >/dev/null 2>&1 || true
+
+            echo "Recarregando Nginx do proxy principal"
+            docker exec frontend-proxy nginx -s reload || echo "Aviso: proxy principal não encontrado para reload."
+
+            echo "===== Deploy do backend concluído com sucesso ====="
