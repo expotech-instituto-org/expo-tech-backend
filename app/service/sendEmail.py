@@ -94,7 +94,7 @@ def send_login_token_email(
         msg["To"] = user_email
         msg.add_alternative(corpo_email, subtype="html", charset="utf-8")
 
-        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=30) as smtp:
+        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=10) as smtp:
             smtp.starttls()
             smtp.login(EXPO_EMAIL, EXPO_APP_PASSWORD)
             smtp.send_message(msg)
