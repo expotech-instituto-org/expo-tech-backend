@@ -66,9 +66,10 @@ async def create_user(
 
     try:
         permissions = current_user.permissions if current_user else None
-        created_user = await user_repository.create_user(user_create_data, permissions, profile_picture)
-        
-        if created_user:
+
+        # Define callback with the function that will be executed after creating the user
+        # If it fails, the repository makes a rollback automatically
+        def post_create_handler(created_user: UserModel):
             # Generate first access token
             token_data = create_access_token(data={
                 "sub": created_user.email,
@@ -81,26 +82,38 @@ async def create_user(
             
             # Build token URL with router param
             frontend_url = os.getenv("EXPO_FRONT_URL", "")
-            if frontend_url:
-                frontend_url = frontend_url.rstrip('/')
-                token_url = f"{frontend_url}?token={token_data.access_token}"
-                # Send welcome email with token
-                user_name = created_user.name if created_user.name else "Olá, visitante!"
-                send_login_token_email(created_user.email, user_name, token_url)
-            else:
-                raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "EXPO_FRONT_URL not configured")\
-
-            return created_user
+            if not frontend_url:
+                raise RuntimeError("EXPO_FRONT_URL not configured")
+            
+            frontend_url = frontend_url.rstrip('/')
+            token_url = f"{frontend_url}?token={token_data.access_token}"
+            
+            # Send welcome email with token
+            user_name = created_user.name if created_user.name else "Olá, visitante!"
+            send_login_token_email(created_user.email, user_name, token_url)
+        
+        # Create user with automatic rollback if callback fails
+        created_user = await user_repository.create_user(
+            user_create_data, 
+            permissions, 
+            profile_picture,
+            post_create_handler
+        )
+        
+        if created_user is None:
+            raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Not able to create user")
+        
+        return created_user
     except ValueError as e:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e))
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Not able to create user: {str(e)}")
     except PermissionError as e:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, str(e))
+        raise HTTPException(status.HTTP_403_FORBIDDEN, f"Not able to create user: {str(e)}")
     except DuplicateKeyError as e:
-        raise HTTPException(status.HTTP_409_CONFLICT, "Duplicate email")
+        raise HTTPException(status.HTTP_409_CONFLICT, "Not able to create user: email already exists")
     except RuntimeError as e:
-        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e))
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"Not able to create user: {str(e)}")
     except Exception as e:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, f"Not able to create user: {str(e)}")
 
 @router.put("/{user_id}", response_model=UserModel)
 async def update_user(
