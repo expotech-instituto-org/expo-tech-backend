@@ -213,3 +213,9 @@ async def upload_profile_picture(user_id: Optional[str], file: UploadFile) -> st
 
     url = await upload_image(file, user.get("profile_picture") if user_id else None)
     return url
+
+
+def add_project_to_user(user_id: str, project_resume: UserModel.ProjectResume) -> Optional[UserModel]:
+    result = users_collection.update_one({"_id": user_id},{"$set": {"project": project_resume.model_dump(by_alias=True)}})
+    if result.matched_count == 0:
+        raise ValueError("User not found")
