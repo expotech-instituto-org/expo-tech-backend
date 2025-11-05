@@ -7,7 +7,7 @@ class ProjectUpdateDto(BaseModel):
     company_name: Optional[str] = Field(None, min_length=1, description="Company Name")
     description: Optional[str] = Field(None, min_length=1, description="Description")
     coordinates: Optional[int] = Field(None, description="Coordinates")
-    expositors: Optional[List[str]] = Field(None, description="List of expositor users")
+    expositor_ids: Optional[List[str]] = Field(None, description="List of expositor users")
 
     class Config:
         json_schema_extra = {
@@ -17,6 +17,6 @@ class ProjectUpdateDto(BaseModel):
                 "description": "descrição do projeto atualizado",
                 "coordinates": 2,
                 "exhibition_id": str(uuid.uuid4()),
-                "expositors": [str(uuid.uuid4())]
+                "expositor_ids": [str(uuid.uuid4())]
             }
         }

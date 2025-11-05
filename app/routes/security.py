@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 import os
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login", auto_error=False)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")

@@ -11,7 +11,7 @@ class ExhibitionModel(BaseModel):
     end_date: datetime  = Field(..., description="Exhibition end date")
     description: Optional[str] = Field(None, description="Exhibition description")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
-    banners: Optional[List[str]] = Field(None, description="Projects banners")
+    banner: Optional[List[str]] = Field(None, description="Projects banners")
 
     class ProjectResume(BaseModel):
         id: Optional[str] = Field(alias="_id")
@@ -53,7 +53,7 @@ class ExhibitionModel(BaseModel):
                         "weight": 0.8
                     }
                 ],
-                "banners": ["banner1.png", "banner2.png"],
+                "banner": ["banner1.png", "banner2.png"],
                 "projects": [
                     {
                         "_id": str(uuid.uuid4()),
