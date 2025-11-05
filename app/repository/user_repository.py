@@ -1,6 +1,4 @@
-import os
-from typing import Optional
-from urllib.parse import urlparse
+from typing import Optional, Callable, Any
 
 from fastapi import UploadFile
 
@@ -23,30 +21,64 @@ def get_user_by_id(user_id: str) -> Optional[UserModel]:
         return UserModel(**user_data)
     return None
 
-def list_all_users() -> list[UserModel]:
-    users_cursor = users_collection.find()
+def list_all_users(name: Optional[str] = None, role_id: Optional[str] = None) -> list[UserModel]:
+    query = {"deactivation_date": None}
+    if name:
+        query["name"] = {"$regex": name, "$options": "i"}
+    if role_id:
+        query["role._id"] = role_id
+    users_cursor = users_collection.find(query)
     return [UserModel(**user) for user in users_cursor]
 
-async def create_user(user: UserCreate, requesting_role_permissions: list[str], profile_picture: Optional[UploadFile]) -> Optional[UserModel]:
-    role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
-    if role is None:
-        raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
+async def create_user(
+    user: UserCreate, 
+    requesting_role_permissions: list[str], 
+    profile_picture: Optional[UploadFile],
+    post_create_callback: Optional[Callable[[UserModel], Any]] = None
+) -> Optional[UserModel]:
+    """
+    Create a new user in the database.
+    If a callback is provided and fails, the user is automatically deleted (rollback).
+    """
+    created_user = None
+    try:
+        role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
+        if role is None:
+            raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
 
-    user_dump = user.model_dump()
-    user_dump.pop("password")
-    user_model = UserModel(
-        _id=str(uuid.uuid4()),
-        **user_dump,
-        role=role,
-        password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
-    )
-    if profile_picture:
-        url = await upload_image(profile_picture)
-        user_model.profile_picture = url
-    result = users_collection.insert_one(user_model.model_dump(by_alias=True))
-    if result.inserted_id:
-        return user_model
-    return None
+        user_dump = user.model_dump()
+        user_dump.pop("password")
+        user_model = UserModel(
+            _id=str(uuid.uuid4()),
+            **user_dump,
+            role=role,
+            password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+        )
+        if profile_picture:
+            url = await upload_image(profile_picture)
+            user_model.profile_picture = url
+        
+        result = users_collection.insert_one(user_model.model_dump(by_alias=True))
+        if not result.inserted_id:
+            return None
+        
+        created_user = user_model
+        
+        # Execute callback if provided (ex: send email)
+        # If it fails, the exception will be captured and the user will be deleted
+        if post_create_callback:
+            post_create_callback(created_user)
+        
+        return created_user
+    except Exception:
+        # Rollback: delete the user if something fails after creation
+        if created_user:
+            try:
+                delete_user(created_user.id)
+            except Exception:
+                # Log the rollback error, but don't propagate to not mask the original error
+                pass
+        raise
 
 async def update_user(user_id: str, update_data: UserModel, profile_picture: Optional[UploadFile]) -> Optional[UserModel]:
     user_data = users_collection.find_one({"_id": user_id})
