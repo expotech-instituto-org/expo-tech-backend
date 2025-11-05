@@ -123,6 +123,21 @@ def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
     )
     return result.modified_count > 0
 
+def update_project(exhibition_id: str, project_id: str, updated_project: ExhibitionModel.ProjectResume) -> bool:
+    result = exhibition_collection.update_one(
+        {
+            "_id": exhibition_id,
+            "deactivation_date": {"$exists": False},
+            "projects.id": project_id
+        },
+        {
+            "$set": {
+                "projects.$": updated_project.model_dump()
+            }
+        }
+    )
+    return result.modified_count > 0
+
 def remove_project(exhibition_id: str, project_id: str):
     result = exhibition_collection.update_one(
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
