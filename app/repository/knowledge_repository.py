@@ -1,5 +1,6 @@
 from typing import Optional
 from app.database import db
+from app.dto.knowledge.knowledge_create_dto import KnowledgeCreateDTO
 from app.model.knowledge import KnowledgeModel
 import uuid
 
@@ -29,13 +30,11 @@ def create_knowledge(knowledge_name: str ):
         return KnowledgeModel(**knowledge_dict)
     return None
 
-def update_knowledge(update_data: KnowledgeModel) -> Optional[KnowledgeModel]:
+def update_knowledge(knowledge_id:str, update_data: KnowledgeCreateDTO) -> Optional[KnowledgeModel]:
     result = knowledge_collection.update_one(
-        {"_id": update_data.id},             
+        {"_id": knowledge_id},
         {"$set": {"name": update_data.name}} 
     )
     if result.modified_count > 0:
-        updated_knowledge = knowledge_collection.find_one({"_id": update_data.id})
-        if updated_knowledge:
-            return KnowledgeModel(**updated_knowledge)
+        return KnowledgeModel(_id= knowledge_id, name= update_data.name)
     return None

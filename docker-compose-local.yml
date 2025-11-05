@@ -9,6 +9,17 @@ services:
       - mongo_data:/data/db
     ports:
       - "27017:27017"
+  fake-gcs:
+    image: fsouza/fake-gcs-server:latest
+    container_name: fake-gcs
+    ports:
+      - "4443:4443"
+    volumes:
+      - fake_gcs_data:/data
+    environment:
+      - GCS_BUCKETS=my-bucket
+    command: ["-scheme", "http", "-backend", "filesystem", "-filesystem-root", "/data", "-public-host", "localhost:4443"]
 
 volumes:
   mongo_data:
+  fake_gcs_data:
