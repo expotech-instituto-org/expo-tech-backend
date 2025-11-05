@@ -106,7 +106,7 @@ def send_login_token_email(
 
         logger.info(f"[SEND_EMAIL] Conectando ao servidor SMTP - Host: {HOST_SMTP}:{PORTA_SMTP}")
         smtp_start = datetime.now()
-        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=10) as smtp:
+        with SMTP(host=HOST_SMTP, port=PORTA_SMTP, timeout=100) as smtp:
             logger.info("[SEND_EMAIL] Iniciando TLS...")
             smtp.starttls()
             logger.info("[SEND_EMAIL] Fazendo login no SMTP...")
