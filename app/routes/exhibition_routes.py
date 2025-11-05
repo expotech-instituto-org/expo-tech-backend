@@ -83,7 +83,7 @@ async def create_exhibition(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return exhibition_repository.create_exhibition(exhibition_data, image)
+        return await exhibition_repository.create_exhibition(exhibition_data, image)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
