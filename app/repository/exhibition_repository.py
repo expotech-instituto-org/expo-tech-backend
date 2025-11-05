@@ -56,7 +56,7 @@ def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = None):
     exhibition_model = ExhibitionModel(
         _id = str(uuid.uuid4()),
         **exhibition.model_dump(),
-        image=image_url or exhibition.image,
+        image=image_url,
         projects = [],
         roles = [
             ExhibitionModel.RoleResume(
@@ -114,8 +114,12 @@ def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, image: 
 def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
     result = exhibition_collection.update_one(
         {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
-        {"$addToSet": {"banners": project.banners[0]}},
-        {"$addToSet": {"projects": project.model_dump()}}
+        {
+            "$addToSet": {
+                **({"banners": project.banners[0]} if project.banners else {}),
+                "projects": project.model_dump()
+            }
+        }
     )
     return result.modified_count > 0
 
@@ -140,19 +144,21 @@ def is_role_in_use(role_id: str) -> bool:
 
 def get_exhibition_by_current_date() -> Optional[ExhibitionModel]:
     today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    # Find exhibition happening today (and not deactivated)
-    exhibition_data = exhibition_collection.find_one({
-        "start_date": {"$lte": today},
-        "end_date": {"$gte": today},
-        "deactivation_date": None
-    })
+    query = {
+        "$or": [
+            {
+                "start_date": {"$lte": today},
+                "end_date": {"$gte": today},
+                "deactivation_date": None
+            },
+            {
+                "start_date": {"$gt": today},
+                "deactivation_date": None
+            }
+        ]
+    }
+    exhibition_cursor = exhibition_collection.find(query).sort("start_date", ASCENDING).limit(1)
+    exhibition_data = next(exhibition_cursor, None)
     if exhibition_data:
         return ExhibitionModel(**exhibition_data)
-    # If none, find the next exhibition (and not deactivated)
-    next_exhibition = exhibition_collection.find({
-        "start_date": {"$gt": today},
-        "deactivation_date": None
-    }).sort("start_date", ASCENDING).limit(1)
-    for exhibition in next_exhibition:
-        return ExhibitionModel(**exhibition)
     return None
