@@ -57,9 +57,10 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
           script_stop: true
+          envs: ACCESS_TOKEN_EXPIRE_MINUTES,ALGORITHM,EXPO_APP_PASSWORD,EXPO_EMAIL,EXPO_FRONT_URL,HOST_SMTP,MONGODB_URI,PORTA_SMTP,SECRET_KEY,DEPLOY_PATH
           script: |
             set -e
-            DEPLOY_PATH=${{ env.DEPLOY_PATH }}
+            DEPLOY_PATH=${DEPLOY_PATH}
             IMAGE_BLUE="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend:blue"
             IMAGE_GREEN="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend:green"
             DOCKER_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
@@ -71,17 +72,16 @@ jobs:
 
             echo "Gerando arquivo .env"
             cat <<EOF > .env
-            ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
-            ALGORITHM=${{ secrets.ALGORITHM }}
-            EXPO_APP_PASSWORD=${{ secrets.EXPO_APP_PASSWORD }}
-            EXPO_EMAIL=${{ secrets.EXPO_EMAIL }}
-            EXPO_FRONT_URL=${{ secrets.EXPO_FRONT_URL }}
-            HOST_SMTP=${{ secrets.HOST_SMTP }}
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            PORTA_SMTP=${{ secrets.PORTA_SMTP }}
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+            ALGORITHM=${ALGORITHM}
+            EXPO_APP_PASSWORD=${EXPO_APP_PASSWORD}
+            EXPO_EMAIL=${EXPO_EMAIL}
+            EXPO_FRONT_URL=${EXPO_FRONT_URL}
+            HOST_SMTP=${HOST_SMTP}
+            MONGODB_URI=${MONGODB_URI}
+            PORTA_SMTP=${PORTA_SMTP}
+            SECRET_KEY=${SECRET_KEY}
             EOF
-
             echo "Arquivo .env criado."
 
             echo "Criando rede (se não existir)"
@@ -96,8 +96,14 @@ jobs:
 
             echo "Verificando se o Mongo está ativo..."
             if ! docker ps | grep -q "mongo"; then
-              echo "Mongo não está rodando — iniciando com docker compose..."
-              docker compose up -d mongo
+              echo "Mongo não está rodando — iniciando..."
+              if [ -f "$DEPLOY_PATH/docker-compose.yml" ]; then
+                echo "Subindo Mongo via docker-compose..."
+                docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo
+              else
+                echo "Arquivo docker-compose.yml não encontrado — subindo Mongo manualmente..."
+                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6
+              fi
             else
               echo "Mongo já está ativo."
             fi
