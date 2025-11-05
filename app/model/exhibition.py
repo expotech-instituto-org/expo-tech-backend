@@ -18,6 +18,7 @@ class ExhibitionModel(BaseModel):
         name: Optional[str] = Field(None, description="Project name")
         logo: Optional[str] = Field(None, description="Project logo")
         company_name: Optional[str] = Field(None, description="Company name")
+        description: Optional[str] = Field(None, description="Project description")
         banners: Optional[List[str]] = Field(None, description="Project banners")
         coordinates: Optional[int] = None
 
