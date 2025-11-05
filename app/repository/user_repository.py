@@ -54,8 +54,9 @@ async def create_user(
 
         user_dump = user.model_dump()
         user_dump.pop("password")
+        user_id = str(uuid.uuid4())
         user_model = UserModel(
-            _id=str(uuid.uuid4()),
+            id=user_id,
             **user_dump,
             role=role,
             password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
@@ -69,7 +70,7 @@ async def create_user(
             logger.info(f"[REPO_CREATE_USER] Upload de imagem concluído em {upload_duration:.2f}s - URL: {url}")
             user_model.profile_picture = url
         
-        logger.info(f"[REPO_CREATE_USER] Inserindo usuário no banco - User ID: {user_model._id}")
+        logger.info(f"[REPO_CREATE_USER] Inserindo usuário no banco - User ID: {user_model.id}")
         db_start = datetime.now()
         result = users_collection.insert_one(user_model.model_dump(by_alias=True))
         db_duration = (datetime.now() - db_start).total_seconds()
