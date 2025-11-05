@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           port: 22
-          script_stop: true
+          script_stop: false
           envs: ACCESS_TOKEN_EXPIRE_MINUTES,ALGORITHM,EXPO_APP_PASSWORD,EXPO_EMAIL,EXPO_FRONT_URL,HOST_SMTP,MONGODB_URI,PORTA_SMTP,SECRET_KEY,DEPLOY_PATH
           script: |
             set -e
@@ -67,7 +67,7 @@ jobs:
             DOCKER_PASSWORD="${{ secrets.DOCKERHUB_TOKEN }}"
             NETWORK="backend_net"
 
-            echo "Iniciando deploy Blue-Green do Backend"
+            echo "===== Iniciando deploy Blue-Green do Backend ====="
             cd $DEPLOY_PATH
 
             echo "Gerando arquivo .env"
@@ -82,6 +82,7 @@ jobs:
             PORTA_SMTP=${PORTA_SMTP}
             SECRET_KEY=${SECRET_KEY}
             EOF
+
             echo "Arquivo .env criado."
 
             echo "Criando rede (se não existir)"
@@ -95,31 +96,31 @@ jobs:
             docker pull "$IMAGE_GREEN" || true
 
             echo "Verificando se o Mongo está ativo..."
-            if ! docker ps | grep -q "mongo"; then
+            if docker ps --format '{{.Names}}' | grep -q "^mongo$"; then
+              echo "Mongo já está rodando."
+            else
               echo "Mongo não está rodando — iniciando..."
               if [ -f "$DEPLOY_PATH/docker-compose.yml" ]; then
-                echo "Subindo Mongo via docker-compose..."
+                echo "Subindo Mongo via docker compose..."
                 docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo || {
-                  echo "Falha ao subir via compose — tentando subir manualmente..."
+                  echo "Falha ao subir via compose — subindo manualmente."
                   docker rm -f mongo >/dev/null 2>&1 || true
                   docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
                 }
               else
-                echo "Arquivo docker-compose.yml não encontrado — subindo Mongo manualmente..."
+                echo "docker-compose.yml não encontrado — subindo Mongo manualmente."
                 docker rm -f mongo >/dev/null 2>&1 || true
                 docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
               fi
-            else
-              echo "Mongo já está ativo."
             fi
 
-            echo "Removendo container temporário se existir"
+            echo "Removendo container temporário (se existir)"
             docker rm -f backend-green-temp >/dev/null 2>&1 || true
 
             echo "Subindo backend-green-temp"
             docker run -d --name backend-green-temp --env-file .env --network $NETWORK "$IMAGE_GREEN"
 
-            echo "Aguardando inicialização do container"
+            echo "Aguardando inicialização do container..."
             sleep 5
 
             echo "Executando healthcheck..."
@@ -139,13 +140,13 @@ jobs:
             done
 
             if [ "$HEALTHY" != true ]; then
-              echo "Healthcheck falhou - revertendo para a versão anterior."
+              echo "Healthcheck falhou — revertendo para a versão anterior."
               docker logs backend-green-temp || true
               docker rm -f backend-green-temp || true
               exit 1
             fi
 
-            echo "Healthcheck OK - promovendo versão nova"
+            echo "Healthcheck OK — promovendo nova versão"
             docker stop backend-blue >/dev/null 2>&1 || true
             docker rm backend-blue >/dev/null 2>&1 || true
 
@@ -153,7 +154,7 @@ jobs:
 
             docker rm -f backend-green-temp >/dev/null 2>&1 || true
 
-            echo "Recarregando Nginx"
-            docker exec backend-proxy nginx -s reload || echo "Falha ao recarregar Nginx"
+            echo "Recarregando Nginx (se existir)"
+            docker exec backend-proxy nginx -s reload || echo "Aviso: Nginx não encontrado para reload."
 
-            echo "Deploy do backend concluído com sucesso."
+            echo "===== Deploy do backend concluído com sucesso ====="
