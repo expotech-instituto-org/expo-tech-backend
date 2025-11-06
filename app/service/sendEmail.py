@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 EXPO_EMAIL = os.getenv("EXPO_EMAIL", "")
 EXPO_APP_PASSWORD = os.getenv("EXPO_APP_PASSWORD", "")
 EXPO_FRONT_URL = os.getenv("EXPO_FRONT_URL", "")
-HOST_SMTP = "smtp-mail.outlook.com"
-PORTA_SMTP = 587
+HOST_SMTP = os.getenv("HOST_SMTP", "")
+PORTA_SMTP = int(os.getenv("PORTA_SMTP", "0"))
 
 def send_login_token_email(
     user_email: str,

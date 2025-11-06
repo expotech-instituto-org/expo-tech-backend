@@ -15,6 +15,8 @@ router = APIRouter(
 async def list_reviews(current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_REVIEW not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -27,6 +29,8 @@ async def list_reviews(current_user: Annotated[User, Depends(get_current_user)])
 async def create_review(review: ReviewCreate, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_REVIEW not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     
@@ -42,6 +46,8 @@ async def create_review(review: ReviewCreate, current_user: Annotated[User, Depe
 async def delete_review(review_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_DELETE_REVIEW not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     
@@ -62,6 +68,8 @@ async def get_reviews_by_exhibition(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_REVIEW not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -77,6 +85,8 @@ async def get_reviews_by_exhibition(
 async def get_reviews_by_user(project_id: Optional[str] = None, current_user: Annotated[User, Depends(get_current_user)] = None):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if not project_id:
         project_id = current_user.project_id
     if not project_id:
