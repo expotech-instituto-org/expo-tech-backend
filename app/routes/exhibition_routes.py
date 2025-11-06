@@ -53,7 +53,7 @@ async def update_exhibition(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return exhibition_repository.update_exhibition(exhibition_id, exhibition_data, image)
+        return await exhibition_repository.update_exhibition(exhibition_id, exhibition_data, image)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
