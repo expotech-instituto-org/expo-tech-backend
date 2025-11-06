@@ -11,6 +11,11 @@ services:
       - mongo_data:/data/db
     networks:
       - backend_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend-blue:
     image: ${DOCKERHUB_USERNAME}/expo_tech_backend:blue
@@ -25,6 +30,9 @@ services:
       - /home/expo_tech/backend/service-account.json:/run/secrets/service-account.json:ro
     expose:
       - "8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
     networks:
       - backend_net
 
@@ -41,6 +49,9 @@ services:
       - /home/expo_tech/backend/service-account.json:/run/secrets/service-account.json:ro
     expose:
       - "8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
     networks:
       - backend_net
 
