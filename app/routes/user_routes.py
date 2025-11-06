@@ -70,10 +70,7 @@ async def create_user(
             permissions, 
             profile_picture
         )
-        
-        if not created_user:
-            raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Not able to create user")
-        
+
         return created_user
     except ValueError as e:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Not able to create user: {str(e)}")
@@ -109,7 +106,7 @@ async def update_user(
 
     # UPDATE USER DATA AND RETURN
     try:
-        updated_user = user_repository.update_user(user_id, user_update_data, profile_picture)
+        updated_user = await user_repository.update_user(user_id, user_update_data, profile_picture)
         updated_user.id = user_id
         return updated_user
     except ValueError as e:
