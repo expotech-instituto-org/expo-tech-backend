@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field
 from app.model.role import RoleModel
 
@@ -31,6 +31,12 @@ class UserModel(BaseModel):
         project_id: str = Field(..., description="Project ID")
         exhibition_id: str = Field(..., description="Exhibition ID")
         comment: Optional[str] = Field(None, max_length=300, description="Review comment")
+
+        class Criteria(BaseModel):
+            name: str = Field(..., description="Criteria name")
+            score: float = Field(..., description="Criteria score")
+
+        criteria: Optional[List[Criteria]] = Field(None, description="List of criteria")
 
     reviews: list[ReviewResume] = Field([], description="List of user reviews")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
