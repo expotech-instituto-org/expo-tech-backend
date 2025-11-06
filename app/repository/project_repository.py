@@ -74,7 +74,7 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
             image_urls.append(url)
 
     project = ProjectModel(
-        _id=str(uuid.uuid4()),
+        _id=project_create_dto.id or str(uuid.uuid4()),
         expositors=expositors,
         logo=logo_url,
         images=image_urls,
