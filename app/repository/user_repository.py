@@ -70,45 +70,45 @@ async def create_user(
 
     created_user = user_model
 
-    # Send welcome email
-    try:
-        print("try")
-        # Verify frontend URL is configured
-        frontend_url = os.getenv("EXPO_FRONT_URL", "")
-        if not frontend_url:
-            print("no frontend url")
-            raise RuntimeError("EXPO_FRONT_URL not configured")
-
-        # Generate the token
-        token_data = create_access_token(data={
-            "sub": created_user.email,
-            "user_id": created_user.id,
-            "project_id": created_user.project.id if created_user.project else None,
-            "scope": "",
-            "permissions": created_user.role.permissions,
-            "role": {"id": created_user.role.id, "name": created_user.role.name},
-            "verified": False
-        })
-
-        # Prepare the token URL
-        frontend_url = frontend_url.rstrip('/')
-        token_url = f"{frontend_url}?token={token_data.access_token}"
-        user_name = created_user.name if created_user.name else "Olá, visitante!"
-
-        # Send email
-        print("send")
-        send_login_token_email(created_user.email, user_name, token_url)
-        print("sent")
-    except Exception as email_error:
-        # Rollback: delete the user if email fails
-        try:
-            print("rollback email")
-            delete_user(created_user.id)
-            raise RuntimeError(f"Error sending email user: {str(email_error)}")
-        except Exception:
-            pass
-        raise RuntimeError(f"Erro ao enviar email: {str(email_error)}")
-    print("return")
+    # # Send welcome email
+    # try:
+    #     print("try")
+    #     # Verify frontend URL is configured
+    #     frontend_url = os.getenv("EXPO_FRONT_URL", "")
+    #     if not frontend_url:
+    #         print("no frontend url")
+    #         raise RuntimeError("EXPO_FRONT_URL not configured")
+    #
+    #     # Generate the token
+    #     token_data = create_access_token(data={
+    #         "sub": created_user.email,
+    #         "user_id": created_user.id,
+    #         "project_id": created_user.project.id if created_user.project else None,
+    #         "scope": "",
+    #         "permissions": created_user.role.permissions,
+    #         "role": {"id": created_user.role.id, "name": created_user.role.name},
+    #         "verified": False
+    #     })
+    #
+    #     # Prepare the token URL
+    #     frontend_url = frontend_url.rstrip('/')
+    #     token_url = f"{frontend_url}?token={token_data.access_token}"
+    #     user_name = created_user.name if created_user.name else "Olá, visitante!"
+    #
+    #     # Send email
+    #     print("send")
+    #     send_login_token_email(created_user.email, user_name, token_url)
+    #     print("sent")
+    # except Exception as email_error:
+    #     # Rollback: delete the user if email fails
+    #     try:
+    #         print("rollback email")
+    #         delete_user(created_user.id)
+    #         raise RuntimeError(f"Error sending email user: {str(email_error)}")
+    #     except Exception:
+    #         pass
+    #     raise RuntimeError(f"Erro ao enviar email: {str(email_error)}")
+    # print("return")
     return created_user
 
 
