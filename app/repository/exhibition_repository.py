@@ -97,7 +97,7 @@ async def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, i
     if image:
         image_url = await upload_image(image, folder="exhibitions")
 
-    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True, by_alias=True)
     if image_url:
         update_dict["image"] = image_url
 
@@ -105,7 +105,7 @@ async def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, i
         {"_id": exhibition_id},
         {"$set": update_dict}
     )
-    if result.modified_count:
+    if result.matched_count:
         updated = exhibition_collection.find_one({"_id": exhibition_id})
         return ExhibitionModel(**updated)
     return None

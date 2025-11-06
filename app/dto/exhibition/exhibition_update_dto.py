@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class ExhibitionUpdate(BaseModel):
@@ -18,7 +18,7 @@ class ExhibitionUpdate(BaseModel):
     criteria: Optional[list[Criteria]] = None
 
     class Role(BaseModel):
-        id: str
+        id: str = Field(..., alias="_id")
         name: str
         weight: float
 
