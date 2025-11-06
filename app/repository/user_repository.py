@@ -52,10 +52,11 @@ async def create_user(
         user_dump.pop("password")
         user_id = str(uuid.uuid4())
         user_model = UserModel(
-            id=user_id,
+            _id=user_id,
             **user_dump,
             role=role,
             password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+            verified=False
         )
         
         if profile_picture:
@@ -83,7 +84,8 @@ async def create_user(
                 "project_id": created_user.project.id if created_user.project else None,
                 "scope": "",
                 "permissions": created_user.role.permissions,
-                "role": {"id": created_user.role.id, "name": created_user.role.name}
+                "role": {"id": created_user.role.id, "name": created_user.role.name},
+                "verified": False
             })
             
             # Prepare the token URL

@@ -23,6 +23,8 @@ async def get_all_knowledge():
 async def get_knowledge_by_id(knowledge_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_KNOWLEDGE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -37,6 +39,8 @@ async def get_knowledge_by_id(knowledge_id: str, current_user: Annotated[User, D
 async def create_knowledge(knowledge_dto: KnowledgeCreateDTO, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_KNOWLEDGE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -51,6 +55,8 @@ async def create_knowledge(knowledge_dto: KnowledgeCreateDTO, current_user: Anno
 async def update_knowledge(knowledge_id: str, knowledge_update: KnowledgeCreateDTO, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_UPDATE_KNOWLEDGE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -65,6 +71,8 @@ async def update_knowledge(knowledge_id: str, knowledge_update: KnowledgeCreateD
 async def delete_knowledge(knowledge_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_DELETE_KNOWLEDGE not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
