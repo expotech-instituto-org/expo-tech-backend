@@ -2,15 +2,15 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo:6
+    image: mongo:latest
     container_name: mongo
     restart: always
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     networks:
       - backend_net
-    ports:
-      - "27017:27017"
 
   backend-blue:
     image: ${DOCKERHUB_USERNAME}/expo_tech_backend:blue
