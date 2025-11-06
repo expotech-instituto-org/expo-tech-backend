@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     email: str
     phone: Optional[str] = None
     password: str
-    name: str
+    name: Optional[str] = None
     role_id: Optional[str] = None
     profile_picture: Optional[str] = None
     knowledge: Optional[str] = None
