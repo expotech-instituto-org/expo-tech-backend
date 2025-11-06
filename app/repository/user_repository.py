@@ -55,7 +55,7 @@ async def create_user(
         **user_dump,
         role=role,
         password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
-        verified=False
+        verified=True
     )
 
     if profile_picture:
