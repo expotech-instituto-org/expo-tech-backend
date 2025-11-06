@@ -38,7 +38,7 @@ uvicorn app.main:app --reload
 ```
 
 - The API will be available at `http://127.0.0.1:8000`
-- Interactive docs: `http://127.0.0.1:8000/docs`
+- Interactive docs: `http://127.0.0.1:8000/api/docs`
 
 ## Environment Variables
 
