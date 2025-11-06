@@ -24,6 +24,8 @@ async def list_exhibitions(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -40,6 +42,8 @@ async def update_exhibition(
 ):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_UPDATE_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     # HANDLE EXHIBITION DATA PARSING
@@ -53,7 +57,7 @@ async def update_exhibition(
     except Exception as e:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
     try:
-        return exhibition_repository.update_exhibition(exhibition_id, exhibition_data, image)
+        return await exhibition_repository.update_exhibition(exhibition_id, exhibition_data, image)
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
@@ -70,6 +74,8 @@ async def create_exhibition(
     """
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_CREATE_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     # HANDLE EXHIBITION DATA PARSING
@@ -91,6 +97,8 @@ async def create_exhibition(
 async def delete_exhibition(exhibition_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_DELETE_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -102,6 +110,8 @@ async def delete_exhibition(exhibition_id: str, current_user: Annotated[User, De
 async def get_exhibition_by_id(exhibition_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:
@@ -116,6 +126,8 @@ async def get_exhibition_by_id(exhibition_id: str, current_user: Annotated[User,
 async def get_exhibition_by_current_date(current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if not current_user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if c.PERMISSION_READ_EXHIBITION not in current_user.permissions:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
     try:

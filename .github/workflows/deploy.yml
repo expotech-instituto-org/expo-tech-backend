@@ -100,18 +100,11 @@ jobs:
               echo "Mongo já está rodando."
             else
               echo "Mongo não está rodando — iniciando..."
-              if [ -f "$DEPLOY_PATH/docker-compose.yml" ]; then
-                echo "Subindo Mongo via docker compose..."
-                docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo || {
-                  echo "Falha ao subir via compose — subindo manualmente."
-                  docker rm -f mongo >/dev/null 2>&1 || true
-                  docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
-                }
-              else
-                echo "docker-compose.yml não encontrado — subindo Mongo manualmente."
+              docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo || {
+                echo "Falha ao subir via compose — subindo manualmente."
                 docker rm -f mongo >/dev/null 2>&1 || true
-                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:6 || true
-              fi
+                docker run -d --name mongo --network $NETWORK -p 27017:27017 mongo:latest || true
+              }
             fi
 
             echo "Removendo container temporário (se existir)"

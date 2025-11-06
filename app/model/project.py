@@ -22,6 +22,11 @@ class ProjectModel(BaseModel):
     logo: Optional[str] = Field(None, description="Logo")
     deactivation_date: Optional[datetime] = Field(None, description="Exhibition deactivation date")
 
+    class CriteriaResume(BaseModel):
+        name: str = Field(..., description="Criteria name")
+        score: float = Field(..., description="Criteria score")
+
+    criterias: Optional[List[CriteriaResume]] = Field(None, description="List of criterias")
     class Config:
         validate_by_name = True
         json_schema_extra = {

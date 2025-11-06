@@ -5,7 +5,7 @@ from app.model.user import UserModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
 from app.dto.review.review_resume_dto import ReviewResume
-from app.repository import exhibition_repository, project_repository
+from app.repository import exhibition_repository, user_repository
 import uuid
 from app.model.role import RoleModel
 
@@ -33,13 +33,19 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
     if exhibition_criteria_names != review_grade_names:
         raise ValueError("Grades do not match exhibition criteria")
 
-
     exhibition_role = next((r for r in exhibition.roles if r.id == current_user.role.id), None)
     if exhibition_role is None:
         exhibition_role = next(r for r in exhibition.roles if r.id == DEFAULT_ROLE_ID)
 
+    # Upsert logic: check for existing review
+    existing_review = reviews_collection.find_one({
+        "user._id": current_user.id,
+        "project._id": project.id,
+        "exhibition._id": exhibition.id
+    })
+
     review_model = ReviewModel(
-        _id=str(uuid.uuid4()),
+        _id=str(existing_review["_id"]) if existing_review else str(uuid.uuid4()),
         grades=[
             ReviewModel.Grade(
                 name=grade.name,
@@ -67,16 +73,45 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
         comment=dto.comment
     )
 
-    result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
-    if result.inserted_id:
-        user_repository.add_review_to_user(
-            review_model.user._id,
-            review_model.project._id,
-            review_model.exhibition._id,
-            review_model.comment
+    if existing_review:
+        # Update the existing review
+        result = reviews_collection.update_one(
+            {"_id": existing_review["_id"]},
+            {"$set": review_model.model_dump(by_alias=True)}
         )
-        return review_model
-    return None
+        if result.modified_count > 0:
+            criteria = [
+                {"name": grade.name, "score": grade.score}
+                for grade in review_model.grades
+            ]
+            user_repository.add_review_to_user(
+                review_model.user.id,
+                review_model.id,
+                review_model.project.id,
+                review_model.exhibition.id,
+                review_model.comment,
+                criteria
+            )
+            return review_model
+        return None
+    else:
+        # Create a new review
+        result = reviews_collection.insert_one(review_model.model_dump(by_alias=True))
+        if result.inserted_id:
+            criteria = [
+                {"name": grade.name, "score": grade.score}
+                for grade in review_model.grades
+            ]
+            user_repository.add_review_to_user(
+                review_model.user.id,
+                review_model.id,
+                review_model.project.id,
+                review_model.exhibition.id,
+                review_model.comment,
+                criteria
+            )
+            return review_model
+        return None
 
 def update_review(review_id: str, update_data: ReviewUpdate) -> Optional[ReviewModel]:
     update_fields = {}

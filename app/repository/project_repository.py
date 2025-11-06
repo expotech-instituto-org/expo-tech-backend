@@ -3,18 +3,17 @@ from typing import Optional, List
 from app.database import db
 from app.dto.project.project_create_dto import ProjectCreateDto
 from app.dto.project.project_update_dto import ProjectUpdateDto
-from app.model.project import ProjectModel
-from app.model.review import ReviewModel
-from app.model.user import UserModel
 from app.model.exhibition import ExhibitionModel
+from app.model.project import ProjectModel
+from app.model.user import UserModel
 from app.repository import user_repository
 from app.repository import exhibition_repository
-from app.bucket import upload_image
+from app.bucket import upload_image, delete_image
 from fastapi import UploadFile
-import asyncio
+
+from app.repository.review_repository import reviews_collection
 
 project_collection = db["projects"]
-review_collection = db["reviews"]
 
 def get_project_by_id(project_id: str) -> Optional[ProjectModel]:
     project_data = project_collection.find_one({"_id": project_id})
@@ -52,27 +51,29 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
     exhibition = exhibition_repository.get_exhibition_by_id(project_create_dto.exhibition_id)
     if not exhibition:
         ValueError("Exhibition not found")
+        return None
 
     expositors: List[ProjectModel.UserResume] = []
-    for expositor_id in project_create_dto.expositor_ids:
+    for expositor_id in project_create_dto.expositors:
         expositor = user_repository.get_user_by_id(expositor_id)
         if not expositor:
             ValueError(f"Expositor {expositor_id} not found")
+            return None
         expositors.append(expositor.model_dump(by_alias=True))
 
-    logo_url = None
+    logo_url: Optional[str] = None
     if logo:
-        url = await upload_image(logo)
+        url = await upload_image(logo, folder="projects/logo")
         logo_url = url
 
-    image_urls = []
+    image_urls: List[str] = []
     if images:
         for image in images:
-            url = await upload_image(image)
+            url = await upload_image(image, folder="projects/images")
             image_urls.append(url)
 
     project = ProjectModel(
-        _id=str(uuid.uuid4()),
+        _id=project_create_dto.id or str(uuid.uuid4()),
         expositors=expositors,
         logo=logo_url,
         images=image_urls,
@@ -81,22 +82,87 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
 
     result = project_collection.insert_one(project.model_dump(by_alias=True))
     if result.inserted_id:
+        exhibition_repository.add_project(exhibition.id, ExhibitionModel.ProjectResume(
+            _id=project.id,
+            name=project.name,
+            logo=logo_url,
+            company_name=project.company_name,
+            description=project.description,
+            banners=image_urls,
+            coordinates=project.coordinates
+        ))
+
+        for expositor in expositors:
+            user_repository.add_project_to_user(expositor.id, UserModel.ProjectResume(
+                _id=project.id,
+                name=project.name,
+                logo=logo_url,
+                company_name=project.company_name,
+            ))
+
         return project
     return None
 
-def update_project(project_id: str, project_update_dto: ProjectUpdateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+async def update_project(project_id: str, project_update_dto: ProjectUpdateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
     project = get_project_by_id(project_id)
     if not project:
         ValueError("Project not found")
+        return None
 
+    expositors: List[ProjectModel.UserResume] = []
+    for expositor_id in project_update_dto.expositor_ids:
+        expositor = user_repository.get_user_by_id(expositor_id)
+        if not expositor:
+            ValueError(f"Expositor {expositor_id} not found")
+            return None
+        expositors.append(expositor.model_dump(by_alias=True))
+
+    logo_url: Optional[str] = None
     if logo:
-        url = upload_image(logo, project.logo)
-        project.logo = url
+        url = await upload_image(logo, project.logo, folder="projects/logo")
+        logo_url = url
 
+
+    for image_url in project.images:
+        delete_image(image_url)
+
+    image_urls: List[str] = []
     if images:
         for image in images:
-            url = upload_image(image)
-            project.images.append(url)
+            url = await upload_image(image, folder="projects/images")
+            image_urls.append(url)
+
+    project = ProjectModel(
+        exhibition_id=project.exhibition_id,
+        expositors=expositors,
+        logo=logo_url,
+        images=image_urls,
+        **project_update_dto.model_dump()
+    )
+
+    project_dict = project.model_dump(by_alias=True)
+    project_dict.pop("_id")
+    result = project_collection.update_one({"_id": project_id}, {"$set": project_dict})
+    if result.modified_count:
+        exhibition_repository.update_project(project.exhibition_id, project_id, ExhibitionModel.ProjectResume(
+            _id=project.id,
+            name=project.name,
+            logo=logo_url,
+            company_name=project.company_name,
+            description=project.description,
+            banners=image_urls,
+            coordinates=project.coordinates
+        ))
+
+        for expositor in expositors:
+            user_repository.add_project_to_user(expositor["_id"], UserModel.ProjectResume(
+                _id=project_id,
+                name=project.name,
+                logo=logo_url,
+                company_name=project.company_name,
+            ))
+        return project
+
     return None
 
 def update_project_with_user(user_id: str, update_user: UserModel) -> int:
@@ -108,7 +174,7 @@ def update_project_with_user(user_id: str, update_user: UserModel) -> int:
 
 def delete_project_by_id(project_id: str) -> bool:
     try:
-        review_collection.update_many(
+        reviews_collection.update_many(
             {"project_id": project_id},
             {"$set": {"active": False}}
         )

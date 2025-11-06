@@ -13,39 +13,39 @@ class GCSBucketManager:
 
     def __init__(self):
         try:
-            use_gcs = os.getenv("GCP_ACTIVE", "false").lower() == "true"
-            if not use_gcs:
-                print("GCS feature flag is disabled. GCS will not be initialized.")
-                self.storage_client = None
-                self.bucket = None
-                return
-
-            json_path = os.getenv("GCP_CREDENTIALS_JSON")
             emulator_host = os.getenv("GCP_STORAGE_EMULATOR_HOST")
 
-            if json_path and os.path.isfile(json_path):
-                credentials = service_account.Credentials.from_service_account_file(json_path)
+            if not emulator_host:
+                credentials_info = {
+                    "type": os.getenv("TYPE"),
+                    "project_id": os.getenv("PROJECT_ID"),
+                    "private_key_id": os.getenv("PRIVATE_KEY_ID"),
+                    "private_key": os.getenv("PRIVATE_KEY").replace("\\n", "\n"),
+                    "client_email": os.getenv("CLIENT_EMAIL"),
+                    "client_id": os.getenv("CLIENT_ID"),
+                    "auth_uri": os.getenv("AUTH_URI"),
+                    "token_uri": os.getenv("TOKEN_URI"),
+                    "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
+                    "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL"),
+                    "universe_domain": os.getenv("UNIVERSE_DOMAIN"),
+                }
+
+                if not all(credentials_info.values()):
+                    raise RuntimeError("Missing one or more required GCP service account environment variables.")
+
+                credentials = service_account.Credentials.from_service_account_info(credentials_info)
                 client_options = None
-            elif emulator_host:
+            else:
                 credentials = AnonymousCredentials()
                 client_options = {"api_endpoint": emulator_host}
-            else:
-                raise RuntimeError("Neither a valid GCP_CREDENTIALS_JSON file nor STORAGE_EMULATOR_HOST is set. One is required.")
 
-            self.storage_client = storage.Client(credentials=credentials, client_options=client_options) if credentials or client_options else storage.Client()
+            self.storage_client = storage.Client(credentials=credentials, client_options=client_options)
 
             self.gcp_bucket_name = os.getenv("GCP_BUCKET_NAME")
             if not self.gcp_bucket_name:
                 raise ValueError("GCP_BUCKET_NAME environment variable is not set.")
 
-            # Create bucket if using emulator and it doesn't exist
-            if json_path and os.path.isfile(json_path):
-                try:
-                    self.bucket = self.storage_client.get_bucket(self.gcp_bucket_name)
-                except Exception:
-                    self.bucket = self.storage_client.create_bucket(self.gcp_bucket_name)
-            else:
-                self.bucket = self.storage_client.bucket(self.gcp_bucket_name)
+            self.bucket = self.storage_client.bucket(self.gcp_bucket_name)
 
             # Ping: try to list blobs to test connection
             _ = list(self.bucket.list_blobs(max_results=1))

@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 import os
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login", auto_error=False)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
@@ -22,6 +22,7 @@ class User(BaseModel):
         name: str
     role: Role
     permissions: list[str]
+    verified: bool
 
 class Token(BaseModel):
     access_token: str
@@ -47,7 +48,8 @@ async def get_current_user(token: Annotated[Optional[str], Depends(oauth2_scheme
             project_id=payload.get("project_id"),
             email=email,
             role=payload.get("role"),
-            permissions=payload.get("permissions", [])
+            permissions=payload.get("permissions", []),
+            verified=payload.get("verified")
         )
     except InvalidTokenError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
