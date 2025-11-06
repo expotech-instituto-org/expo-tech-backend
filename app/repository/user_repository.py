@@ -1,6 +1,5 @@
-from typing import Optional, Callable, Any
-import logging
-from datetime import datetime
+from typing import Optional, List
+import os
 
 from fastapi import UploadFile
 
@@ -13,8 +12,8 @@ import uuid
 import bcrypt
 from app.repository.roles_repository import get_role_by_id, get_default_role
 from app.repository import project_repository, review_repository
-
-logger = logging.getLogger(__name__)
+from app.service.sendEmail import send_login_token_email
+from app.routes.security import create_access_token
 
 users_collection = db["users"]
 users_collection.create_index("email", unique=True) # TODO Fazer isso direto no mongo
@@ -37,77 +36,88 @@ def list_all_users(name: Optional[str] = None, role_id: Optional[str] = None) ->
 async def create_user(
     user: UserCreate, 
     requesting_role_permissions: list[str], 
-    profile_picture: Optional[UploadFile],
-    post_create_callback: Optional[Callable[[UserModel], Any]] = None
+    profile_picture: Optional[UploadFile]
 ) -> Optional[UserModel]:
     """
-    Create a new user in the database.
-    If a callback is provided and fails, the user is automatically deleted (rollback).
+    Create a new user in the database and send welcome email.
+    If email sending fails, the user is automatically deleted (rollback).
     """
-    created_user = None
-    try:
-        logger.info(f"[REPO_CREATE_USER] Iniciando criação - Role ID: {user.role_id}, Tem foto: {profile_picture is not None}")
-        
-        role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
-        if role is None:
-            raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
 
-        user_dump = user.model_dump()
-        user_dump.pop("password")
-        user_id = str(uuid.uuid4())
-        user_model = UserModel(
-            id=user_id,
-            **user_dump,
-            role=role,
-            password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
-        )
-        
-        if profile_picture:
-            logger.info(f"[REPO_CREATE_USER] Iniciando upload de imagem - Filename: {profile_picture.filename}")
-            upload_start = datetime.now()
-            url = await upload_image(profile_picture)
-            upload_duration = (datetime.now() - upload_start).total_seconds()
-            logger.info(f"[REPO_CREATE_USER] Upload de imagem concluído em {upload_duration:.2f}s - URL: {url}")
-            user_model.profile_picture = url
-        
-        logger.info(f"[REPO_CREATE_USER] Inserindo usuário no banco - User ID: {user_model.id}")
-        db_start = datetime.now()
-        result = users_collection.insert_one(user_model.model_dump(by_alias=True))
-        db_duration = (datetime.now() - db_start).total_seconds()
-        logger.info(f"[REPO_CREATE_USER] Usuário inserido no banco em {db_duration:.2f}s - Inserted ID: {result.inserted_id}")
-        
-        if not result.inserted_id:
-            logger.error("[REPO_CREATE_USER] Falha ao inserir - result.inserted_id é None")
-            return None
-        
-        created_user = user_model
-        
-        # Execute callback if provided (ex: send email)
-        # If it fails, the exception will be captured and the user will be deleted
-        if post_create_callback:
-            logger.info("[REPO_CREATE_USER] Executando callback pós-criação")
-            post_create_callback(created_user)
-        
-        logger.info(f"[REPO_CREATE_USER] Criação concluída com sucesso - User ID: {created_user.id}")
-        return created_user
-    except Exception as e:
-        logger.error(f"[REPO_CREATE_USER] Erro durante criação: {type(e).__name__}: {str(e)}", exc_info=True)
-        # Rollback: delete the user if something fails after creation
-        if created_user:
-            try:
-                logger.info(f"[REPO_CREATE_USER] Fazendo rollback - deletando usuário {created_user.id}")
-                delete_user(created_user.id)
-                logger.info(f"[REPO_CREATE_USER] Rollback concluído - usuário {created_user.id} deletado")
-            except Exception as rollback_error:
-                logger.error(f"[REPO_CREATE_USER] Erro no rollback: {str(rollback_error)}")
-        raise
+    role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
+    if role is None:
+        raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
+
+    user_dump = user.model_dump()
+    user_dump.pop("password")
+    user_id = str(uuid.uuid4())
+    user_model = UserModel(
+        _id=user_id,
+        **user_dump,
+        role=role,
+        password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+        verified=False
+    )
+
+    if profile_picture:
+        url = await upload_image(profile_picture, folder="/users")
+        user_model.profile_picture = url
+
+    result = users_collection.insert_one(user_model.model_dump(by_alias=True))
+    print("insert")
+    if not result.inserted_id:
+        print("not insert")
+        return None
+
+    created_user = user_model
+
+    # Send welcome email
+    try:
+        print("try")
+        # Verify frontend URL is configured
+        frontend_url = os.getenv("EXPO_FRONT_URL", "")
+        if not frontend_url:
+            print("no frontend url")
+            raise RuntimeError("EXPO_FRONT_URL not configured")
+
+        # Generate the token
+        token_data = create_access_token(data={
+            "sub": created_user.email,
+            "user_id": created_user.id,
+            "project_id": created_user.project.id if created_user.project else None,
+            "scope": "",
+            "permissions": created_user.role.permissions,
+            "role": {"id": created_user.role.id, "name": created_user.role.name},
+            "verified": False
+        })
+
+        # Prepare the token URL
+        frontend_url = frontend_url.rstrip('/')
+        token_url = f"{frontend_url}?token={token_data.access_token}"
+        user_name = created_user.name if created_user.name else "Olá, visitante!"
+
+        # Send email
+        print("send")
+        send_login_token_email(created_user.email, user_name, token_url)
+        print("sent")
+    except Exception as email_error:
+        # Rollback: delete the user if email fails
+        try:
+            print("rollback email")
+            delete_user(created_user.id)
+            raise RuntimeError(f"Error sending email user: {str(email_error)}")
+        except Exception:
+            pass
+        raise RuntimeError(f"Erro ao enviar email: {str(email_error)}")
+    print("return")
+    return created_user
+
 
 async def update_user(user_id: str, update_data: UserModel, profile_picture: Optional[UploadFile]) -> Optional[UserModel]:
     user_data = users_collection.find_one({"_id": user_id})
     if user_data is None:
         raise ValueError("User not found")
     if profile_picture:
-        url = await upload_image(profile_picture, user_data.get("profile_picture"))
+        url = await upload_image(profile_picture, user_data.get("profile_picture"), folder="/users")
         update_data.profile_picture = url
 
     user_dict = update_data.model_dump(exclude_unset=True)
@@ -211,5 +221,49 @@ async def upload_profile_picture(user_id: Optional[str], file: UploadFile) -> st
         if not user:
             raise ValueError("User not found")
 
-    url = await upload_image(file, user.get("profile_picture") if user_id else None)
+    url = await upload_image(file, user.get("profile_picture") if user_id else None, folder="/users")
     return url
+
+def add_review_to_user(user_id: str, review_id: str, project_id: str, exhibition_id: str, comment: Optional[str], criteria: Optional[List[dict]] = None) -> None:
+    review_resume = {
+        "_id": review_id,
+        "project_id": project_id,
+        "exhibition_id": exhibition_id,
+        "comment": comment
+    }
+    if criteria:
+        review_resume["criteria"] = criteria
+
+    # Upsert logic: update if exists, else push
+    result = users_collection.update_one(
+        {
+            "_id": user_id,
+            "reviews": {
+                "$elemMatch": {
+                    "_id": review_id,
+                    "project_id": project_id,
+                    "exhibition_id": exhibition_id
+                }
+            }
+        },
+        {
+            "$set": {
+                "reviews.$.comment": comment,
+                "reviews.$.criteria": criteria if criteria else []
+            }
+        }
+    )
+    if result.modified_count == 0:
+        # If not found, push new review
+        result = users_collection.update_one(
+            {"_id": user_id},
+            {"$push": {"reviews": review_resume}}
+        )
+        if result.modified_count == 0:
+            raise ValueError("User not found or not updated")
+
+
+def add_project_to_user(user_id: str, project_resume: UserModel.ProjectResume) -> Optional[UserModel]:
+    result = users_collection.update_one({"_id": user_id},{"$set": {"project": project_resume.model_dump(by_alias=True)}})
+    if result.matched_count == 0:
+        raise ValueError("User not found")

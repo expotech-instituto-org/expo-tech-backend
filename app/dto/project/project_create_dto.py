@@ -3,12 +3,13 @@ from pydantic import BaseModel, Field
 import uuid
 
 class ProjectCreateDto(BaseModel):
+    id: Optional[str] = Field(..., description="Unique identifier for the project")
     name: str = Field(..., min_length=1, description="Project name")
     company_name: Optional[str] = Field(None, description="Company Name")
     description: str = Field(..., min_length=1, description="Description")
     coordinates: Optional[int] = Field(None, description="Coordinates")
     exhibition_id: str = Field(..., description="Exhibition id")
-    expositor_ids: Optional[List[str]] = Field(default_factory=list, description="List of expositor users")
+    expositors: Optional[List[str]] = Field(default_factory=list, description="List of expositor users")
 
     class Config:
         json_schema_extra = {

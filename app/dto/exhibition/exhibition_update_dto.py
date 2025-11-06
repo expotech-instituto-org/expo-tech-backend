@@ -5,24 +5,24 @@ from pydantic import BaseModel
 from typing import Optional
 
 class ExhibitionUpdate(BaseModel):
-    name: str
+    name: Optional[str] = None
     description: Optional[str] = None
-    start_date: datetime
-    end_date: datetime
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     banners: Optional[list[str]] = None
 
     class Criteria(BaseModel):
         name: str
         weight: float
 
-    criteria: list[Criteria]
+    criteria: Optional[list[Criteria]] = None
 
     class Role(BaseModel):
         id: str
         name: str
         weight: float
 
-    roles: list[Role]
+    roles: Optional[list[Role]] = None
 
     class Config:
         validate_by_name = True
