@@ -239,17 +239,36 @@ def add_review_to_user(user_id: str, review_id: str, project_id: str, exhibition
         "exhibition_id": exhibition_id,
         "comment": comment
     }
-    
     if criteria:
         review_resume["criteria"] = criteria
-    
+
+    # Upsert logic: update if exists, else push
     result = users_collection.update_one(
-        {"_id": user_id},
-        {"$push": {"reviews": review_resume}}
+        {
+            "_id": user_id,
+            "reviews": {
+                "$elemMatch": {
+                    "_id": review_id,
+                    "project_id": project_id,
+                    "exhibition_id": exhibition_id
+                }
+            }
+        },
+        {
+            "$set": {
+                "reviews.$.comment": comment,
+                "reviews.$.criteria": criteria if criteria else []
+            }
+        }
     )
-    
     if result.modified_count == 0:
-        raise ValueError("User not found or not updated")
+        # If not found, push new review
+        result = users_collection.update_one(
+            {"_id": user_id},
+            {"$push": {"reviews": review_resume}}
+        )
+        if result.modified_count == 0:
+            raise ValueError("User not found or not updated")
 
 
 def add_project_to_user(user_id: str, project_resume: UserModel.ProjectResume) -> Optional[UserModel]:
