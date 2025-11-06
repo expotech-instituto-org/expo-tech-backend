@@ -48,7 +48,7 @@ async def get_user(user_id: str, current_user: Annotated[User, Depends(get_curre
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
-@router.post("", response_model=UserModel)
+@router.post("", response_model=Optional[UserModel])
 async def create_user(
     user: UserCreate|str = Form(...),
     profile_picture: UploadFile = File(None),
