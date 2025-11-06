@@ -13,7 +13,6 @@ from datetime import datetime, timezone
 from pymongo import ASCENDING
 from app.bucket import upload_image
 from fastapi import UploadFile
-import asyncio
 
 exhibition_collection= db["exhibitions"]
 
@@ -51,7 +50,7 @@ async def create_exhibition(exhibition: ExhibitionCreate, image: UploadFile = No
 
     image_url = None
     if image:
-        image_url = await asyncio.run(upload_image(image, folder="exhibitions"))
+        image_url = await upload_image(image, folder="exhibitions")
 
     exhibition_model = ExhibitionModel(
         _id = str(uuid.uuid4()),
@@ -84,21 +83,21 @@ def update_exhibion_with_role(role_id: str, updated_role: RoleModel) -> int:
     )
     return result.modified_count
 
-def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, image: UploadFile = None) -> Optional[ExhibitionModel]:
+async def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, image: UploadFile = None) -> Optional[ExhibitionModel]:
     if update_data.roles and not any(role.id == c.DEFAULT_ROLE_ID for role in update_data.roles):
         raise ValueError("Default role must be present in roles")
     if update_data.roles and sum(role.weight for role in update_data.roles) != 1.0:
         raise ValueError("Sum of role weights must be 1.0")
     if update_data.criteria and sum(criteria.weight for criteria in update_data.criteria) != 1.0:
         raise ValueError("Sum of criteria weights must be 1.0")
-    if update_data.end_date < update_data.start_date:
+    if update_data.end_date and update_data.start_date and update_data.end_date < update_data.start_date:
         raise ValueError("End date must be greater than start date")
 
     image_url = None
     if image:
-        image_url = asyncio.run(upload_image(image, folder="exhibitions"))
+        image_url = await upload_image(image, folder="exhibitions")
 
-    update_dict = update_data.model_dump(exclude_unset=True)
+    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
     if image_url:
         update_dict["image"] = image_url
 
