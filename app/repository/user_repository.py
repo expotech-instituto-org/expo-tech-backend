@@ -46,7 +46,7 @@ async def create_user(
     role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
     if role is None:
         raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
-
+    user.email = user.email.lower()
     user_dump = user.model_dump()
     user_dump.pop("password")
     user_id = str(uuid.uuid4())
@@ -139,7 +139,7 @@ def delete_user(user_id: str) -> bool:
     return result.deleted_count > 0
 
 def get_user_by_email(email: str):
-    user_data = users_collection.find_one({"email": email})
+    user_data = users_collection.find_one({"email": email.lower()})
     if user_data:
         return UserModel(**user_data)
     return None
