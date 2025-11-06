@@ -3,6 +3,7 @@ from typing import Optional, List
 from app.database import db
 from app.dto.project.project_create_dto import ProjectCreateDto
 from app.dto.project.project_update_dto import ProjectUpdateDto
+from app.model.exhibition import ExhibitionModel
 from app.model.project import ProjectModel
 from app.model.user import UserModel
 from app.repository import user_repository
