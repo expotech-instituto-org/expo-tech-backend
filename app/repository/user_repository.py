@@ -109,6 +109,7 @@ async def create_user(
         if created_user:
             try:
                 delete_user(created_user.id)
+                raise RuntimeError(f"Error creating user: {str(e)}")
             except Exception:
                 raise RuntimeError(f"Error rolling back: {str(e)}")
 
