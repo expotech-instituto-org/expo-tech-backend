@@ -51,7 +51,6 @@ jobs:
       - name: Build & Push Docker Images
         run: |
           IMAGE_BASE="${{ secrets.DOCKERHUB_USERNAME }}/expo_tech_backend"
-          echo "Build & Push das imagens blue e green"
           docker build -t "${IMAGE_BASE}:blue" .
           docker push "${IMAGE_BASE}:blue"
           docker build -t "${IMAGE_BASE}:green" .
@@ -112,17 +111,11 @@ jobs:
             UNIVERSE_DOMAIN=${UNIVERSE_DOMAIN}
             EOF
 
-            echo "Arquivo .env criado com sucesso!"
-            echo "Conteúdo do .env:"
-            cat .env
-
-            echo "Criando rede (se não existir)"
+            echo "Arquivo .env criado."
             docker network create $NETWORK >/dev/null 2>&1 || true
 
-            echo "Login no Docker Hub"
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || true
 
-            echo "Pull das imagens"
             docker pull "$IMAGE_BLUE" || true
             docker pull "$IMAGE_GREEN" || true
 
@@ -130,7 +123,7 @@ jobs:
             if docker ps --format '{{.Names}}' | grep -q "^mongo$"; then
               echo "Mongo já está rodando."
             else
-              echo "Mongo não está rodando — iniciando..."
+              echo "Iniciando Mongo..."
               docker compose -f "$DEPLOY_PATH/docker-compose.yml" up -d mongo
             fi
 
@@ -141,13 +134,11 @@ jobs:
             docker run -d --name backend-green-temp --env-file .env --network $NETWORK "$IMAGE_GREEN"
 
             echo "Aguardando inicialização..."
-            sleep 5
+            sleep 10
 
-            echo "Executando healthcheck..."
             ATTEMPTS=0
             MAX_ATTEMPTS=10
             HEALTHY=false
-
             while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
               STATUS=$(docker run --rm --network "$NETWORK" curlimages/curl:latest -s -o /dev/null -w "%{http_code}" http://backend-green-temp:8000/api/health || echo "000")
               echo "Tentativa $((ATTEMPTS+1))/$MAX_ATTEMPTS - HTTP $STATUS"
@@ -160,7 +151,7 @@ jobs:
             done
 
             if [ "$HEALTHY" != true ]; then
-              echo "Healthcheck falhou — revertendo."
+              echo "Healthcheck falhou."
               docker logs backend-green-temp || true
               docker rm -f backend-green-temp || true
               exit 1
@@ -174,7 +165,5 @@ jobs:
 
             docker rm -f backend-green-temp >/dev/null 2>&1 || true
 
-            echo "Recarregando Nginx..."
             docker exec frontend-proxy nginx -s reload || echo "Proxy não encontrado."
-
-            echo "===== Deploy concluído com sucesso ====="
+            echo "===== Deploy concluído ====="
