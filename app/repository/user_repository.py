@@ -42,83 +42,75 @@ async def create_user(
     Create a new user in the database and send welcome email.
     If email sending fails, the user is automatically deleted (rollback).
     """
-    created_user = None
-    try:
-        role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
-        if role is None:
-            raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
 
-        user_dump = user.model_dump()
-        user_dump.pop("password")
-        user_id = str(uuid.uuid4())
-        user_model = UserModel(
-            _id=user_id,
-            **user_dump,
-            role=role,
-            password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
-            verified=False
-        )
-        
-        if profile_picture:
-            url = await upload_image(profile_picture, folder="/users")
-            user_model.profile_picture = url
-        
-        result = users_collection.insert_one(user_model.model_dump(by_alias=True))
-        print("insert")
-        if not result.inserted_id:
-            print("not insert")
-            return None
-        
-        created_user = user_model
-        
-        # Send welcome email
+    role = get_role_by_id(user.role_id, requesting_role_permissions) if user.role_id else get_default_role()
+    if role is None:
+        raise ValueError("Invalid role ID" if user.role_id else "Default role not found")
+
+    user_dump = user.model_dump()
+    user_dump.pop("password")
+    user_id = str(uuid.uuid4())
+    user_model = UserModel(
+        _id=user_id,
+        **user_dump,
+        role=role,
+        password=bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()),
+        verified=False
+    )
+
+    if profile_picture:
+        url = await upload_image(profile_picture, folder="/users")
+        user_model.profile_picture = url
+
+    result = users_collection.insert_one(user_model.model_dump(by_alias=True))
+    print("insert")
+    if not result.inserted_id:
+        print("not insert")
+        return None
+
+    created_user = user_model
+
+    # Send welcome email
+    try:
+        print("try")
+        # Verify frontend URL is configured
+        frontend_url = os.getenv("EXPO_FRONT_URL", "")
+        if not frontend_url:
+            print("no frontend url")
+            raise RuntimeError("EXPO_FRONT_URL not configured")
+
+        # Generate the token
+        token_data = create_access_token(data={
+            "sub": created_user.email,
+            "user_id": created_user.id,
+            "project_id": created_user.project.id if created_user.project else None,
+            "scope": "",
+            "permissions": created_user.role.permissions,
+            "role": {"id": created_user.role.id, "name": created_user.role.name},
+            "verified": False
+        })
+
+        # Prepare the token URL
+        frontend_url = frontend_url.rstrip('/')
+        token_url = f"{frontend_url}?token={token_data.access_token}"
+        user_name = created_user.name if created_user.name else "Olá, visitante!"
+
+        # Send email
+        print("send")
+        send_login_token_email(created_user.email, user_name, token_url)
+        print("sent")
+    except Exception as email_error:
+        # Rollback: delete the user if email fails
         try:
-            print("try")
-            # Verify frontend URL is configured
-            frontend_url = os.getenv("EXPO_FRONT_URL", "")
-            if not frontend_url:
-                print("no frontend url")
-                raise RuntimeError("EXPO_FRONT_URL not configured")
-            
-            # Generate the token
-            token_data = create_access_token(data={
-                "sub": created_user.email,
-                "user_id": created_user.id,
-                "project_id": created_user.project.id if created_user.project else None,
-                "scope": "",
-                "permissions": created_user.role.permissions,
-                "role": {"id": created_user.role.id, "name": created_user.role.name},
-                "verified": False
-            })
-            
-            # Prepare the token URL
-            frontend_url = frontend_url.rstrip('/')
-            token_url = f"{frontend_url}?token={token_data.access_token}"
-            user_name = created_user.name if created_user.name else "Olá, visitante!"
-            
-            # Send email
-            print("send")
-            send_login_token_email(created_user.email, user_name, token_url)
-            print("sent")
-        except Exception as email_error:
-            # Rollback: delete the user if email fails
-            try:
-                print("rollback email")
-                delete_user(created_user.id)
-                raise RuntimeError(f"Error sending email user: {str(email_error)}")
-            except Exception:
-                pass
-            raise RuntimeError(f"Erro ao enviar email: {str(email_error)}")
-        print("return")
-        return created_user
-    except Exception as e:
-        # Rollback: delete the user if something fails after creation
-        if created_user:
-            try:
-                delete_user(created_user.id)
-                raise RuntimeError(f"Error creating user: {str(e)}")
-            except Exception:
-                raise RuntimeError(f"Error rolling back: {str(e)}")
+            print("rollback email")
+            delete_user(created_user.id)
+            raise RuntimeError(f"Error sending email user: {str(email_error)}")
+        except Exception:
+            pass
+        raise RuntimeError(f"Erro ao enviar email: {str(email_error)}")
+    print("return")
+    return created_user
+
 
 async def update_user(user_id: str, update_data: UserModel, profile_picture: Optional[UploadFile]) -> Optional[UserModel]:
     user_data = users_collection.find_one({"_id": user_id})
