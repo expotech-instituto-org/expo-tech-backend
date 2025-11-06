@@ -3,6 +3,7 @@ from typing import Optional, List
 from app.database import db
 from app.dto.project.project_create_dto import ProjectCreateDto
 from app.dto.project.project_update_dto import ProjectUpdateDto
+from app.model.exhibition import ExhibitionModel
 from app.model.project import ProjectModel
 from app.model.user import UserModel
 from app.repository import user_repository
@@ -72,7 +73,7 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
             image_urls.append(url)
 
     project = ProjectModel(
-        _id=str(uuid.uuid4()),
+        _id=project_create_dto.id or str(uuid.uuid4()),
         expositors=expositors,
         logo=logo_url,
         images=image_urls,
