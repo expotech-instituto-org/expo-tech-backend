@@ -4,8 +4,8 @@ from app.model.review import ReviewModel
 from app.model.user import UserModel
 from app.dto.review.review_create_dto import ReviewCreate
 from app.dto.review.review_update_dto import ReviewUpdate
-from app.dto.review.review_resume_dto import ReviewResume
-from app.repository import exhibition_repository, user_repository
+from app.repository import exhibition_repository, user_repository, exhibition_repository
+
 import uuid
 from app.model.role import RoleModel
 
@@ -160,13 +160,8 @@ def get_reviews_by_exhibition(
     entire_project: bool = False,
     entire_user: bool = False
 ) -> list[ReviewModel]:
-    pipeline = [
-        {
-            "$match": {
-                "exhibition._id": exhibition_id
-            }
-        }
-    ]
+    pipeline = [{"$match": {"exhibition._id": exhibition_id}}]
+
     if entire_project:
         pipeline.extend([
             {
@@ -177,10 +172,9 @@ def get_reviews_by_exhibition(
                     "as": "project"
                 }
             },
-            {
-                "$unwind": "$project"
-            }
+            {"$unwind": "$project"}
         ])
+
     if entire_user:
         pipeline.extend([
             {
@@ -191,14 +185,23 @@ def get_reviews_by_exhibition(
                     "as": "user"
                 }
             },
-            {
-                "$unwind": "$user"
-            }
+            {"$unwind": "$user"}
         ])
 
     reviews_cursor = reviews_collection.aggregate(pipeline)
-    print(reviews_cursor)
-    return [ReviewModel(**review) for review in reviews_cursor]
+    reviews_raw = list(reviews_cursor)
+
+    exhibition = exhibition_repository.get_exhibition_by_id(exhibition_id)
+    role_weights = {r.name: r.weight for r in exhibition.roles}
+
+    for review in reviews_raw:
+        user_role = review["user"]["role"]
+        role_name = user_role["name"]
+        if role_name in role_weights:
+            review["user"]["role"]["weight"] = role_weights[role_name]
+        else:
+            review["user"]["role"]["weight"] = 0
+    return [ReviewModel(**review) for review in reviews_raw]
 
 def get_reviews_by_project(project_id: str) -> list[ReviewModel]:
     reviews_cursor = reviews_collection.find({"project._id": project_id})
