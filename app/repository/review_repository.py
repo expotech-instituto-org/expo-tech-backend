@@ -185,7 +185,26 @@ def get_reviews_by_exhibition(
                     "as": "user"
                 }
             },
-            {"$unwind": "$user"}
+            {"$unwind": "$user"},
+            {
+                "$lookup": {
+                    "from": "classes",          
+                    "localField": "user.class", 
+                    "foreignField": "_id",
+                    "as": "user_class"
+                }
+            },
+            {
+                "$set": {
+                    "user.class": {
+                        "$ifNull": [
+                            {"$arrayElemAt": ["$user_class.name", 0]},
+                            None
+                        ]
+                    }
+                }
+            },
+            {"$unset": "user_class"}
         ])
 
     reviews_cursor = reviews_collection.aggregate(pipeline)
@@ -195,12 +214,11 @@ def get_reviews_by_exhibition(
     role_weights = {r.name: r.weight for r in exhibition.roles}
 
     for review in reviews_raw:
-        user_role = review["user"]["role"]
-        role_name = user_role["name"]
-        if role_name in role_weights:
-            review["user"]["role"]["weight"] = role_weights[role_name]
-        else:
-            review["user"]["role"]["weight"] = 0
+        user_role = review["user"].get("role", {})
+        role_name = user_role.get("name") if isinstance(user_role, dict) else user_role
+        review["user"]["role"]["weight"] = role_weights.get(role_name, 0)
+        print(review["user"]["role"]["weight"])
+
     return [ReviewModel(**review) for review in reviews_raw]
 
 def get_reviews_by_project(project_id: str) -> list[ReviewModel]:

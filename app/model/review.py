@@ -33,15 +33,19 @@ class ReviewModel(BaseModel):
     class UserResume(BaseModel):
         id: str = Field(None, alias="_id")
         name: str = Field(..., description="User full name")
+        class_field: Optional[str] = Field(None, description="Class", alias="class")
 
         class UserRole(BaseModel):
             id: Optional[str] = Field(None, alias="_id")
             name: str = Field(..., description="User full name")
-            weight: Optional[float] = Field(..., ge=0, le=1, description="User weight for review scoring")
+            weight: Optional[float] = Field(0, ge=0, le=1, description="User weight for review scoring")
 
         role: UserRole = Field(..., description="User role")
+        knowledge: Optional[str] = Field(None, description="How the user got to know about the event")
+        age: Optional[int] = Field(None, description="User age")
+        company: Optional[str] = Field(None, description="Company name associated with the user")
     
-    user: Union[UserResume, UserModel] = Field(...)
+    user: UserResume = Field(...)
     comment: Optional[str] = Field(None, max_length=300)
     review_timestamp: datetime = Field(default_factory=datetime.now)
 
