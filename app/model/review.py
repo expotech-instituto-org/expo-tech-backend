@@ -20,6 +20,7 @@ class ReviewModel(BaseModel):
     class ProjectResume(BaseModel):
         id: str = Field(..., alias="_id")
         name: str = Field(..., description="Project name")
+        logo: Optional[str] = Field(..., description="Project logo")
 
     project: Union[ProjectResume, ProjectModel] = Field(...)
 
@@ -32,6 +33,7 @@ class ReviewModel(BaseModel):
     class UserResume(BaseModel):
         id: str = Field(None, alias="_id")
         name: str = Field(..., description="User full name")
+        class_field: str = Field(..., description="User class")
 
         class UserRole(BaseModel):
             id: Optional[str] = Field(None, alias="_id")
@@ -57,11 +59,13 @@ class ReviewModel(BaseModel):
                 "project": {
                     "_id": str(uuid.uuid4()),
                     "name": "Projeto Exemplo",
+                    "logo": "Project Logo"
                 },
                 "exhibition_id": str(uuid.uuid4()),
                 "user": {
                     "_id": str(uuid.uuid4()),
                     "name": "Avaliador Exemplo",
+                    "class_field": "3ºF",
                     "role": {
                         "_id": str(uuid.uuid4()),
                         "name": "Jurídico",
