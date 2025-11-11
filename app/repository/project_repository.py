@@ -72,12 +72,14 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
             url = await upload_image(image, folder="projects/images")
             image_urls.append(url)
 
+    project_data = project_create_dto.model_dump(exclude={"expositors"})
+
     project = ProjectModel(
         _id=project_create_dto.id or str(uuid.uuid4()),
         expositors=expositors,
         logo=logo_url,
         images=image_urls,
-        **project_create_dto.model_dump()
+        **project_data
     )
 
     result = project_collection.insert_one(project.model_dump(by_alias=True))

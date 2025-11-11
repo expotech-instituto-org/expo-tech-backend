@@ -197,6 +197,7 @@ def get_reviews_by_exhibition(
         ])
 
     reviews_cursor = reviews_collection.aggregate(pipeline)
+    print(reviews_cursor)
     return [ReviewModel(**review) for review in reviews_cursor]
 
 def get_reviews_by_project(project_id: str) -> list[ReviewModel]:
