@@ -149,14 +149,14 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 @router.post("/login", response_model=Token)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user = user_repository.authenticate_user(form_data.username, form_data.password)
-    if not user.verified:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     if not user:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect login or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if not user.verified:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Email not verified")
     else:
         token = create_access_token(data={
             "sub": user.email,
