@@ -33,12 +33,11 @@ class ReviewModel(BaseModel):
     class UserResume(BaseModel):
         id: str = Field(None, alias="_id")
         name: str = Field(..., description="User full name")
-        class_field: str = Field(..., description="User class")
 
         class UserRole(BaseModel):
             id: Optional[str] = Field(None, alias="_id")
             name: str = Field(..., description="User full name")
-            weight: float = Field(..., ge=0, le=1, description="User weight for review scoring")
+            weight: Optional[float] = Field(..., ge=0, le=1, description="User weight for review scoring")
 
         role: UserRole = Field(..., description="User role")
     
