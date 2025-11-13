@@ -130,7 +130,9 @@ async def update_user_basic_info(
     user_id: str,
     role_id: Optional[str] = None,
     name: Optional[str] = None,
-    profile_picture: Optional[UploadFile] = None
+    profile_picture: Optional[UploadFile] = None,
+    requesting_role_permissions: list[str] = []
+
 ) -> UserModel:
     user_data = users_collection.find_one({"_id": user_id})
     if not user_data:
@@ -142,7 +144,7 @@ async def update_user_basic_info(
         updates["name"] = name
 
     if role_id is not None:
-        role: Optional[RoleModel] = get_role_by_id(role_id, [])
+        role: Optional[RoleModel] = get_role_by_id(role_id, requesting_role_permissions)
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
         updates["role"] = role.model_dump(by_alias=True)
