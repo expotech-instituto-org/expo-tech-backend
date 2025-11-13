@@ -162,62 +162,8 @@ def get_reviews_by_exhibition(
 ) -> list[ReviewModel]:
     pipeline = [{"$match": {"exhibition._id": exhibition_id}}]
 
-    if entire_project:
-        pipeline.extend([
-            {
-                "$lookup": {
-                    "from": "projects",
-                    "localField": "project._id",
-                    "foreignField": "_id",
-                    "as": "project"
-                }
-            },
-            {"$unwind": "$project"}
-        ])
-
-    if entire_user:
-        pipeline.extend([
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "user._id",
-                    "foreignField": "_id",
-                    "as": "user"
-                }
-            },
-            {"$unwind": "$user"},
-            {
-                "$lookup": {
-                    "from": "classes",          
-                    "localField": "user.class", 
-                    "foreignField": "_id",
-                    "as": "user_class"
-                }
-            },
-            {
-                "$set": {
-                    "user.class": {
-                        "$ifNull": [
-                            {"$arrayElemAt": ["$user_class.name", 0]},
-                            None
-                        ]
-                    }
-                }
-            },
-            {"$unset": "user_class"}
-        ])
-
     reviews_cursor = reviews_collection.aggregate(pipeline)
     reviews_raw = list(reviews_cursor)
-
-    exhibition = exhibition_repository.get_exhibition_by_id(exhibition_id)
-    role_weights = {r.name: r.weight for r in exhibition.roles}
-
-    for review in reviews_raw:
-        user_role = review["user"].get("role", {})
-        role_name = user_role.get("name") if isinstance(user_role, dict) else user_role
-        review["user"]["role"]["weight"] = role_weights.get(role_name, 0)
-        print(review["user"]["role"]["weight"])
 
     return [ReviewModel(**review) for review in reviews_raw]
 

@@ -108,7 +108,7 @@ async def create_project(
 
     for expositor in expositors:
         user_repository.add_project_to_user(
-            expositor.id,
+            expositor["_id"],
             UserModel.ProjectResume(
                 _id=project.id,
                 name=project.name,
