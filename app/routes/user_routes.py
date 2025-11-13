@@ -120,7 +120,7 @@ async def update_user(
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
-@router.put("/api/users/{user_id}/basic")
+@router.put("/{user_id}/basic")
 async def update_user_basic(
     user_id: str,
     name: Optional[str] = Form(None),
