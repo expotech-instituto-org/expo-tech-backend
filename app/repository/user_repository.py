@@ -1,7 +1,7 @@
 from typing import Optional, List
 import os
 
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile, status
 
 from app.bucket import upload_image
 from app.database import db
@@ -125,6 +125,44 @@ async def update_user(user_id: str, update_data: UserModel, profile_picture: Opt
     project_update = project_repository.update_project_with_user(user_id, update_data)
     review_update = review_repository.update_reviews_with_user(user_id, update_data)
     return UserModel(**update_data.model_dump(by_alias=True))
+
+async def update_user_basic_info(
+    user_id: str,
+    role_id: Optional[str] = None,
+    name: Optional[str] = None,
+    profile_picture: Optional[UploadFile] = None,
+    requesting_role_permissions: list[str] = []
+
+) -> UserModel:
+    user_data = users_collection.find_one({"_id": user_id})
+    if not user_data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    updates = {}
+
+    if name is not None:
+        updates["name"] = name
+
+    if role_id is not None:
+        role: Optional[RoleModel] = get_role_by_id(role_id, requesting_role_permissions)
+        if not role:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+        updates["role"] = role.model_dump(by_alias=True)
+
+    if profile_picture is not None:
+        old_url = user_data.get("profile_picture")
+        new_url = await upload_image(profile_picture, old_url, folder="/users")
+        updates["profile_picture"] = new_url
+
+    if not updates:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
+
+    users_collection.update_one({"_id": user_id}, {"$set": updates})
+
+    updated_user = users_collection.find_one({"_id": user_id})
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found after update")
+    return UserModel(**updated_user)
 
 
 def update_users_with_role(role_id: str, updated_role: RoleModel) -> int:

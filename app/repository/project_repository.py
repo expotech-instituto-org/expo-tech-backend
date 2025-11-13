@@ -9,7 +9,7 @@ from app.model.user import UserModel
 from app.repository import user_repository
 from app.repository import exhibition_repository
 from app.bucket import upload_image, delete_image
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile, status
 
 from app.repository.review_repository import reviews_collection
 
@@ -47,24 +47,32 @@ def get_projects_with_filters(
         result.append(ProjectModel(**p))
     return result
 
-async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
+
+async def create_project(
+    project_create_dto: ProjectCreateDto,
+    logo: UploadFile = None,
+    images: List[UploadFile] = None,
+) -> Optional[ProjectModel]:
     exhibition = exhibition_repository.get_exhibition_by_id(project_create_dto.exhibition_id)
     if not exhibition:
-        ValueError("Exhibition not found")
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Exhibition not found"
+        )
 
     expositors: List[ProjectModel.UserResume] = []
     for expositor_id in project_create_dto.expositors:
         expositor = user_repository.get_user_by_id(expositor_id)
         if not expositor:
-            ValueError(f"Expositor {expositor_id} not found")
-            return None
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Expositor {expositor_id} not found"
+            )
         expositors.append(expositor.model_dump(by_alias=True))
 
     logo_url: Optional[str] = None
     if logo:
-        url = await upload_image(logo, folder="projects/logo")
-        logo_url = url
+        logo_url = await upload_image(logo, folder="projects/logo")
 
     image_urls: List[str] = []
     if images:
@@ -73,7 +81,6 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
             image_urls.append(url)
 
     project_data = project_create_dto.model_dump(exclude={"expositors"})
-
     project = ProjectModel(
         _id=project_create_dto.id or str(uuid.uuid4()),
         expositors=expositors,
@@ -83,27 +90,34 @@ async def create_project(project_create_dto: ProjectCreateDto, logo: UploadFile 
     )
 
     result = project_collection.insert_one(project.model_dump(by_alias=True))
-    if result.inserted_id:
-        exhibition_repository.add_project(exhibition.id, ExhibitionModel.ProjectResume(
+    if not result.inserted_id:
+        raise HTTPException(status_code=500, detail="Failed to insert project into database")
+
+    exhibition_repository.add_project(
+        exhibition.id,
+        ExhibitionModel.ProjectResume(
             _id=project.id,
             name=project.name,
             logo=logo_url,
             company_name=project.company_name,
             description=project.description,
             banners=image_urls,
-            coordinates=project.coordinates
-        ))
+            coordinates=project.coordinates,
+        )
+    )
 
-        for expositor in expositors:
-            user_repository.add_project_to_user(expositor.id, UserModel.ProjectResume(
+    for expositor in expositors:
+        user_repository.add_project_to_user(
+            expositor.id,
+            UserModel.ProjectResume(
                 _id=project.id,
                 name=project.name,
                 logo=logo_url,
                 company_name=project.company_name,
-            ))
+            )
+        )
 
-        return project
-    return None
+    return project
 
 async def update_project(project_id: str, project_update_dto: ProjectUpdateDto, logo: UploadFile = None, images: List[UploadFile] = None) -> Optional[ProjectModel]:
     project = get_project_by_id(project_id)
