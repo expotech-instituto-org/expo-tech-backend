@@ -159,7 +159,7 @@ async def update_user_basic_info(
 
     users_collection.update_one({"_id": user_id}, {"$set": updates})
 
-    updated_user = users_collection.find_one({"name": name})
+    updated_user = users_collection.find_one({"_id": user_id})
     return UserModel(**updated_user)
 
 
