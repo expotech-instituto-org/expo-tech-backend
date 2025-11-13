@@ -125,9 +125,30 @@ async def update_user_basic(
     user_id: str,
     name: Optional[str] = Form(None),
     role_id: Optional[str] = Form(None),
-    profile_picture: Optional[UploadFile] = File(None)
+    profile_picture: Optional[UploadFile] = File(None),
+    current_user: Annotated[User, Depends(get_current_user)] = None
 ):
-    return await user_repository.update_user_basic_info(user_id, role_id, name, profile_picture)
+    if not current_user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unauthorized")
+    if c.PERMISSION_UPDATE_USER not in current_user.permissions:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+    
+    permissions = current_user.permissions if current_user else None
+
+    try:
+        updated_user = await user_repository.update_user_basic_info(user_id, role_id, name, profile_picture, permissions)
+        updated_user.id = user_id
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(e))
+    except PermissionError as e:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, str(e))
+    except DuplicateKeyError as e:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Duplicate email")
+    except RuntimeError as e:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e))
+    except Exception as e:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
 @router.patch("/favorite/{project_id}")
 async def favorite_project(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
