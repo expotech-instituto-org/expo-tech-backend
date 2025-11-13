@@ -120,6 +120,15 @@ async def update_user(
     except Exception as e:
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, str(e))
 
+@router.put("/api/users/{user_id}/basic")
+async def update_user_basic(
+    user_id: str,
+    name: Optional[str] = Form(None),
+    role_id: Optional[str] = Form(None),
+    profile_picture: Optional[UploadFile] = File(None)
+):
+    return await user_repository.update_user_basic_info(user_id, role_id, name, profile_picture)
+
 @router.patch("/favorite/{project_id}")
 async def favorite_project(project_id: str, current_user: Annotated[User, Depends(get_current_user)]):
     if not current_user:
