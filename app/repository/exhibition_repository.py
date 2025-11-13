@@ -112,7 +112,7 @@ async def update_exhibition(exhibition_id: str, update_data: ExhibitionUpdate, i
 
 def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
     result = exhibition_collection.update_one(
-        {"_id": exhibition_id, "deactivation_date": {"$exists": False}},
+        {"_id": exhibition_id},
         {
             "$addToSet": {
                 **({"banners": project.banners[0]} if project.banners else {}),
@@ -120,6 +120,7 @@ def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
             }
         }
     )
+
     return result.modified_count > 0
 
 def update_project(exhibition_id: str, project_id: str, updated_project: ExhibitionModel.ProjectResume) -> bool:

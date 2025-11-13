@@ -55,7 +55,9 @@ def create_review(dto: ReviewCreate, current_user: User) -> Optional[ReviewModel
         ],
         project=ReviewModel.ProjectResume(
             _id=project.id,
-            name=project.name
+            name=project.name,
+            logo=project.logo,
+            description=project.description
         ),
         exhibition=ReviewModel.ExhibitionResume(
             _id=exhibition.id,
