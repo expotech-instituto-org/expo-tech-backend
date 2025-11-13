@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 import uuid
 
 class ProjectCreateDto(BaseModel):
-    id: Optional[str] = Field(..., description="Unique identifier for the project")
+    id: Optional[str] = Field(None, description="Unique identifier for the project")
     name: str = Field(..., min_length=1, description="Project name")
     company_name: Optional[str] = Field(None, description="Company Name")
     description: str = Field(..., min_length=1, description="Description")

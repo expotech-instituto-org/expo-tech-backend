@@ -20,9 +20,10 @@ class ReviewModel(BaseModel):
     class ProjectResume(BaseModel):
         id: str = Field(..., alias="_id")
         name: str = Field(..., description="Project name")
-        logo: Optional[str] = Field(..., description="Project logo")
+        logo: Optional[str] = Field(None, description="Project logo")
+        description: Optional[str] = Field(None, description="Project description")
 
-    project: Union[ProjectResume, ProjectModel] = Field(...)
+    project: ProjectResume = Field(...)
 
     class ExhibitionResume(BaseModel):
         id: str = Field(..., alias="_id")
