@@ -115,7 +115,7 @@ def add_project(exhibition_id: str, project: ExhibitionModel.ProjectResume):
         {"_id": exhibition_id},
         {
             "$addToSet": {
-                **({"banners": project.banners[0]} if project.banners else {}),
+                **({"banner": project.banners[0]} if project.banners else {}),
                 "projects": project.model_dump(by_alias=True)
             }
         }
